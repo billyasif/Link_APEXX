@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment-settings xmlns="http://www.demandware.com/xml/impex/paymentsettings/2009-09-15">
+    <payment-method method-id="APEXX_PAYPAL">
+        <name xml:lang="x-default">PayPal payments</name>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>APEXX_PayPal</processor-id>
+        <custom-attributes>
+            <custom-attribute attribute-id="isBicEnabled">false</custom-attribute>
+            <custom-attribute attribute-id="isSupportedBankListRequired">false</custom-attribute>
+            <custom-attribute attribute-id="type">DIRECT</custom-attribute>
+        </custom-attributes>
+    </payment-method>
+
+    <payment-method method-id="APEXX_APPLE_PAY">
+        <name xml:lang="x-default">Apple pay</name>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>APEXX_ApplePay</processor-id>
+        <custom-attributes>
+            <custom-attribute attribute-id="isBicEnabled">false</custom-attribute>
+            <custom-attribute attribute-id="isSupportedBankListRequired">false</custom-attribute>
+            <custom-attribute attribute-id="type">DIRECT</custom-attribute>
+        </custom-attributes>
+    </payment-method>
+
+    <payment-method method-id="APEXX_GOOGLE_PAY">
+        <name xml:lang="x-default">Google pay</name>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>APEXX_GooglePay</processor-id>
+        <custom-attributes>
+            <custom-attribute attribute-id="isBicEnabled">false</custom-attribute>
+            <custom-attribute attribute-id="isSupportedBankListRequired">false</custom-attribute>
+            <custom-attribute attribute-id="type">DIRECT</custom-attribute>
+        </custom-attributes>
+    </payment-method>
+
+    <payment-method method-id="APEXX_AFTER_PAY">
+        <name xml:lang="x-default">After pay</name>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>APEXX_AfterPay</processor-id>
+        <custom-attributes>
+            <custom-attribute attribute-id="isBicEnabled">false</custom-attribute>
+            <custom-attribute attribute-id="isSupportedBankListRequired">false</custom-attribute>
+            <custom-attribute attribute-id="type">DIRECT</custom-attribute>
+        </custom-attributes>
+    </payment-method>
+
+    <payment-method method-id="APEXX_HOSTED">
+        <name xml:lang="x-default">Apexx Hosted</name>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>APEXX_HOSTED</processor-id>
+        <custom-attributes>
+            <custom-attribute attribute-id="isBicEnabled">false</custom-attribute>
+            <custom-attribute attribute-id="isSupportedBankListRequired">false</custom-attribute>
+            <custom-attribute attribute-id="type">DIRECT</custom-attribute>
+        </custom-attributes>
+    </payment-method>
+
+    <payment-method method-id="APEXX_CLIENT_SIDE">
+        <name xml:lang="x-default">Apexx Client Side</name>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>APEXX_CLIENT_SIDE</processor-id>
+        <custom-attributes>
+            <custom-attribute attribute-id="isBicEnabled">false</custom-attribute>
+            <custom-attribute attribute-id="isSupportedBankListRequired">false</custom-attribute>
+            <custom-attribute attribute-id="type">DIRECT</custom-attribute>
+        </custom-attributes>
+    </payment-method>
+
+    <payment-method method-id="APEXX_CREDIT">
+        <name xml:lang="x-default">Credit Card</name>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>APEXX_CREDIT</processor-id>
+        <custom-attributes>
+            <custom-attribute attribute-id="isBicEnabled">false</custom-attribute>
+            <custom-attribute attribute-id="isSupportedBankListRequired">false</custom-attribute>
+            <custom-attribute attribute-id="type">DIRECT</custom-attribute>
+        </custom-attributes>
+    </payment-method>
+
+    <payment-card card-type="Visa">
+        <name xml:lang="x-default">Visa</name>
+        <enabled-flag>false</enabled-flag>
+        <card-number-settings>
+            <enable-checksum-verification>true</enable-checksum-verification>
+            <number-length>
+                <length>13</length>
+                <length>16</length>
+            </number-length>
+            <number-prefix>
+                <prefix>4</prefix>
+            </number-prefix>
+        </card-number-settings>
+        <security-code-length>3</security-code-length>
+    </payment-card>
+
+    <payment-card card-type="Amex">
+        <name xml:lang="x-default">American Express</name>
+        <enabled-flag>false</enabled-flag>
+        <card-number-settings>
+            <enable-checksum-verification>true</enable-checksum-verification>
+            <number-length>
+                <length>15</length>
+            </number-length>
+            <number-prefix>
+                <prefix>34</prefix>
+                <prefix>37</prefix>
+            </number-prefix>
+        </card-number-settings>
+        <security-code-length>4</security-code-length>
+    </payment-card>
+
+    <payment-card card-type="Master">
+        <name xml:lang="x-default">Master Card</name>
+        <enabled-flag>false</enabled-flag>
+        <card-number-settings>
+            <enable-checksum-verification>true</enable-checksum-verification>
+            <number-length>
+                <length>16</length>
+            </number-length>
+            <number-prefix>
+                <prefix>2221-2720</prefix>
+                <prefix>51-55</prefix>
+            </number-prefix>
+        </card-number-settings>
+        <security-code-length>3</security-code-length>
+    </payment-card>
+
+    <payment-card card-type="Discover">
+        <name xml:lang="x-default">Discover</name>
+        <enabled-flag>false</enabled-flag>
+        <card-number-settings>
+            <enable-checksum-verification>true</enable-checksum-verification>
+            <number-length>
+                <length>16</length>
+            </number-length>
+            <number-prefix>
+                <prefix>6011</prefix>
+                <prefix>622126-622925</prefix>
+                <prefix>644-649</prefix>
+                <prefix>65</prefix>
+            </number-prefix>
+        </card-number-settings>
+        <security-code-length>3</security-code-length>
+        <countries>
+            <country country-code="US"/>
+        </countries>
+    </payment-card>
+
+</payment-settings>
