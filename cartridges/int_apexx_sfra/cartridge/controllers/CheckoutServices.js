@@ -406,6 +406,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
 
     // Creates a new order.
     var order = COHelpers.createOrder(currentBasket);
+   
     if (!order) {
         res.json({
             error: true,

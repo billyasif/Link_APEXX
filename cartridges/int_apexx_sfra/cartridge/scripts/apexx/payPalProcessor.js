@@ -71,6 +71,8 @@ function handle(basket, paymentInformation) {
  */
 function authorize(orderNumber, paymentInstrument, paymentProcessor) {
     var order = OrderMgr.getOrder(orderNumber);
+    return {error: true,saleTransactionRequestData:orderNumber};
+
     if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
         var saleTransactionResponseData = null;
         var saleTransactionRequestData = null;

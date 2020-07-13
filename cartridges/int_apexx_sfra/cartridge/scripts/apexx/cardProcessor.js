@@ -149,9 +149,10 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
         var BasketMgr = require('dw/order/BasketMgr');
         
         
+        
         Transaction.wrap(function() {
             paymentTransaction.setPaymentProcessor(paymentProcessor);
-            orderRecord.custom.isApexx = true;
+            orderRecord.custom.isApexxOrder = true;
             paymentInstrumentRecord.custom.apexxFailReason = apexxError.errorMessage;
             paymentInstrumentRecord.custom.apexxCreditCardMakeDefault = null;
 

@@ -6,6 +6,8 @@ const apexxServiceWrapper = require('*/cartridge/scripts/service/apexxServiceWra
 var OrderModel = require('*/cartridge/models/order');
 const cardProcessor = require('*/cartridge/scripts/apexx/cardProcessor');
 const hostedProcessor = require('*/cartridge/scripts/apexx/hostedProcessor');
+const paypalProcessor = require('*/cartridge/scripts/apexx/payPalProcessor');
+
 const appPreference = require('*/cartridge/config/appPreference')();
 
 var endPoint = appPreference.SERVICE_HTTP_PAYPAL;
@@ -69,55 +71,19 @@ server.get('API',function(req,res,next){
 	var Calendar = require('dw/util/Calendar');
 
 //	var BillingForm = server.forms.getForm('billing').creditCardFields;
-//    var ObjectPaymentModel = commonHelper.convertFormToObject(BillingForm);
-//    var objCard = objectHelper.ApexxCardObject(ObjectPaymentModel);
-//	var saleTransactionRequestData = {
-//		"organisation": "c7639f98175a4e3b95edf8afe096ff82",
-//		"currency": "GBP",
-//		"amount": 100,
-//		"capture_now": false,
-//		"card" : {
-//	        "card_number" : "4543059999999982",
-//	        "cvv" : "110",
-//	        "expiry_month" : "12",
-//	        "expiry_year" : "23",
-//	        "token" : "" ,
-//	        "create_token": "true"
-//	    },
-//	    "billing_address":{
-//	       "first_name": "FIRSTNAME", 
-//	       "last_name": "LASTNAME", 
-//	       "email": "EMAIL@DOMAIN.COM", 
-//	       "address": "76 Roseby Avenue", 
-//	       "city": "Manchester", 
-//	       "state": "Greater Manchester", 
-//	       "postal_code": "637", 
-//	       "country": "GB", 
-//	     "phone":44123456789
-//		},
-//		"customer_ip": "192.168.1.1",
-//		"dynamic_descriptor" : "Demo Merchant Test Account",
-//		"merchant_reference" : Math.round(+new Date() / 1000),
-//		"recurring_type": "first",
-//		"user_agent": "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB;rv:1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)",
-//		
-//		"three_ds":{
-//		"three_ds_required": false
-//		}
-//	}
-////    
-////	
-//
-//  	var service = apexxServiceWrapper.apexxServiceDirectPay;
+    var ObjectPaymentModel = commonHelper.convertFormToObject(BillingForm);
+    var objCard = objectHelper.ApexxCardObject(ObjectPaymentModel);
+	
+//  var service = apexxServiceWrapper.apexxServiceDirectPay;
 //	saleTransactionResponseData = apexxServiceWrapper.makeServiceCall(service,saleTransactionRequestData);
    var OrderMgr = require('dw/order/OrderMgr');
 
-   var order  = OrderMgr.getOrder("00000069");
+   var order  = OrderMgr.getOrder("00000205");
    var paymentInstruments = order.getPaymentInstruments()[0];
-   
-  // res.json({'payemnt':paymentInstruments.getPaymentMethod()});return next();
+  /// var paymentProcessor = PaymentMgr.setPaymentMethod('APEXX_PAYPAL').paymentProcessor;
+
+   res.json({'object':objCard});return next();
   // res.json(Object.keys(paymentInstruments));return next();
-   //var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
 //
 //    var ret = cardProcessor.authorize("00001108", paymentInstruments, paymentProcessor);
     //    var paymentInstrument =  "";
@@ -140,7 +106,7 @@ server.get('API',function(req,res,next){
 
     //var amount = '100';
     // var resp = hostedProcessor.authorize("00000081",paymentInstruments,paymentProcessor);
-	res.json(objReq);return next();
+	//res.json(objReq);return next();
 
 	//res.json(saleTransactionResponseData);return next();
 

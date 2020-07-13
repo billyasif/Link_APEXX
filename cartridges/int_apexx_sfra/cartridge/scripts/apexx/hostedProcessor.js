@@ -117,7 +117,7 @@ function authorizeFailedFlow(orderRecord, paymentProcessor, paymentInstrumentRec
 
     Transaction.wrap(function() {
         paymentTransaction.setPaymentProcessor(paymentProcessor);
-        orderRecord.custom.isApexx = true;
+        orderRecord.custom.isApexxOrder = true;
         paymentInstrumentRecord.custom.apexxFailReason = apexxError.errorMessage;
 
     });
