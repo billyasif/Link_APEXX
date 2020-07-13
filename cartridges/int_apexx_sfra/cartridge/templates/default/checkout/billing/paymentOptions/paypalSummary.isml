@@ -1,0 +1,3 @@
+<div id="paypalPayment">
+    <span>${Resource.msg('payment.type.paypal', 'general', null)}</span>
+</div>

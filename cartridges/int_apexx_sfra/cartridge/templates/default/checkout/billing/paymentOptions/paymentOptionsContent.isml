@@ -1,0 +1,13 @@
+<isinclude template="apexx/checkout/clientSideJsAndCss" />
+
+<isloop items="${pdict.order.billing.payment.applicablePaymentMethods}" var="paymentOption" status="loopSate">
+    <isif condition="${paymentOption.ID === 'CREDIT_CARD'}">
+        <isinclude template="checkout/billing/paymentOptions/creditCardContent" />
+    </isif>
+    <isif condition="${paymentOption.ID === 'APEXX_HOSTED'}">
+        <isinclude template="checkout/billing/paymentOptions/apexxHostedContent" />
+    </isif>
+    <isif condition="${paymentOption.ID === 'APEXX_PAYPAL'}">
+        <isinclude template="checkout/billing/paymentOptions/apexxPaypalContent" />
+    </isif>
+</isloop>

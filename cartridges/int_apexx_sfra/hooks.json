@@ -1,0 +1,29 @@
+{
+    "hooks": [
+        {
+            "name": "app.payment.processor.apexx_credit",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_credit"
+        },
+        {
+            "name": "app.payment.form.processor.apexx_credit",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_credit_form_processor"
+        },
+        {
+            "name": "app.payment.processor.apexx_hosted",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_hosted"
+        },
+        {
+            "name": "app.payment.form.processor.apexx_hosted",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_hosted_form_processor"
+        }
+        ,
+        {
+            "name": "app.payment.processor.apexx_paypal",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_paypal"
+        },
+        {
+            "name": "app.payment.form.processor.apexx_paypal",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_paypal_form_processor"
+        }
+    ]
+}

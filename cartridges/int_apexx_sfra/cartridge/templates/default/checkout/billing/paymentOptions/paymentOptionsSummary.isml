@@ -1,0 +1,15 @@
+<div class="payment-details">
+    <isloop items="${pdict.order.billing.payment.selectedPaymentInstruments}" var="payment">
+        <isif condition="${payment.paymentMethod === 'CREDIT_CARD'}">
+            <isinclude template="checkout/billing/paymentOptions/creditCardSummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod === 'APEXX_HOSTED'}">
+            <isinclude template="checkout/billing/paymentOptions/hostedSummary" />
+        </isif>
+          <isif condition="${payment.paymentMethod === 'APEXX_PAYPAL'}">
+            <isinclude template="checkout/billing/paymentOptions/paypalSummary" />
+        </isif>
+    </isloop>
+</div>
+
+<div id="paymentIFrameWindow"></div>

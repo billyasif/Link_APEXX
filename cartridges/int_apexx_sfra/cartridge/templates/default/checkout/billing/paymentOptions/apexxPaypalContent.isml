@@ -1,0 +1,9 @@
+<div class="tab-pane apexx-paypal-content" id="apexx-paypal-content" role="tabpanel">
+      
+      <fieldset class="payment-form-fields">
+            <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="APEXX_PAYPAL">
+	        <input type="hidden" class="form-control" name="payPalAction"  >
+			<div id="paypal-main" data-hosted-get-url="${URLUtils.https('ApexxPaypal-Get')}" />
+			<input type="image" id="apexxPaypal" src="${URLUtils.staticURL('/images/apexx_paypal.png')}" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+	  </fieldset>
+</div>

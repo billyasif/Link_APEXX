@@ -1,0 +1,82 @@
+/**
+* Cybersource_BillTo_Object.ds
+* This Object is used for the Cybersource BillTo xsd complex type
+*/
+function BillTo_Object() {
+
+	this.first_name = "";
+	this.last_name = "";
+	this.email = "";
+    this.address = "";
+    this.city = ""; 
+    this.state = "";
+    this.postal_code = "";
+	this.country = "";
+    this.phone = "";
+	
+}
+
+BillTo_Object.prototype = 
+{
+   setFirstName : function(value){
+	this.first_name = value;
+	},
+	getFirstName : function(){
+	return this.first_name;
+	},
+	setLastName : function(value){
+	this.last_name = value;
+	},
+	getLastName : function(){
+	return this.last_name;
+	},
+	setEmail : function(value){
+	this.email = value;
+	},
+	getEmail : function(){
+	return this.email;
+	},
+	setAddress : function(value){
+	this.address = value;
+	},
+	getAddress : function(){
+	return this.address;
+	},
+	setCity : function(value){
+	this.city = value;
+	},
+	getCity : function(){
+	return this.city;
+	},
+	setCounty : function(value){
+	this.county = value;
+	},
+	getCounty : function(){
+	return this.county;
+	},																		
+	setState : function(value){
+	this.state = value;
+	},
+	getState : function(){
+	return this.state;
+	},
+	setPostalCode : function(value){
+	this.postal_code = value;
+	},
+	getPostalCode : function(){
+	return this.postal_code;
+	},
+	setCountry : function(value){
+	this.country = value;
+	},
+	getCountry : function(){
+	return this.country;
+	},
+	setPhoneNumber : function(value){
+	this.phone = value;
+	},
+	getPhoneNumber : function(){
+	return this.phone;
+	},																	
+}
+module.exports = BillTo_Object;

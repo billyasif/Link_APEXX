@@ -1,0 +1,45 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8"> 
+	<isinclude template="custom/modules" /> 
+	<isinclude template="inc/Modules">
+	<isbreadcrumbs bcurl1="${URLUtils.url('Apexx-Documentation')}" 
+		bctext1="${Resource.msg('apexx.document.label','apexx',null)}" />
+		
+	<table width="100%" cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td colspan="5" class="overview_title">${Resource.msg('apexx.document.title','apexx',null)}</td>
+			</tr>
+		</tbody>
+	</table>
+	<table width="100%" border="0" cellspacing="0" cellpadding="0" id="documentation">
+		<tbody>
+			<tr>
+				<td colspan="5" class="overview_documentation">${Resource.msg('apexx.document.heading','apexx',null)}<br>&nbsp;</td>
+			</tr>
+			<tr>
+				<td colspan="5" class="overview_title_description">
+					${Resource.msg('apexx.back.label','apexx',null)}
+					<a href="https://merchant-sandbox.apexx.com" target="_blank" >${Resource.msg('apexx.sandbox.label','apexx',null)}</a>
+					${Resource.msg('apexx.separator.label','apexx',null)}
+					<a href="https://merchant-sandbox.apexx.com" target="_blank" >${Resource.msg('apexx.live.label','apexx',null)}</a><br>&nbsp;
+				</td>
+			</tr>
+			<tr>
+				<td colspan="5" class="overview_title_description">
+					<a href="https://docs.apexx.com/docs/6-production-readiness" target="_blank" >${Resource.msg('apexx.test.card','apexx',null)}</a><br>&nbsp;
+				</td>
+			</tr>
+			<tr>
+				<td colspan="5" class="overview_title_description">
+					<a href="https://www.apexx.com/" target="_blank">${Resource.msg('apexx.website.label','apexx',null)}</a><br>&nbsp;
+				</td>
+			</tr>
+			<tr>
+				<td colspan="5" class="overview_title_description">
+					<p><isprint value="${Resource.msg('apexx.copyright','apexx',null)}"/></p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</isdecorate>

@@ -1,0 +1,3 @@
+<div id="hostedPayment">
+    <span>${Resource.msg('payment.type.hosted', 'general', null)}</span>
+</div>

@@ -1,0 +1,14 @@
+<input type="hidden" id="apexxHostedResponse" name="apexxHostedResponse" value="${pdict.isAuth}"/>
+<input type="hidden" id="redirectUrl" name="redirectUrl" value="${URLUtils.url('Order-Confirm','ID', pdict.orderNo, 'token',pdict.orderToken)}"/>
+<input type="hiddem" id="webhookUrl"  name="webhookUrl" value="${URLUtils.url('Webhook-Update')}"/>
+
+<script>
+var authAmt = document.getElementById("apexxHostedResponse").value;
+var redirectUrl = document.getElementById("redirectUrl").value;
+var webHookRedirectUrl = document.getElementById("webhookUrl").value;
+
+if(authAmt){
+	parent.document.location.href = redirectUrl;
+}
+
+</script>

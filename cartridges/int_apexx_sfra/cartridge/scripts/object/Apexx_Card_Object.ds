@@ -1,0 +1,69 @@
+/**
+* Cybersource_Card_Object.ds
+* This Object is used for the Cybersource CreditCard xsd
+*/
+function Card_Object(){
+	this.card_number = "";
+	this.expiry_month = "";
+	this.expiry_year = "";
+	this.cvv = "";
+	this.token = "";
+	this.create_token = "";
+	this.saveCard = "";
+}
+
+Card_Object.prototype = 
+{
+	setCardNumber : function(value){
+	this.card_number = value;
+	},
+	getCardNumber : function(){
+	return this.card_number;
+	},
+	setExpirationMonth : function(value){	
+	this.expiry_month = value;
+	},
+	getExpirationMonth : function(){
+	return this.expiry_month;
+	},
+	setExpirationYear : function(value){
+	this.expiry_year = value;
+	},
+	getExpirationYear : function(){
+	return this.expiry_year;
+	},
+	setCVVNumber : function(value){
+	this.cvv = value;
+	},
+	getCVVNumber : function(){
+	return this.cvv;
+	},
+	setCardType : function(value){
+	this.card_type = value;
+	},
+	getCardType : function(){
+	return this.card_type;
+	},
+	setCardType:function(value){
+	 this.card_type = value;
+	},
+	setToken : function(value){
+	this.token = value;
+	},
+	getToken : function(){
+	return this.token;
+	},
+	setCreateToken : function(value){
+	this.create_token = value;
+	},
+	getCreateToken : function(){
+	return this.create_token;
+	},
+	setSaveCard : function(value){
+	this.saveCard = value;
+	},
+	getSaveCard : function(){
+	return this.saveCard;
+	}
+};
+module.exports = Card_Object;
