@@ -417,6 +417,14 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
 
     // Handles payment authorization
     var handlePaymentResult = COHelpers.handlePayments(order, order.orderNo);
+
+//    res.json({
+//        error: true,
+//        errorMessage: handlePaymentResult
+//    });
+//    return next();
+    
+    
     if (handlePaymentResult.error) {
         res.json({
             error: true,

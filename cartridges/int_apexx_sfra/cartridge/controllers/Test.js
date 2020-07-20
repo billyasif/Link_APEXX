@@ -69,20 +69,25 @@ server.get('API',function(req,res,next){
 	var PaymentMgr = require('dw/order/PaymentMgr');
 	var StringUtils = require('dw/util/StringUtils');
 	var Calendar = require('dw/util/Calendar');
+	//var CustomerPaymentInstrument = require('dw/customer/CustomerPaymentInstrument');
+    var customerWallet = customer.getProfile().getWallet().getPaymentInstruments()['0'].getCreditCardToken();
 
 //	var BillingForm = server.forms.getForm('billing').creditCardFields;
-    var ObjectPaymentModel = commonHelper.convertFormToObject(BillingForm);
-    var objCard = objectHelper.ApexxCardObject(ObjectPaymentModel);
+    //var ObjectPaymentModel = commonHelper.convertFormToObject(BillingForm);
+    //var objCard = objectHelper.ApexxCardObject(ObjectPaymentModel);
 	
 //  var service = apexxServiceWrapper.apexxServiceDirectPay;
 //	saleTransactionResponseData = apexxServiceWrapper.makeServiceCall(service,saleTransactionRequestData);
    var OrderMgr = require('dw/order/OrderMgr');
-
-   var order  = OrderMgr.getOrder("00000205");
+   var order  = OrderMgr.getOrder("00002002");
    var paymentInstruments = order.getPaymentInstruments()[0];
-  /// var paymentProcessor = PaymentMgr.setPaymentMethod('APEXX_PAYPAL').paymentProcessor;
+   var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
 
-   res.json({'object':objCard});return next();
+   var objReq = objectHelper.createSaleRequestObject(order,paymentInstruments,paymentProcessor);
+ 
+   res.json({'token':customerWallet});return next();
+   //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
+
   // res.json(Object.keys(paymentInstruments));return next();
 //
 //    var ret = cardProcessor.authorize("00001108", paymentInstruments, paymentProcessor);

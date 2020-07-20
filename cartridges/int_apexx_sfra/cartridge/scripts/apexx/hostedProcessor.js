@@ -76,9 +76,11 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
         var saleTransactionRequestData = null;
         
         saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
-       // return {error: true,saleTransactionRequestData:saleTransactionRequestData};
+        ///return {error: true,saleTransactionRequestData:saleTransactionRequestData};
 
          saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST',endPoint, saleTransactionRequestData);
+        //return {error: true,saleTransactionResponseData:saleTransactionResponseData};
+
         if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object._id && saleTransactionResponseData.object.url) {
             saveTransactionData(order, paymentInstrument, saleTransactionRequestData, saleTransactionResponseData.object);
         } else {

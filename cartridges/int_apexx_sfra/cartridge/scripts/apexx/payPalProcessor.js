@@ -71,17 +71,19 @@ function handle(basket, paymentInformation) {
  */
 function authorize(orderNumber, paymentInstrument, paymentProcessor) {
     var order = OrderMgr.getOrder(orderNumber);
-    return {error: true,saleTransactionRequestData:orderNumber};
 
     if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
         var saleTransactionResponseData = null;
         var saleTransactionRequestData = null;
         
         saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
-         //return {error: true,saleTransactionRequestData:saleTransactionRequestData};
+       // return {error: true,saleTransactionRequestData:saleTransactionRequestData};
 
         saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST',endPoint, saleTransactionRequestData);
-        //return {error: true,saleTransactionResponseData:saleTransactionResponseData};
+       
+        
+        
+        //return {error: true,saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData};
         
         if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object._id && saleTransactionResponseData.object.url) {
             saveTransactionData(order, paymentInstrument, saleTransactionRequestData, saleTransactionResponseData.object);
@@ -121,7 +123,7 @@ function authorizeFailedFlow(orderRecord, paymentProcessor, paymentInstrumentRec
 
     Transaction.wrap(function() {
         paymentTransaction.setPaymentProcessor(paymentProcessor);
-        orderRecord.custom.isApexx = true;
+        orderRecord.custom.isApexxOrder = true;
         paymentInstrumentRecord.custom.apexxFailReason = apexxError.errorMessage;
 
     });
@@ -164,6 +166,8 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, saleTransacti
     	threeDSecureInfo = saleTransactionRequestData.three_ds;
         paymentInstrumentRecord.custom.apexx3dSecureStatus = threeDSecureInfo ? threeDSecureInfo.three_ds_required : null;
         orderRecord.custom.isApexxOrder = true;
+        orderRecord.custom.apexxTransactionID = responseTransaction._id;
+
         paymentInstrumentRecord.custom.apexxPayPalPaymentPageToken = responseTransaction._id;
         paymentInstrumentRecord.custom.apexxPayPalPaymentPageResponseUrl = responseTransaction.url;
 

@@ -21,9 +21,9 @@ var getPreference = function (inpSite) {
     
     
 	prefs.CREDIT_CARD_DIRECT_URL= 'https://sandmgw.apexxfintech.com/mgw/payment/direct';
-	prefs.XAPIKEY = '9112b8801b5b4e1ea57aeffabb563142';
-	prefs.ACCOUNT = "1db380005b524103bf323f9ef63ae1cf";
-	prefs.ORGANISATION = 'c7639f98175a4e3b95edf8afe096ff82';
+	prefs.XAPIKEY = prefs.Apexx_API_Key;
+	prefs.ACCOUNT = prefs.Apexx_Account_Id;
+	prefs.ORGANISATION = prefs.Apexx_Org_Key;
 	prefs.CAPTURE_NOW = prefs.Apexx_Capture ? prefs.Apexx_Capture :false;
 	prefs.SAVE_CARD  = true;
 	prefs.CUSTOMER_IP  = "10.20.0.186";
@@ -45,6 +45,7 @@ var getPreference = function (inpSite) {
 	prefs.WEB_HOOK_TRANSACTION_UPDATE = URLUtils.https('ApexxWebhook-Update').toString();
 	prefs.RETURN_URL_HOSTED  = URLUtils.https('ApexxTransaction-HostedUpdateTransaction').toString();
 	prefs.RETURN_URL_DIRECT_CREDIT_THREE_DS  =  URLUtils.https('ApexxTransaction-DirectCreditUpdateThreeDs').toString();
+	prefs.RETURN_URL_PAY_PayPal  = URLUtils.https('ApexxTransaction-PayPal').toString();
 
 	prefs.LOCALE  = prefs.Apexx_Locale;
 	prefs.TRANSACTION_CSS_TEMPLATE  =  prefs.Apexx_button_style;

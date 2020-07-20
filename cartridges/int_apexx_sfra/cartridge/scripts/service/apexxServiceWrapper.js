@@ -84,7 +84,9 @@ var makeServiceCall = function(method,endPoint, payload) {
 	    if(commonHelper.isInt(requestAmount)){
 		  payload.amount = requestAmount ;
 		}
-     }   
+     }  
+	
+	
 	try {
 		var result = svc.call(payload);
 		if (result == null || result.status === dw.svc.Result.SERVICE_UNAVAILABLE || (!result.ok && !result.object)) {
