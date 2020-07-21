@@ -2,12 +2,12 @@ var server = require('server');
 /* global dw request session customer */
 const LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
 const apexxServiceWrapper = require('*/cartridge/scripts/service/apexxServiceWrapper');
-
+const dwSession = require("dw/system/Session");
 var OrderModel = require('*/cartridge/models/order');
 const cardProcessor = require('*/cartridge/scripts/apexx/cardProcessor');
 const hostedProcessor = require('*/cartridge/scripts/apexx/hostedProcessor');
 const paypalProcessor = require('*/cartridge/scripts/apexx/payPalProcessor');
-
+const objSite = require("dw/system/Site");
 const appPreference = require('*/cartridge/config/appPreference')();
 
 var endPoint = appPreference.SERVICE_HTTP_PAYPAL;
@@ -64,7 +64,7 @@ function GetIPAddress() {
 }
 
 server.get('API',function(req,res,next){
-//	var commonHelper = require('*/cartridge/scripts/util/commonHelper');
+	var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 	var objectHelper = require('*/cartridge/scripts/util/objectHelper');
 	var PaymentMgr = require('dw/order/PaymentMgr');
 	var StringUtils = require('dw/util/StringUtils');
@@ -79,13 +79,13 @@ server.get('API',function(req,res,next){
 //  var service = apexxServiceWrapper.apexxServiceDirectPay;
 //	saleTransactionResponseData = apexxServiceWrapper.makeServiceCall(service,saleTransactionRequestData);
    var OrderMgr = require('dw/order/OrderMgr');
-   var order  = OrderMgr.getOrder("00002002");
+   var order  = OrderMgr.getOrder("00007628");
    var paymentInstruments = order.getPaymentInstruments()[0];
    var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
 
    var objReq = objectHelper.createSaleRequestObject(order,paymentInstruments,paymentProcessor);
- 
-   res.json({'token':customerWallet});return next();
+   var ObjectBilling = objectHelper.ApexxBillToObject(order, true);
+   res.json({'token':commonHelper.getCurrencyCode('hosted')});return next();
    //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
 
   // res.json(Object.keys(paymentInstruments));return next();

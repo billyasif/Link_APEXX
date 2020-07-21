@@ -5,6 +5,8 @@ var server = require('server');
 var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
 var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
+var appPreference = require('~/cartridge/config/appPreference')();
+var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 
 /**
  * Main entry point for Checkout
@@ -109,7 +111,6 @@ server.get(
         var currentStage = req.querystring.stage ? req.querystring.stage : 'shipping';
 
         var billingAddress = currentBasket.billingAddress;
-
         var currentCustomer = req.currentCustomer.raw;
         var currentLocale = Locale.getLocale(req.locale.id);
         var preferredAddress;
@@ -186,9 +187,12 @@ server.get(
             2,
             'Shipping'
         );
-
+        
         res.render('checkout/checkout', {
             order: orderModel,
+            appPreference:appPreference,
+            commonHelper:commonHelper,
+            currency:req.session.currency.currencyCode,
             customer: accountModel,
             forms: {
                 shippingForm: shippingForm,

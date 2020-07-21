@@ -75,10 +75,9 @@ function ApexxBillToObject(order, ReadFromOrder) {
                 address = billingAddress.address1 + ' ' + billingAddress.address2;
                 billToObject.setAddress(address);
                 billToObject.setCity(billingAddress.city);
-                countryCode = commonHelper.isEmpty(billingAddress.countryCode) ? "" : billingAddress.countryCode;
                 billToObject.setState(billingAddress.stateCode);
                 billToObject.setPostalCode(billingAddress.postalCode);
-                countryCode = commonHelper.isEmpty(billingAddress.countryCode) ? "" : billingAddress.countryCode;
+                countryCode = commonHelper.isEmpty(billingAddress.countryCode.value) ? billingAddress.countryCode.value : "";
                 billToObject.setCountry(countryCode);
                 billToObject.setPhoneNumber(billingAddress.phone);
                 billToObject.setEmail(order.customerEmail);
@@ -101,12 +100,14 @@ function ApexxBillToObject(order, ReadFromOrder) {
  * @returns
  */
 function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
-
     var ObjectBilling = ApexxBillToObject(order, true);
     var ObjectCard = ApexxCardObject(paymentInstrument);
     var billingAddress = empty(ObjectBilling.success) ? "" : ObjectBilling.billing_address;
+    
     var cardObject = empty(ObjectCard.success) ? "" : ObjectCard.card;
     var cardToken = paymentInstrument.creditCardToken ? paymentInstrument.creditCardToken : "";
+    
+    
     const paymentReference = order.orderNo;
     const amount = paymentInstrument.paymentTransaction.amount.value;
     var paymentProcessorId = dworder.PaymentMgr.getPaymentMethod(paymentInstrument.getPaymentMethod()).getPaymentProcessor().getID();
@@ -116,7 +117,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
     if (paymentProcessorId === 'APEXX_HOSTED') {
 
         var commonBillingObject = {};
-        commonBillingObject.account = appPreference.ACCOUNT;
+        commonBillingObject.account = appPreference.Apexx_Hosted_Account_Id;
         
         // commonBillingObject.organisation = appPreference.ORGANISATION;
         
@@ -155,7 +156,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
     if (paymentProcessorId === 'APEXX_CREDIT') {
         var commonBillingObject = {};
         
-       commonBillingObject.account = "1db380005b524103bf323f9ef63ae1cf";
+       commonBillingObject.account = appPreference.Apexx_Direct_Credit_Account_Id;
 
        //commonBillingObject.account = appPreference.ACCOUNT;
        // commonBillingObject.organisation = appPreference.ORGANISATION;
@@ -198,7 +199,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
        // commonBillingObject.organisation = appPreference.ORGANISATION;
         
         
-        commonBillingObject.account = "71eafe8d7b3f476b9e6d34fd3a53b9a2";
+        commonBillingObject.account = appPreference.Apexx_PayPal_Account_Id;
 
      
         commonBillingObject.capture_now = appPreference.CAPTURE_NOW;
@@ -240,14 +241,14 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
                 }
             }
         }
-        
         var grossPricePerProduct = ((amount * 100)/totalQuantities);
         
         if (order.getAllLineItems().length > 0) {
-
+            
             for each(product in order.getAllLineItems()) {
             	
                 if ('productID' in product && productIds.length > 1) {
+                	
                     var items = {};
                     items.item_name = product.productName;
                     items.unit_amount = grossPricePerProduct * product.quantityValue;
@@ -262,9 +263,10 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
                     commonBillingObject.paypal.order.items.push(items);
                 }
                 if ('productID' in product && productIds.length == 1) {
+                	//return amount * 100;
                     var items = {};
                     items.item_name = product.productName;
-                    items.unit_amount = ((amount * 100)/product.quantityValue);
+                    items.unit_amount = amount * 100 ;
                     items.currency = orderCurrency;
                     items.tax_currency = orderCurrency;
                     items.tax_amount = '0';
@@ -309,6 +311,46 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.delivery_customer.address.country = "US";
 
     }
+    
+    if (paymentProcessorId === 'APEXX_GooglePay') {
+
+        var commonBillingObject = {};
+        
+        commonBillingObject.account = appPreference.Apexx_GooglePay_Account_Id;
+        commonBillingObject.amount = amount;
+        commonBillingObject.capture_now = appPreference.Apexx_GooglePay_Capture;
+        commonBillingObject.card = {};
+        commonBillingObject.card.googlepay = {};
+        commonBillingObject.card.googlepay.cryptogram = paymentInstrument.custom.apexxCryptogram;
+        commonBillingObject.card.googlepay.expiry_month = paymentInstrument.custom.apexxExpiryMonth;
+        commonBillingObject.card.googlepay.expiry_year = paymentInstrument.custom.apexxExpiryYear;
+        commonBillingObject.card.googlepay.dpan = paymentInstrument.custom.apexxDpan;
+        commonBillingObject.card.googlepay.eci = paymentInstrument.custom.apexxEci;
+        commonBillingObject.customer = {};
+        commonBillingObject.customer.customer_id = "";
+        commonBillingObject.customer.last_name= billingAddress.last_name;
+        commonBillingObject.customer.postal_code = billingAddress.postal_code;
+        commonBillingObject.customer.account_number = "";
+        commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
+        commonBillingObject.dynamic_descriptor = appPreference.Apexx_GooglePay_Dynamic_Descriptor;
+        commonBillingObject.merchant_reference = "PURCHASE" + paymentReference;
+        commonBillingObject.recurring_type = appPreference.Apexx_GooglePay_Recurring_Type;
+        commonBillingObject.user_agent = appPreference.USER_AGENT;
+        //commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
+        var fraud_predictions = {};
+        fraud_predictions.error_message = appPreference.Apexx_GooglePay_Fraud_Predictions_Error_Message;
+        fraud_predictions.rec = appPreference.Apexx_GooglePay_Fraud_Predictions_Rec;
+        fraud_predictions.rules_triggered = [];
+        fraud_predictions.score = '0';
+        commonBillingObject.fraud_predictions = [fraud_predictions];
+
+        commonBillingObject.billing_address = billingAddress;
+        commonBillingObject.shopper_interaction = appPreference.Apexx_GooglePay_Shopper_Interaction;
+        commonBillingObject.three_ds = {};
+        commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
+
+    }
+    
     return commonBillingObject;
 
 }

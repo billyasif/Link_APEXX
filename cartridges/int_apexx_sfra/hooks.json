@@ -24,6 +24,15 @@
         {
             "name": "app.payment.form.processor.apexx_paypal",
             "script": "./cartridge/scripts/hooks/payment/processor/apexx_paypal_form_processor"
+        },
+        {
+            "name": "app.payment.processor.apexx_googlepay",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_googlepay"
+        },
+        {
+            "name": "app.payment.form.processor.apexx_googlepay",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_googlepay_form_processor"
         }
+        
     ]
 }

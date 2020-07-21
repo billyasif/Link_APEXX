@@ -1,0 +1,16 @@
+<div class="tab-pane apexx-googlepay-content" id="apexx-googlepay-content" role="tabpanel">
+      
+      <fieldset class="payment-form-fields">
+            <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="APEXX_GOOGLEPAY">
+	        <input type="hidden" class="form-control" name="googlePayAction"  >
+     
+     	        <input type="hidden" class="form-control" name="cryptogram" value="AceY+igABPs3jdwNaDg3MAACAAA="  >
+                <input type="hidden" class="form-control" name="expiry_month"  value="04" >
+                <input type="hidden" class="form-control" name="expiry_year" value="22"  >
+                <input type="hidden" class="form-control" name="dpan" value="4567350000427977" >
+     	        <input type="hidden" class="form-control" name="eci"  value="07" >
+     	        
+	        
+			<input type="image" id="apexxGooglePay" src="${URLUtils.staticURL('/images/apexx_googlepay.png')}" border="0" name="submit" alt="GooglePay - The safer, easier way to pay online!">
+	  </fieldset>
+</div>

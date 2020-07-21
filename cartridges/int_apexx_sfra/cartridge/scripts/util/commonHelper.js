@@ -3,6 +3,9 @@
 /* global dw request session customer */
 var system = require('dw/system');
 var Transaction = require('dw/system/Transaction');
+var appPreference = require('~/cartridge/config/appPreference')();
+const objSite = require("dw/system/Site");
+var BasketMgr = require('dw/order/BasketMgr');
 
 var CONST = {
 	APEXX_HOSTED_PAYMENT_PROCESSOR_ID: 'APEXX_HOSTED'
@@ -269,6 +272,42 @@ function isEmpty(obj) {
 
 
 
+function getCurrencyCode(method){
+	 var currentBasket = BasketMgr.getCurrentBasket();
+     
+	 if (!currentBasket) {
+         return false;
+     }
+
+    if(method == 'hosted'){
+    	method = appPreference.Apexx_hosted_currency;
+    }
+    
+    if(method == 'paypal'){
+    	method = appPreference.Apexx_paypal_currency;
+    }
+    if(method == 'direct'){
+    	method = appPreference.Apexx_direct_credit_currency;
+    }
+    if(method == 'google'){
+    	method = appPreference.Apexx_GooglePay_currency;
+    }
+    if(method == 'hosted'){
+    	method = appPreference.Apexx_hosted_currency;
+    }
+    if(method == 'client_side'){
+    	method = appPreference.Apexx_client_side_currency;
+    }
+	for each(currency in method ) {
+        if(currency.value == currentBasket.currencyCode){
+        	return true;
+        };
+	
+	}
+	return false;
+}
+
+
 var apexxHelper = {
     log: log,
     isEmpty:isEmpty,
@@ -281,6 +320,7 @@ var apexxHelper = {
     floatToInt:floatToInt,
     intToFloat:intToFloat,
     isInt:isInt,
+    getCurrencyCode:getCurrencyCode,
     updateTransactionHistory:updateTransactionHistory
 };
 

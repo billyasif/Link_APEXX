@@ -1,0 +1,12 @@
+<li class="nav-item" data-method-id="${paymentOption.ID}">
+    <a class="nav-link apexx-googlepay-tab" data-toggle="tab" href="#apexx-googlepay-content" role="tab">
+        <img class="credit-card-option"
+                src="${URLUtils.staticURL('/images/apexx_googlepay.png')}"
+                height="32"
+                alt="${paymentOption.name}"
+                title="${paymentOption.name}"
+        >
+       
+    </a>
+</li>
+

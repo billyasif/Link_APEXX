@@ -210,18 +210,18 @@ server.replace(
             }
 
             var processor = PaymentMgr.getPaymentMethod(paymentMethodID).getPaymentProcessor();
-
             if (HookMgr.hasHook('app.payment.processor.' + processor.ID.toLowerCase())) {
                 result = HookMgr.callHook('app.payment.processor.' + processor.ID.toLowerCase(),
                     'Handle',
                     currentBasket,
                     billingData.paymentInformation
                 );
+
             } else {
                 result = HookMgr.callHook('app.payment.processor.default', 'Handle');
             }
 
-
+          
 
             // need to invalidate credit card fields
             if (result.error) {
