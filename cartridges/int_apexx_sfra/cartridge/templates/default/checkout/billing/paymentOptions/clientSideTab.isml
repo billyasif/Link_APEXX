@@ -1,0 +1,10 @@
+<li class="nav-item" data-method-id="${paymentOption.ID}">
+    <a class="nav-link client-side-tab" data-toggle="tab" href="#client-side-content" role="tab">
+        <img class="client-side-option"
+                src="${URLUtils.staticURL('/images/client_side.png')}"
+                height="32"
+                alt="${paymentOption.name}"
+                title="${paymentOption.name}"
+        >
+    </a>
+</li>

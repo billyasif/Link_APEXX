@@ -13,4 +13,8 @@
      <isif condition="${paymentOption.ID === 'APEXX_GOOGLEPAY' && pdict.appPreference.Apexx_GooglePay_Enable_Disable && pdict.commonHelper.getCurrencyCode('google') }">
         <isinclude template="checkout/billing/paymentOptions/apexxGooglePayContent" />
     </isif>
+     <isif condition="${paymentOption.ID === 'APEXX_CLIENT_SIDE'}">
+        <isinclude template="checkout/billing/paymentOptions/clientSideContent" />
+    </isif>
+    
 </isloop>

@@ -187,7 +187,10 @@ server.get(
             2,
             'Shipping'
         );
+       
         
+        
+  
         res.render('checkout/checkout', {
             order: orderModel,
             appPreference:appPreference,

@@ -1,5 +1,13 @@
 <isscript>
     var assets = require('*/cartridge/scripts/assets.js');
     assets.addJs('/js/apexx.js');
+    assets.addJs('/js/apexx-cse-1.0.js');
     assets.addCss('/css/apexx.css');
 </isscript>
+
+
+<script type="text/javascript"> 
+     window.onload = function() { 
+       APEXX.setPublicKey("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnxYHzZ5SXqykFj0A6Di2MSeZhs7M3aHQl2BXnuNgEvtTTQf4nGSAJ0g2o3Jrm2qhaXj5Gq05uHTMgw+TDUHm/SlHrqalDluWEXU9GK7cHod2VE3Jsaf6hHOR3gOUwJ+haazPUjfjgODr18sN7jLUYCO8i4IHrZR+Kz387T1dxXP/Gu8YyAuSZq+DLu240PThluf58NiVG6kx1iK+yA7xIRfHYEVcNDlgs65g68A/bmkvvoa79eUviOJlT6eouQnC/apQdy1ZH6q2kx7d/yRv7kXfdsH/AgaK+Uczjrp9964F9suS9nuPq3sM5ZjG7IlMeapxqMMTwYxlu4UNckoT6QIDAQAB");
+     } 
+</script> 

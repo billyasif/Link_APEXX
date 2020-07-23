@@ -9,8 +9,13 @@
     <include formid="contactInfoFields" name="contactInfo"/>
 
     <field formid="paymentMethod" type="string" mandatory="true" />
+   
+    <field formid="paymentMethodClient" type="string" mandatory="true" />
 
     <include formid="creditCardFields" name="creditCard"/>
+   
+    <include formid="creditCardClientFields" name="creditCardClient"/>
+    
 
     <field formid="subscribe" type="boolean" checked="false" default-value="false" mandatory="false" />
 

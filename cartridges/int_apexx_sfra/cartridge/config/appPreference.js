@@ -22,14 +22,11 @@ var getPreference = function (inpSite) {
     
 	prefs.CREDIT_CARD_DIRECT_URL= 'https://sandmgw.apexxfintech.com/mgw/payment/direct';
 	prefs.XAPIKEY = prefs.Apexx_API_Key;
-	prefs.ACCOUNT = prefs.Apexx_Account_Id;
 	prefs.ORGANISATION = prefs.Apexx_Org_Key;
-	prefs.CAPTURE_NOW = prefs.Apexx_Capture ? prefs.Apexx_Capture :false;
 	prefs.SAVE_CARD  = true;
 	prefs.CUSTOMER_IP  = "10.20.0.186";
 	prefs.RECURRING_TYPE  = "first";
 	prefs.USER_AGENT  =  "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB;rv  = 1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)";
-	prefs.THREE_DS_REQUIRED  = prefs.Apexx_Three_Ds ? prefs.Apexx_Three_Ds :false ;
 	prefs.CARD_OBJECT  =  require('~/cartridge/scripts/object/Apexx_Card_Object');
 	prefs.BILLING_OBJECT  =  require('~/cartridge/scripts/object/Apexx_BillTo_Object');
 	prefs.SERVICE_HTTP_BASE_API_URL  = "apexx.https.base.api.url";
@@ -47,22 +44,6 @@ var getPreference = function (inpSite) {
 	prefs.RETURN_URL_DIRECT_CREDIT_THREE_DS  =  URLUtils.https('ApexxTransaction-DirectCreditUpdateThreeDs').toString();
 	prefs.RETURN_URL_PAY_PayPal  = URLUtils.https('ApexxTransaction-PayPal').toString();
 
-	prefs.LOCALE  = prefs.Apexx_Locale;
-	prefs.TRANSACTION_CSS_TEMPLATE  =  prefs.Apexx_button_style;
-	prefs.DYNAMIC_DESCRIPTOR  = prefs.Apexx_Dynamic_Descriptor;
-
-	prefs.APEXX_HOSTED_3DS_TRUE_FALSE  =  prefs.Apexx_hosted_3ds_true_false;
-	prefs.APEXX_HOSTED_CUSTOM_FIELDS_CARD_HOLDER_NAME  =  prefs.Apexx_hosted_custom_fields_card_holder_name;
-	prefs.APEXX_HOSTED_CUSTOM_FIELDS_ADDRESS  =  prefs.Apexx_hosted_custom_fields_address;
-	prefs.APEXX_HOSTED_CUSTOM_FIELDS_ADDRESS_REQUIRED  =  prefs.Apexx_hosted_custom_fields_address_required;
-	prefs.APEXX_HOSTED_CUSTOM_FIELDS_DISPLAY_HORIZONTAL  =  prefs.Apexx_hosted_custom_fields_display_horizontal;
-	prefs.APEXX_HOSTED_SHOW_ORDER_SUMMARY  =  prefs.Apexx_hosted_show_order_summary;
-	prefs.APEXX_HOSTED_SHOW_CUSTOM_LABELS_EXPIRY_DATE  =  prefs.Apexx_hosted_show_custom_labels_expiry_date;
-	prefs.APEXX_HOSTED_SHOW_CUSTOM_LABELS_CVV  =  prefs.Apexx_hosted_show_custom_labels_cvv;
-	prefs.APEXX_HOSTED_TRANSACTION_CSS_TEMPLATE  =  prefs.Apexx_hosted_transaction_css_template;
-
-	
-	
 	return prefs;
 };
 

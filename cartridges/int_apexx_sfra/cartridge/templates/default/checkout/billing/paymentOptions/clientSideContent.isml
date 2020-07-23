@@ -1,0 +1,17 @@
+<!--- applicable credit cards--->
+<div class="tab-pane  client-side-content" id="client-side-content" role="tabpanel">
+    <fieldset class="payment-form-fields">
+
+        <!--- payment method is credit card --->
+        <input type="hidden" class="form-control"
+               name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+               value="APEXX_CLIENT_SIDE"
+        >
+
+
+        <fieldset class="client-side-form">
+            <isinclude template="checkout/billing/clientSideForm" />
+        </fieldset>
+
+    </fieldset>
+</div>

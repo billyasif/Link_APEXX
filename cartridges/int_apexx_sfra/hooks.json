@@ -33,6 +33,15 @@
             "name": "app.payment.form.processor.apexx_googlepay",
             "script": "./cartridge/scripts/hooks/payment/processor/apexx_googlepay_form_processor"
         }
+        ,
+        {
+            "name": "app.payment.processor.apexx_client_side",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_client_side"
+        },
+        {
+            "name": "app.payment.form.processor.apexx_client_side",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_client_side_form_processor"
+        }
         
     ]
 }

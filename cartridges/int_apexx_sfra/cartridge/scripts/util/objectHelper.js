@@ -33,7 +33,7 @@ function ApexxCardObject(paymentInstrument) {
         cardObject.setExpirationYear(year.toString().slice(-2));
         cardObject.setCVVNumber(ObjectPaymentModel.securityCode);
         cardObject.setToken("");
-        cardObject.setCreateToken(true);
+        cardObject.setCreateToken(appPreference.Apexx_Direct_Create_Token);
         cardObject.setSaveCard(ObjectPaymentModel.saveCard)
     }
     return {
@@ -123,33 +123,33 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         
         commonBillingObject.currency = orderCurrency;
         commonBillingObject.amount = amount;
-        commonBillingObject.capture_now = appPreference.CAPTURE_NOW;
+        commonBillingObject.capture_now = appPreference.Apexx_Hosted_Capture;
         commonBillingObject.billing_address = billingAddress;
-        commonBillingObject.dynamic_descriptor = "Demo Merchant Test Account";
+        commonBillingObject.dynamic_descriptor = appPreference.Apexx_Hosted_Dynamic_Descriptor;
         commonBillingObject.merchant_reference = paymentReference;
         commonBillingObject.user_agent = appPreference.USER_AGENT;
         commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
         commonBillingObject.three_ds = {};
-        commonBillingObject.three_ds.three_ds_required = appPreference.APEXX_HOSTED_3DS_TRUE_FALSE;
+        commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_hosted_3ds_true_false;
         
-        commonBillingObject.transaction_css_template = appPreference.TRANSACTION_CSS_TEMPLATE;
+        commonBillingObject.transaction_css_template = appPreference.Apexx_hosted_transaction_css_template;
         commonBillingObject.return_url = appPreference.RETURN_URL_HOSTED;
-        commonBillingObject.transaction_type = "first";
-        commonBillingObject.locale = appPreference.LOCALE;
+        commonBillingObject.transaction_type = appPreference.Apexx_Hosted_Recurring_Type;
+        commonBillingObject.locale = appPreference.Apexx_Locale;
 
         commonBillingObject.show_custom_fields = {};
-        commonBillingObject.show_custom_fields.card_holder_name = appPreference.APEXX_HOSTED_CUSTOM_FIELDS_CARD_HOLDER_NAME;
-        commonBillingObject.show_custom_fields.address = appPreference.APEXX_HOSTED_CUSTOM_FIELDS_ADDRESS;
-        commonBillingObject.show_custom_fields.address_required = appPreference.APEXX_HOSTED_CUSTOM_FIELDS_ADDRESS_REQUIRED;
-        commonBillingObject.show_custom_fields.display_horizontal = appPreference.APEXX_HOSTED_CUSTOM_FIELDS_DISPLAY_HORIZONTAL;
+        commonBillingObject.show_custom_fields.card_holder_name = appPreference.Apexx_hosted_custom_fields_card_holder_name;
+        commonBillingObject.show_custom_fields.address = appPreference.Apexx_hosted_custom_fields_address;
+        commonBillingObject.show_custom_fields.address_required = appPreference.Apexx_hosted_custom_fields_address_required;
+        commonBillingObject.show_custom_fields.display_horizontal = appPreference.Apexx_hosted_custom_fields_display_horizontal;
 
         commonBillingObject.show_custom_labels = {};
-        commonBillingObject.show_custom_labels.expiry_date = appPreference.APEXX_HOSTED_SHOW_CUSTOM_LABELS_EXPIRY_DATE;
-        commonBillingObject.show_custom_labels.cvv = appPreference.APEXX_HOSTED_SHOW_CUSTOM_LABELS_CVV;
+        commonBillingObject.show_custom_labels.expiry_date = appPreference.Apexx_hosted_show_custom_labels_expiry_date;
+        commonBillingObject.show_custom_labels.cvv = appPreference.Apexx_hosted_show_custom_labels_cvv;
 
-        commonBillingObject.show_order_summary = appPreference.APEXX_HOSTED_SHOW_ORDER_SUMMARY;
+        commonBillingObject.show_order_summary = appPreference.Apexx_hosted_show_order_summary;
 
-        commonBillingObject.transaction_css_template = appPreference.APEXX_HOSTED_TRANSACTION_CSS_TEMPLATE;
+        commonBillingObject.transaction_css_template = appPreference.Apexx_hosted_transaction_css_template;
 
     }
 
@@ -158,19 +158,18 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         
        commonBillingObject.account = appPreference.Apexx_Direct_Credit_Account_Id;
 
-       //commonBillingObject.account = appPreference.ACCOUNT;
        // commonBillingObject.organisation = appPreference.ORGANISATION;
        
         commonBillingObject.currency = orderCurrency;
         commonBillingObject.amount = amount;
-        commonBillingObject.capture_now = appPreference.CAPTURE_NOW;
+        commonBillingObject.capture_now = appPreference.Apexx_Direct_Capture;
         commonBillingObject.billing_address = billingAddress;
-        commonBillingObject.dynamic_descriptor = "Demo Merchant Test Account";
+        commonBillingObject.dynamic_descriptor = appPreference.Apexx_DirectPay_Dynamic_Descriptor;
         commonBillingObject.merchant_reference = paymentReference;
         commonBillingObject.user_agent = appPreference.USER_AGENT;
         commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
         commonBillingObject.three_ds = {};
-        commonBillingObject.three_ds.three_ds_required = appPreference.APEXX_HOSTED_3DS_TRUE_FALSE;
+        commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_Direct_Three_Ds;
         if(cardToken){
         	commonBillingObject.card = {};
             commonBillingObject.card.cvv = cardObject.cvv;
@@ -181,12 +180,9 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         	commonBillingObject.card = cardObject;
         }
         
-        commonBillingObject.user_agent = appPreference.USER_AGENT;
-        commonBillingObject.recurring_type = appPreference.RECURRING_TYPE;
+        commonBillingObject.recurring_type = appPreference.Apexx_Direct_Recurring_Type;
         commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
-        commonBillingObject.three_ds = {
-            three_ds_required: appPreference.THREE_DS_REQUIRED
-        };
+       
 
 
     }
@@ -195,33 +191,32 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
     if (paymentProcessorId === 'APEXX_PayPal') {
         var commonBillingObject = {};
         
-        //commonBillingObject.account = appPreference.ACCOUNT;
        // commonBillingObject.organisation = appPreference.ORGANISATION;
         
         
         commonBillingObject.account = appPreference.Apexx_PayPal_Account_Id;
 
      
-        commonBillingObject.capture_now = appPreference.CAPTURE_NOW;
+        commonBillingObject.capture_now = appPreference.Apexx_PayPal_Capture;
         commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
-        commonBillingObject.recurring_type = appPreference.RECURRING_TYPE;
+        commonBillingObject.recurring_type = appPreference.Apexx_Paypal_Recurring_Type;
         commonBillingObject.amount = amount;
         commonBillingObject.currency = orderCurrency,
         commonBillingObject.user_agent = appPreference.USER_AGENT;
-        commonBillingObject.locale = appPreference.LOCALE;
-        commonBillingObject.dynamic_descriptor = "First Card transaction";
-        commonBillingObject.merchant_reference = "PURCHASE" + paymentReference;
-        commonBillingObject.payment_product_type = "paypal";
-        commonBillingObject.shopper_interaction = "ecommerce";
+        commonBillingObject.locale = appPreference.Apexx_Locale;
+        commonBillingObject.dynamic_descriptor = appPreference.Apexx_PayPal_Dynamic_Descriptor;
+        commonBillingObject.merchant_reference = paymentReference;
+        commonBillingObject.payment_product_type = appPreference.Apexx_PayPal_payment_product_type;
+        commonBillingObject.shopper_interaction = appPreference.Apexx_PayPal_shopper_interaction;
 
 
 
 
         commonBillingObject.paypal = {};
-        commonBillingObject.paypal.brand_name = "paypal_brand";
-        commonBillingObject.paypal.customer_paypal_id = "A82A672GURYSG";
-        commonBillingObject.paypal.tax_id = "26062019122";
-        commonBillingObject.paypal.tax_id_type = "BR_CPF";
+        commonBillingObject.paypal.brand_name = appPreference.Apexx_PayPal_brand;
+        commonBillingObject.paypal.customer_paypal_id = appPreference.Apexx_PayPal_customer_id;
+        commonBillingObject.paypal.tax_id = appPreference.Apexx_PayPal_tax_id;
+        commonBillingObject.paypal.tax_id_type = appPreference.Apexx_PayPal_tax_id_type;
         commonBillingObject.paypal.order = {};
         commonBillingObject.paypal.order.invoice_number = order.getInvoiceNo();
         commonBillingObject.paypal.order.total_tax_amount = '0';
@@ -290,13 +285,13 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.customer.last_name = order.billingAddress.getLastName();
         commonBillingObject.customer.email = order.getCustomerEmail();
         commonBillingObject.customer.phone = order.billingAddress.getPhone();
-        commonBillingObject.customer.date_of_birth = "1994-08-11";
+        //commonBillingObject.customer.date_of_birth = "1994-08-11";
         commonBillingObject.customer.address = {};
         commonBillingObject.customer.address.address = order.billingAddress.getAddress1() + ' ' + order.billingAddress.getAddress2();
         commonBillingObject.customer.address.city = order.billingAddress.getCity();
         commonBillingObject.customer.address.state = order.billingAddress.getStateCode();
         commonBillingObject.customer.address.postal_code = order.billingAddress.getPostalCode();
-        commonBillingObject.customer.address.country = "US";
+        commonBillingObject.customer.address.country = billingAddress.country;
 
 
 
@@ -308,7 +303,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.delivery_customer.address.city = billingAddress.city;
         commonBillingObject.delivery_customer.address.state = billingAddress.state;
         commonBillingObject.delivery_customer.address.postal_code = billingAddress.postal_code;
-        commonBillingObject.delivery_customer.address.country = "US";
+        commonBillingObject.delivery_customer.address.country = billingAddress.country;
 
     }
     
@@ -333,7 +328,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.customer.account_number = "";
         commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
         commonBillingObject.dynamic_descriptor = appPreference.Apexx_GooglePay_Dynamic_Descriptor;
-        commonBillingObject.merchant_reference = "PURCHASE" + paymentReference;
+        commonBillingObject.merchant_reference = paymentReference;
         commonBillingObject.recurring_type = appPreference.Apexx_GooglePay_Recurring_Type;
         commonBillingObject.user_agent = appPreference.USER_AGENT;
         //commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
@@ -350,6 +345,32 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
 
     }
+    
+    if (paymentProcessorId === 'APEXX_CLIENT_SIDE') {
+	 var commonBillingObject = {};
+
+      commonBillingObject.account = appPreference.Apexx_Client_Side_Account_Id;
+      commonBillingObject.currency = orderCurrency;
+      commonBillingObject.amount = amount;
+      commonBillingObject.capture_now = appPreference.Apexx_Client_Side_Capture;
+      
+      commonBillingObject.card = {};
+
+      commonBillingObject.card.encrypted_data = paymentInstrument.custom.encryptedData;
+
+      commonBillingObject.billing_address = billingAddress;
+      commonBillingObject.dynamic_descriptor = appPreference.Apexx_Client_Side_Dynamic_Descriptor;
+      commonBillingObject.merchant_reference = paymentReference;
+      commonBillingObject.user_agent = appPreference.USER_AGENT;
+      commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
+      commonBillingObject.three_ds = {};
+      commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_Client_Three_Ds;
+      commonBillingObject.user_agent = appPreference.USER_AGENT;
+	  commonBillingObject.recurring_type = appPreference.Apexx_Client_Side_Recurring_Type;
+	  commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
+	    
+    }
+    
     
     return commonBillingObject;
 

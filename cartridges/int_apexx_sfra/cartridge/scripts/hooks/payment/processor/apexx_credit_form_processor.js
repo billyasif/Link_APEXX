@@ -12,7 +12,6 @@ var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
  */
 function processForm(req, paymentForm, viewFormData) {
     var array = require('*/cartridge/scripts/util/array');
-
     var viewData = viewFormData;
     var creditCardErrors = {};
 

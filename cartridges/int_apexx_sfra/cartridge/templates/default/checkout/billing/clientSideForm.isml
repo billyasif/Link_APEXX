@@ -1,0 +1,85 @@
+<isset name="creditCardClientFields" value="${pdict.forms.billingForm.creditCardClientFields}" scope="page"/>
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="form-group
+            <isif condition=${creditCardClientFields.cseCardOwner.mandatory === true}>required</isif>
+            ${creditCardClientFields.cseCardOwner.htmlName}">
+            <label class="form-control-label" for="cseCardOwner">${Resource.msg('field.credit.card.number','cseCreditCard',null)}</label>
+            <div class="card-number-wrapper">
+            <input type="text" data-apexx="card_holder_name" class="form-control" name="${creditCardClientFields.cseCardOwner.htmlName}" id="cseCardOwner"  value="" />
+
+            <div class="invalid-feedback" ></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="form-group
+            <isif condition=${creditCardClientFields.cseCardNumber.mandatory === true}>required</isif>
+            ${creditCardClientFields.cseCardNumber.htmlName}">
+            <label class="form-control-label" for="cseCardNumber">${Resource.msg('field.credit.card.number','cseCreditCard',null)}</label>
+            <div class="card-number-wrapper">
+                <input type="text" class="form-control cseCardNumber" id="cseCardNumber" value=""
+                    <isprint value=${creditCardClientFields.cseCardNumber.attributes} encoding="off"/>
+                    autocomplete="cc-number"
+                    aria-describedby="cardNumberInvalidMessage"
+                >
+                
+                <div class="invalid-feedback" id="cardNumberInvalidMessage"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-6">
+        <div class="form-group
+            <isif condition=${creditCardClientFields.cseExpirationMonth.mandatory === true}>required</isif>
+            ${creditCardClientFields.cseExpirationMonth.htmlName}">
+            <label class="form-control-label" for="expirationMonth">${Resource.msg('field.credit.card.expiration.month','cseCreditCard',null)}</label>
+            <input type="text" data-apexx="exp_month" class="form-control" name="${creditCardClientFields.cseExpirationMonth.htmlName}" id="cseExpirationMonth"  value="" />
+
+            <div class="invalid-feedback" id="expirationMonthInvalidMessage"></div>
+        </div>
+    </div>
+    
+ <div class="col-6">
+        <div class="form-group
+            <isif condition=${creditCardClientFields.cseExpirationYear.mandatory === true}>required</isif>
+            ${creditCardClientFields.cseExpirationYear.htmlName}">
+            <label class="form-control-label" for="expirationYear">${Resource.msg('field.credit.card.expiration.year','cseCreditCard',null)}</label>
+            <input type="text" data-apexx="exp_year" class="form-control" name="${creditCardClientFields.cseExpirationYear.htmlName}" id="cseExpirationYear"  value="" />
+
+            <div class="invalid-feedback" id="expirationYearInvalidMessage"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group
+            <isif condition=${creditCardClientFields.cseSecurityCode.mandatory === true}>required</isif>
+            ${creditCardClientFields.cseSecurityCode.htmlName}">
+            <label class="form-control-label" for="securityCode">${Resource.msg('field.credit.card.security.code','cseCreditCard',null)}</label>
+
+            <input type="text" class="form-control securityCode" id="cseSecurityCode"
+                <isprint value=${creditCardClientFields.cseSecurityCode.attributes} encoding="off"/>
+                aria-describedby="securityCodeInvalidMessage" >
+            <div class="invalid-feedback" id="securityCodeInvalidMessage"></div>
+        </div>
+    </div>
+</div>
+
+
+
+<input type="hidden" data-apexx="encrypted_data" class="form-control" name="${creditCardClientFields.cseEncryptedData.htmlName}" id="cseEncryptedData"  value="" />
+
+<input type="hidden" data-apexx="masked_card_number" class="form-control" name="${creditCardClientFields.cseMaskedCardNumber.htmlName}" id="cseMaskedCardNumber"  value="" />
+
+

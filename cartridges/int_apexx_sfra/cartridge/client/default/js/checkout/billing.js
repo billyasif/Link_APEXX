@@ -155,7 +155,7 @@ function updatePaymentInformation(order) {
     // update payment details
     var $paymentSummary = $('.payment-details');
     var htmlToAppend = '';
-
+   
     if (order.billing.payment && order.billing.payment.selectedPaymentInstruments
         && order.billing.payment.selectedPaymentInstruments.length > 0) {
         htmlToAppend += '<span>' + order.resources.cardType + ' '

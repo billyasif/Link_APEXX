@@ -12,6 +12,10 @@
             <isif condition="${payment.paymentMethod === 'APEXX_GOOGLEPAY'}">
             <isinclude template="checkout/billing/paymentOptions/googlepaySummary" />
         </isif>
+         <isif condition="${payment.paymentMethod === 'APEXX_CLIENT_SIDE'}">
+            <isinclude template="checkout/billing/paymentOptions/cseCreditCardSummary" />
+        </isif>
+        
     </isloop>
 </div>
 

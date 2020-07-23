@@ -12,15 +12,9 @@ var appPreference = require('~/cartridge/config/appPreference')();
 var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_DIRECT_PAY;
 var dwSession = require("dw/system/Session");
-/**
- * Creates a token. This should be replaced by utilizing a tokenization provider
- * @returns {string} a token
- */
-function createToken() {
-    return Math.random().toString(36).substr(2);
-}
-
-
+var CONST = {
+		APEXX_PAYMENT_METHOD: 'APEXX_CLIENT_SIDE'
+	};
 
 
 /**
@@ -31,42 +25,42 @@ function createToken() {
  * @return {Object} returns an error object
  */
 function handle(basket, paymentInformation) {
-    var currentBasket = basket;
+	var currentBasket = basket;
     var cardErrors = {};
-    var cardNumber = paymentInformation.cardNumber.value;
-    var cardSecurityCode = paymentInformation.securityCode.value;
-    var expirationMonth = paymentInformation.expirationMonth.value;
-    var expirationYear = paymentInformation.expirationYear.value;
+    
+    var cseCardOwner = paymentInformation.cseCardOwner.value;
+    var cseCardNumber = paymentInformation.cseCardNumber.value;
+    var cseSecurityCode = paymentInformation.cseSecurityCode.value;
+    var cseExpirationMonth = paymentInformation.cseExpirationMonth.value;
+    var cseExpirationYear = paymentInformation.cseExpirationYear.value;
+    var cseEncryptedData = paymentInformation.cseEncryptedData.value;
+
     var serverErrors = [];
     var creditCardStatus;
 
-    var cardType = paymentInformation.cardType.value;
-    var paymentCard = PaymentMgr.getPaymentCard(cardType);
+    //var cardType = paymentInformation.cardType.value;
+    //var paymentCard = PaymentMgr.getPaymentCard(cardType);
 
 
     Transaction.wrap(function() {
         var paymentInstruments = currentBasket.getPaymentInstruments(
-            PaymentInstrument.METHOD_CREDIT_CARD
+        	CONST.APEXX_PAYMENT_METHOD
         );
         collections.forEach(paymentInstruments, function(item) {
             currentBasket.removePaymentInstrument(item);
         });
 
-        var token = paymentInformation.creditCardToken ? paymentInformation.creditCardToken : "";
 
         var paymentInstrument = currentBasket.createPaymentInstrument(
-            PaymentInstrument.METHOD_CREDIT_CARD, currentBasket.totalGrossPrice
+        	CONST.APEXX_PAYMENT_METHOD,currentBasket.totalGrossPrice
         );
-        paymentInstrument.custom.apexxSaveCreditCard = request.httpParameterMap.saveCard.booleanValue;
-        paymentInstrument.setCreditCardHolder(currentBasket.billingAddress.fullName);
-        paymentInstrument.setCreditCardType(cardType);
-        paymentInstrument.setCreditCardHolder(currentBasket.billingAddress.fullName);
-        paymentInstrument.setCreditCardNumber(cardNumber);
-        paymentInstrument.setCreditCardExpirationMonth(expirationMonth);
-        paymentInstrument.setCreditCardExpirationYear(expirationYear);
-        if (token) {
-            paymentInstrument.setCreditCardToken(token);
-        }
+        
+        paymentInstrument.setCreditCardHolder(cseCardOwner);
+        paymentInstrument.setCreditCardNumber(cseCardNumber);
+        paymentInstrument.setCreditCardExpirationMonth(cseExpirationMonth);
+        paymentInstrument.setCreditCardExpirationYear(cseExpirationYear);
+        paymentInstrument.custom.encryptedData = cseEncryptedData;
+
 
 
     });
@@ -94,10 +88,9 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
         try {
             var saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
 
-            //return {error: true,saleTransactionRequestData:saleTransactionRequestData};
 
             var saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
-
+          
             //return {error: true,saleTransactionResponseData:saleTransactionResponseData};
 
             if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object.authorization_code) {
@@ -285,6 +278,5 @@ function updateSaveCardStatus(saleTransactionRequestData, paymentInstrument) {
 }
 exports.handle = handle;
 exports.authorize = authorize;
-exports.createToken = createToken;
 exports.saveTransactionData = saveTransactionData;
 exports.saveCustomerCreditCard = saveCustomerCreditCard;

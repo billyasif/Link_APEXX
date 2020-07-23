@@ -26,7 +26,9 @@ server.replace(
 
         var viewData = {};
         var paymentForm = server.forms.getForm('billing');
+        
 
+        
         // verify billing form data
         var billingFormErrors = COHelpers.validateBillingForm(paymentForm.addressFields);
         var contactInfoFormErrors = COHelpers.validateFields(paymentForm.contactInfoFields);
@@ -73,6 +75,9 @@ server.replace(
 
         var paymentProcessor = PaymentManager.getPaymentMethod(paymentMethodIdValue).getPaymentProcessor();
 
+        
+        
+        
         var paymentFormResult;
         if (HookManager.hasHook('app.payment.form.processor.' + paymentProcessor.ID.toLowerCase())) {
             paymentFormResult = HookManager.callHook('app.payment.form.processor.' + paymentProcessor.ID.toLowerCase(),
@@ -220,8 +225,6 @@ server.replace(
             } else {
                 result = HookMgr.callHook('app.payment.processor.default', 'Handle');
             }
-
-          
 
             // need to invalidate credit card fields
             if (result.error) {
@@ -417,13 +420,13 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
 
     // Handles payment authorization
     var handlePaymentResult = COHelpers.handlePayments(order, order.orderNo);
-
+    
+    
 //    res.json({
 //        error: true,
 //        errorMessage: handlePaymentResult
 //    });
 //    return next();
-    
     
     if (handlePaymentResult.error) {
         res.json({
