@@ -1,21 +1,5 @@
 <isset name="creditCardClientFields" value="${pdict.forms.billingForm.creditCardClientFields}" scope="page"/>
 
-
-<div class="row">
-    <div class="col-12">
-        <div class="form-group
-            <isif condition=${creditCardClientFields.cseCardOwner.mandatory === true}>required</isif>
-            ${creditCardClientFields.cseCardOwner.htmlName}">
-            <label class="form-control-label" for="cseCardOwner">${Resource.msg('field.credit.card.number','cseCreditCard',null)}</label>
-            <div class="card-number-wrapper">
-            <input type="text" data-apexx="card_holder_name" class="form-control" name="${creditCardClientFields.cseCardOwner.htmlName}" id="cseCardOwner"  value="" />
-
-            <div class="invalid-feedback" ></div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="row">
     <div class="col-12">
         <div class="form-group
@@ -30,6 +14,21 @@
                 >
                 
                 <div class="invalid-feedback" id="cardNumberInvalidMessage"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="form-group
+            <isif condition=${creditCardClientFields.cseCardOwner.mandatory === true}>required</isif>
+            ${creditCardClientFields.cseCardOwner.htmlName}">
+            <label class="form-control-label" for="cseCardOwner">${Resource.msg('field.credit.card.name','cseCreditCard',null)}</label>
+            <div class="card-name-wrapper">
+            <input type="text" data-apexx="card_holder_name" class="form-control" name="${creditCardClientFields.cseCardOwner.htmlName}" id="cseCardOwner"  value="" />
+
+            <div class="invalid-feedback" ></div>
             </div>
         </div>
     </div>

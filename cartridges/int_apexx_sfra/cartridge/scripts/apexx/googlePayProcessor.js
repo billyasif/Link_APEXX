@@ -72,7 +72,7 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
         var saleTransactionRequestData = null;
         
         saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
-        //return {error: true,saleTransactionRequestData:saleTransactionRequestData};
+        ///return {error: true,saleTransactionRequestData:saleTransactionRequestData};
 
          saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST',endPoint, saleTransactionRequestData);
          //return {error: true,saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData};
@@ -165,7 +165,7 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
         commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.amount);
 
 
-        paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.THREE_DS_REQUIRED;
+        paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
         paymentInstrumentRecord.custom.apexxAuthorizationCode = responseTransaction.authorization_code;
 
 

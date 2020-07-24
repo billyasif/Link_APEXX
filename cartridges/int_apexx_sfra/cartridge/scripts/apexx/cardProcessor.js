@@ -250,7 +250,7 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
         commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.amount);
 
 
-        paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.THREE_DS_REQUIRED;
+        paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_Direct_Three_Ds;
         paymentInstrumentRecord.custom.apexxAuthorizationCode = responseTransaction.authorization_code;
 
 

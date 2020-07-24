@@ -91,7 +91,7 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
 
             var saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
           
-            //return {error: true,saleTransactionResponseData:saleTransactionResponseData};
+            //return {error: true,saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData};
 
             if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object.authorization_code) {
 
@@ -243,7 +243,7 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
         commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.amount);
 
 
-        paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.THREE_DS_REQUIRED;
+        paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_Client_Three_Ds;
         paymentInstrumentRecord.custom.apexxAuthorizationCode = responseTransaction.authorization_code;
 
 

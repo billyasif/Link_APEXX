@@ -349,7 +349,10 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
     if (paymentProcessorId === 'APEXX_CLIENT_SIDE') {
 	 var commonBillingObject = {};
 
-      commonBillingObject.account = appPreference.Apexx_Client_Side_Account_Id;
+	 
+     commonBillingObject.organisation = appPreference.Apexx_Org_Key;
+
+     // commonBillingObject.account = appPreference.Apexx_Client_Side_Account_Id;
       commonBillingObject.currency = orderCurrency;
       commonBillingObject.amount = amount;
       commonBillingObject.capture_now = appPreference.Apexx_Client_Side_Capture;
@@ -362,7 +365,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
       commonBillingObject.dynamic_descriptor = appPreference.Apexx_Client_Side_Dynamic_Descriptor;
       commonBillingObject.merchant_reference = paymentReference;
       commonBillingObject.user_agent = appPreference.USER_AGENT;
-      commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
+     // commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
       commonBillingObject.three_ds = {};
       commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_Client_Three_Ds;
       commonBillingObject.user_agent = appPreference.USER_AGENT;

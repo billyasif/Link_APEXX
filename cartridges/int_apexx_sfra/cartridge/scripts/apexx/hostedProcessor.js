@@ -34,16 +34,9 @@ function handle(basket, paymentInformation) {
     try {
         Transaction.wrap(function () {
             var paymentInstruments = currentBasket.getPaymentInstruments();
-            var iter = paymentInstruments.iterator();
-
-            var currentPI = null;
-            while (iter.hasNext()) {
-                currentPI = iter.next();
-                var paymentMethod = currentPI.paymentMethod;
-                if (paymentMethod != null && typeof paymentMethod !== 'undefined' && CONST.APEXX_HOSTED_PAYMENT_PROCESSOR_ID) {
-                    currentBasket.removePaymentInstrument(currentPI);
-                }
-            }
+            collections.forEach(paymentInstruments, function(item) {
+                currentBasket.removePaymentInstrument(item);
+            });
 
             currentBasket.createPaymentInstrument(paymentInformation.paymentMethodID, currentBasket.totalGrossPrice);
         });
