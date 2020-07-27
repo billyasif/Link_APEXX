@@ -7,7 +7,6 @@ var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 var dworder = require('dw/order');
 var appPreference = require('~/cartridge/config/appPreference')();
 
-
 /**
  * For Card object
  * 
@@ -112,7 +111,6 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
     const amount = paymentInstrument.paymentTransaction.amount.value;
     var paymentProcessorId = dworder.PaymentMgr.getPaymentMethod(paymentInstrument.getPaymentMethod()).getPaymentProcessor().getID();
     var orderCurrency = order.getCurrencyCode();
-
 
     if (paymentProcessorId === 'APEXX_HOSTED') {
 
@@ -353,7 +351,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
      commonBillingObject.organisation = appPreference.Apexx_Org_Key;
 
      // commonBillingObject.account = appPreference.Apexx_Client_Side_Account_Id;
-      commonBillingObject.currency = orderCurrency;
+      commonBillingObject.currency = "EUR";
       commonBillingObject.amount = amount;
       commonBillingObject.capture_now = appPreference.Apexx_Client_Side_Capture;
       
@@ -369,11 +367,175 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
       commonBillingObject.three_ds = {};
       commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_Client_Three_Ds;
       commonBillingObject.user_agent = appPreference.USER_AGENT;
-	  commonBillingObject.recurring_type = appPreference.Apexx_Client_Side_Recurring_Type;
+	  commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
+
+	  commonBillingObject.recurring_type = "first";
 	  commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
 	    
     }
     
+  if (paymentProcessorId === 'APEXX_AfterPay') {
+  var commonBillingObject = {};
+  
+  
+  commonBillingObject.account = commonHelper.getAfterPayAccountId(order);
+  //commonBillingObject.organisation = appPreference.ORGANISATION;
+  commonBillingObject.currency = "",
+  commonBillingObject.merchant_reference = "Deepak_"+paymentReference;
+  commonBillingObject.capture_now = appPreference.Apexx_AfterPay_Capture;
+  commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
+  commonBillingObject.dynamic_descriptor = appPreference.Apexx_AfterPay_Dynamic_Descriptor;
+  commonBillingObject.user_agent = appPreference.USER_AGENT;
+  commonBillingObject.shopper_interaction = appPreference.Apexx_AfterPay_Shopper_Interaction;
+  
+
+  
+
+  commonBillingObject.billing_address = billingAddress;
+  commonBillingObject.billing_address.country = "DE";
+
+  
+  
+  
+  
+  
+  
+  commonBillingObject.afterpay  = {}
+  commonBillingObject.afterpay.payment_type  =  "Invoice";
+  commonBillingObject.afterpay.gross_amount  =  order.totalGrossPrice.multiply(100).value;
+  commonBillingObject.afterpay.net_amount  =    order.totalNetPrice.multiply(100).value;
+
+  
+  var totalQuantities = 0;  
+  var productIds =  new Array();
+  if (order.getAllLineItems().length > 0) {
+
+      for each(product in order.getAllLineItems()) {
+
+          if ('productID' in product) {
+          	
+          	totalQuantities += product.quantityValue;
+          	productIds.push(product.productID);
+          }
+      }
+  }
+  
+  var itemsArr = new Array();
+  
+  var grossPricePerProduct = ((amount * 100)/totalQuantities);
+  
+  if (order.getAllLineItems().length > 0) {
+      
+      for each(product in order.getAllLineItems()) {
+      	
+          if ('productID' in product && productIds.length > 1) {
+          	
+        	  var net_price = product.netPrice.multiply(100).value;
+        	  var gross_price = product.grossPrice.multiply(100).value;
+              var taxValue =   product.tax.multiply(100).value;
+              var vatPercentage =  product.tax.multiply(100).divide(net_price).multiply(100).value;   
+        	  
+              var items = {};
+              items.product_id = product.productID;
+              items.group_id =  "1";
+              items.item_description = product.productName;
+              items.vat_amount = taxValue ;
+              items.net_unit_price = net_price;
+              items.gross_unit_price = gross_price;
+              items.quantity = 1;
+              items.vat_percent = vatPercentage;
+              items.additional_information = product.productName;
+              itemsArr.push(items);
+
+          }
+          if ('productID' in product && productIds.length == 1) {
+
+        		  
+              
+              var net_price = product.netPrice.multiply(100).value;
+        	  var gross_price = product.grossPrice.multiply(100).value;
+              var taxValue =   product.tax.multiply(100).value;
+              var vatPercentage =  product.tax.multiply(100).divide(net_price).multiply(100).value;   
+
+              
+        	  
+              var items = {};
+              items.product_id = product.productID;
+              items.group_id =  "1";
+              items.item_description = product.productName;
+              items.vat_amount = taxValue ;
+              items.net_unit_price = net_price;
+              items.gross_unit_price = gross_price;
+              items.quantity = 1;
+              items.vat_percent = vatPercentage;
+              items.additional_information = product.productName;
+
+              itemsArr.push(items);
+
+          }
+      }
+  }
+
+  
+  
+  if(order.shippingTotalGrossPrice.value){
+	  
+	  var GrossshippingPrice = order.shippingTotalGrossPrice.multiply(100).value;
+	  var netUnitShipPrice = order.getShippingTotalNetPrice().multiply(100).value;
+      var taxValue =   order.shippingTotalTax.multiply(100).value;
+      var vatPercentage =  order.shippingTotalTax.multiply(100).divide(netUnitShipPrice).multiply(100).value;   
+
+	  
+	  
+	  var items = {};
+	  items.product_id = "shipping";
+	  items.group_id =  "1";
+	  items.item_description = "shipping";
+	  items.vat_amount = taxValue;
+	  items.net_unit_price = netUnitShipPrice;
+	  items.gross_unit_price = GrossshippingPrice;
+	  items.quantity = 1;
+	  items.vat_percent =vatPercentage;
+	  items.product_image_url = "https://assets.asosservices.com/storesa/images/flags/gb.png";
+	  items.product_url = "https://www.asos.com/asos-4505/asos-4505-golf-high-neck-t-shirt-with-quick-dry-in-black/prd/9367200?clr=black&colourWayId=15038018&SearchQuery=4505%20golf";
+	  items.additional_information = "test";
+	  itemsArr.push(items);
+  
+  }
+  
+  
+  commonBillingObject.afterpay.items  =  itemsArr;
+
+  var customer = {};
+  customer.salutation = "Mr";
+  customer.customer_identification_number = "800119-3989";
+  customer.first_name = order.billingAddress.getFirstName();
+  customer.last_name = order.billingAddress.getLastName();
+  customer.email = order.getCustomerEmail();
+  customer.date_of_birth = "1994-08-11";
+  customer.phone = order.billingAddress.getPhone();
+  customer.customer_number = "124";
+  customer.type = "Person";
+  commonBillingObject.afterpay.customer = customer;
+
+
+  delivery_customer = {};
+  delivery_customer.type = "Person";
+  delivery_customer.salutation = "Miss";
+  delivery_customer.first_name = billingAddress.first_name;
+  delivery_customer.last_name = billingAddress.last_name;
+  delivery_customer.address = billingAddress.address;
+  delivery_customer.city = billingAddress.city;
+  delivery_customer.postal_code = billingAddress.postal_code;
+  //delivery_customer.country = billingAddress.country;
+  delivery_customer.country = "DE";
+
+
+  delivery_customer.phone = order.billingAddress.getPhone();
+  commonBillingObject.afterpay.delivery_customer = delivery_customer;
+
+
+}
     
     return commonBillingObject;
 

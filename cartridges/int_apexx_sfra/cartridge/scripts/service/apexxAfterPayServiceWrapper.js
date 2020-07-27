@@ -5,8 +5,8 @@
  */
 
 var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
-var appPreferenceBM = require('~/cartridge/config/appPreferenceBM');
-var apexxUtils = require('~/cartridge/scripts/util/apexxUtils');
+var appPreference = require('~/cartridge/config/appPreference')();
+var commonHelper = require('~/cartridge/scripts/util/commonHelper');
 
 /**
  * Local Services Framework service definition
@@ -23,7 +23,7 @@ var service = LocalServiceRegistry.createService(endpoint, {
 	 */
 	createRequest: function (svc: HTTPService, requestParams) {
 		svc.addHeader("Content-Type", "application/json");
-        svc.addHeader("X-APIKEY", appPreferenceBM.XAPIKEY);
+        svc.addHeader("X-APIKEY", appPreference.XAPIKEY);
 
 		return JSON.stringify(requestParams);
 	},
@@ -65,9 +65,10 @@ var service = LocalServiceRegistry.createService(endpoint, {
 var makeServiceCall = function(method,endPoint, payload) {
 	var response = {};
 	
-   
+  
 	var svc = serviceWraper(endPoint);
-	if(payload.endPointUrl){
+	
+	if('endPointUrl' in payload){
 		var svcURL = svc.getURL();
 		var newURL = svcURL + payload.endPointUrl;
 	    svc.setURL(newURL);
@@ -75,14 +76,16 @@ var makeServiceCall = function(method,endPoint, payload) {
 	}
 	if(method){
 		svc.setRequestMethod(method);
-	}
-	 
-	if(payload.amount){
-			var requestAmount = apexxUtils.floatToInt(payload.amount);
-		    if(apexxUtils.isInt(requestAmount)){
-		    	payload.amount = requestAmount ;
-			}
-	}
+	}	
+	
+	if('afterpay' in payload){
+	    var requestAmount = commonHelper.floatToInt(payload.afterpay.gross_amount);
+	    
+	    if(commonHelper.isInt(requestAmount)){
+	    	payload.afterpay.gross_amount = payload.afterpay.gross_amount ;
+		}
+     }  
+	
 	
 	try {
 		var result = svc.call(payload);
@@ -92,23 +95,17 @@ var makeServiceCall = function(method,endPoint, payload) {
 		} else {
 			response.ok = true;
 			response.object = replaceAllBackSlash(result.object.text);
-			
 		}
 	} catch (e) {
 		response.ok = false;
 		response.object = replaceAllBackSlash(e.message);
 	}
-
-	if(response.object.amount){
-		var responseAmount = apexxUtils.intToFloat(response.object.amount);
-		response.object.amount = responseAmount;
-	}
 	
-	if(response.object.gross_amount){
-		var responseAmount = apexxUtils.intToFloat(response.object.gross_amount);
-		response.object.gross_amount = responseAmount;
-	}
 	
+	if('gross_amount' in response.object.afterpay){
+		var responseAmount = commonHelper.intToFloat(response.object.afterpay.gross_amount);
+		response.object.afterpay.gross_amount = responseAmount;
+	}
 	return response;
 }
 
@@ -120,6 +117,8 @@ function replaceAllBackSlash(targetStr){
     }
     return JSON.parse(targetStr);
 }
+
+
 
 /*
  * Module Exports

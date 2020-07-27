@@ -1,17 +1,20 @@
 <isloop items="${pdict.order.billing.payment.applicablePaymentMethods}" var="paymentOption" status="loopSate">
-    <isif condition="${paymentOption.ID === 'CREDIT_CARD' &&  pdict.appPreference.Apexx_direct_credit_status && pdict.commonHelper.getCurrencyCode('direct')}">
+    <isif condition="${paymentOption.ID === 'CREDIT_CARD' }">
         <isinclude template="checkout/billing/paymentOptions/creditCardTab" />
     </isif>
-    <isif condition="${paymentOption.ID === 'APEXX_HOSTED' && pdict.appPreference.Apexx_hosted_status && pdict.commonHelper.getCurrencyCode('hosted') }">
+    <isif condition="${paymentOption.ID === 'APEXX_HOSTED'  }">
        <isinclude template="checkout/billing/paymentOptions/apexxHostedTab" />
     </isif>
-    <isif condition="${paymentOption.ID === 'APEXX_PAYPAL' && pdict.appPreference.Apexx_Paypal_Enable_Solution && pdict.commonHelper.getCurrencyCode('paypal') }">
+    <isif condition="${paymentOption.ID === 'APEXX_PAYPAL'  }">
        <isinclude template="checkout/billing/paymentOptions/apexxPaypalTab" />
     </isif>
-     <isif condition="${paymentOption.ID === 'APEXX_GOOGLEPAY' && pdict.appPreference.Apexx_GooglePay_Enable_Disable && pdict.commonHelper.getCurrencyCode('google')}">
+     <isif condition="${paymentOption.ID === 'APEXX_GOOGLEPAY'}">
        <isinclude template="checkout/billing/paymentOptions/apexxGooglepayTab" />
     </isif>
     <isif condition="${paymentOption.ID === 'APEXX_CLIENT_SIDE'}">
        <isinclude template="checkout/billing/paymentOptions/clientSideTab" />
+    </isif>
+    <isif condition="${paymentOption.ID === 'APEXX_AFTERPAY'}">
+       <isinclude template="checkout/billing/paymentOptions/apexxAfterPayTab" />
     </isif>
 </isloop>

@@ -16,6 +16,10 @@ module.exports = Object.freeze({
     SERVICE_HTTP_CAPTURE:"apexx.https.capture",
     SERVICE_HTTP_CANCEL_CAPTURE:"apexx.https.cancel.capture",
     SERVICE_HTTP_REFUND:"apexx.https.refund",
+    SERVICE_HTTP_CAPTURE_AFTERPAY:"apexx.https.capture.afterpay",
+    SERVICE_HTTP_CANCEL_AFTERPAY:"apexx.https.cancel.afterpay",
+    SERVICE_HTTP_REFUND_AFTERPAY:"apexx.https.refund.afterpay",
+
     POST_METHOD:"POST",
     GET_METHOD:"GET"
     

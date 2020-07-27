@@ -20,7 +20,6 @@ $(document).ready(function() {
 		//$('form[data-apexx="payment-form"]').submit(function( event ) {
 			$( ".submit-payment  , .place-order" ).click(function(event) {
 				
-
 				$('input[data-apexx]').each(function( key ) {
 				
 				if($(this).data('apexx') != "encrypted_data" || $(this).data('apexx') != "masked_card_number"){

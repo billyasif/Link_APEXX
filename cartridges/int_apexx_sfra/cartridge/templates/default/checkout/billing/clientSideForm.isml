@@ -7,7 +7,7 @@
             ${creditCardClientFields.cseCardNumber.htmlName}">
             <label class="form-control-label" for="cseCardNumber">${Resource.msg('field.credit.card.number','cseCreditCard',null)}</label>
             <div class="card-number-wrapper">
-                <input type="text" class="form-control cseCardNumber" id="cseCardNumber" value=""
+                <input type="text" data-apexx="card_number" class="form-control cseCardNumber" id="cseCardNumber" value=""
                     <isprint value=${creditCardClientFields.cseCardNumber.attributes} encoding="off"/>
                     autocomplete="cc-number"
                     aria-describedby="cardNumberInvalidMessage"
@@ -67,7 +67,7 @@
             ${creditCardClientFields.cseSecurityCode.htmlName}">
             <label class="form-control-label" for="securityCode">${Resource.msg('field.credit.card.security.code','cseCreditCard',null)}</label>
 
-            <input type="text" class="form-control securityCode" id="cseSecurityCode"
+            <input type="text" data-apexx="cvv" class="form-control securityCode" id="cseSecurityCode"
                 <isprint value=${creditCardClientFields.cseSecurityCode.attributes} encoding="off"/>
                 aria-describedby="securityCodeInvalidMessage" >
             <div class="invalid-feedback" id="securityCodeInvalidMessage"></div>

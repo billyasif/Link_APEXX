@@ -41,6 +41,14 @@
         {
             "name": "app.payment.form.processor.apexx_client_side",
             "script": "./cartridge/scripts/hooks/payment/processor/apexx_client_side_form_processor"
+        },
+        {
+            "name": "app.payment.processor.apexx_afterpay",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_afterpay"
+        },
+        {
+            "name": "app.payment.form.processor.apexx_afterpay",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_afterpay_form_processor"
         }
         
     ]

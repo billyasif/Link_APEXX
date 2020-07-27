@@ -123,7 +123,7 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
                     error: true,
                     errorCode: saleTransactionResponseData.object.reason_code,
                     errorMessage: saleTransactionResponseData.object.reason_message,
-                    errorResponse: saleTransactionRequestData
+                    errorResponse: saleTransactionResponseData
                 };
                 return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
             }

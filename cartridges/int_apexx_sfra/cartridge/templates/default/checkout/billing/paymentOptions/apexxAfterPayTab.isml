@@ -1,0 +1,12 @@
+<li class="nav-item" data-method-id="${paymentOption.ID}">
+    <a class="nav-link apexx-afterpay-tab" data-toggle="tab" href="#apexx-afterpay-content" role="tab">
+        <img class="credit-card-option"
+                src="${URLUtils.staticURL('/images/apexx_after_pay.png')}"
+                height="32"
+                alt="${paymentOption.name}"
+                title="${paymentOption.name}"
+        >
+       
+    </a>
+</li>
+

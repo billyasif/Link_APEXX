@@ -9,6 +9,7 @@ const hostedProcessor = require('*/cartridge/scripts/apexx/hostedProcessor');
 const paypalProcessor = require('*/cartridge/scripts/apexx/payPalProcessor');
 const objSite = require("dw/system/Site");
 const appPreference = require('*/cartridge/config/appPreference')();
+var BasketMgr = require('dw/order/BasketMgr');
 
 var endPoint = appPreference.SERVICE_HTTP_PAYPAL;
 
@@ -79,13 +80,17 @@ server.get('API',function(req,res,next){
 //  var service = apexxServiceWrapper.apexxServiceDirectPay;
 //	saleTransactionResponseData = apexxServiceWrapper.makeServiceCall(service,saleTransactionRequestData);
    var OrderMgr = require('dw/order/OrderMgr');
-   var order  = OrderMgr.getOrder("00007628");
+   var order  = OrderMgr.getOrder("00008705");
    var paymentInstruments = order.getPaymentInstruments()[0];
    var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
+   var currentBasket = BasketMgr.getCurrentBasket();
 
-   var objReq = objectHelper.createSaleRequestObject(order,paymentInstruments,paymentProcessor);
-   var ObjectBilling = objectHelper.ApexxBillToObject(order, true);
-   res.json({'token':commonHelper.getCurrencyCode('hosted')});return next();
+   //var objReq = objectHelper.createSaleRequestObject(order,paymentInstruments,paymentProcessor);
+   //var ObjectBilling = objectHelper.ApexxBillToObject(order, true);
+   
+   //res.json({'toccken':Object.keys(order.adjustedShippingTotalTax) });
+
+   res.json(currentBasket.billingAddress.countryCode.value);return next();
    //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
 
   // res.json(Object.keys(paymentInstruments));return next();

@@ -37,6 +37,8 @@ var getPreference = function (inpSite) {
 	prefs.SERVICE_HTTP_HOSTED  = "apexx.https.hostedpay";
 	prefs.SERVICE_HTTP_DIRECT_AUTH  = "apexx.https.3ds.auth";
 	prefs.SERVICE_HTTP_PAYPAL  = "apexx.https.paypal";
+	prefs.SERVICE_HTTP_AFTERPAY  = "apexx.https.afterpay";
+
 
 
 	prefs.WEB_HOOK_TRANSACTION_UPDATE = URLUtils.https('ApexxWebhook-Update').toString();

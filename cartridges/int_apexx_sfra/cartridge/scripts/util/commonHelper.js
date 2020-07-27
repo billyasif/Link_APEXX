@@ -312,19 +312,40 @@ function getCurrencyCode(method){
  * @param {string} currencyCode - Currency Code
  * @return {string} XML <merchant-account-id>MerchantID</merchant-account-id>
  */
-function createMerchantAccountXml(currencyCode) {
-    var merchantAccounts = {};
-    var code = currencyCode.toUpperCase();
-    for (var fieldName in prefs.BRAINTREE_Merchant_Account_IDs) {
-        var fieldArr = prefs.BRAINTREE_Merchant_Account_IDs[fieldName].split(':');
-        merchantAccounts[fieldArr[0].toUpperCase()] = fieldArr[1];
-    }
+function isAfterPayAllowed(currentBasket) {
+	var orderCurrency = currentBasket.currencyCode;
+	var countryCode = currentBasket.billingAddress.countryCode.value;
+    for each(account in appPreference.Apexx_AfterPay_Account_IDs ) {
+        var arrSplit = account.split('-');
+        
+        if(countryCode === arrSplit[0] && orderCurrency === arrSplit[1]){
+        	return arrSplit[2];
+        	break;
+        }
+	}
 
-    if (typeof merchantAccounts[code] === 'string') {
-        return '<merchant-account-id>' + merchantAccounts[code].replace(/\s/g, '') + '</merchant-account-id>';
-    }
+    return false;
+}
 
-    return '';
+
+/**
+ * Create XML string for <merchant-account-id />
+ * @param {string} currencyCode - Currency Code
+ * @return {string} XML <merchant-account-id>MerchantID</merchant-account-id>
+ */
+function getAfterPayAccountId(order) {
+	var orderCurrency = order.getCurrencyCode();
+	var countryCode = order.billingAddress.countryCode.value;
+    for each(account in appPreference.Apexx_AfterPay_Account_IDs ) {
+        var arrSplit = account.split('-');
+        
+        if(countryCode === arrSplit[0] && orderCurrency === arrSplit[1]){
+        	return arrSplit[2];
+        	break;
+        }
+	}
+
+    return false;
 }
 
 var apexxHelper = {
@@ -340,7 +361,9 @@ var apexxHelper = {
     intToFloat:intToFloat,
     isInt:isInt,
     getCurrencyCode:getCurrencyCode,
-    updateTransactionHistory:updateTransactionHistory
+    updateTransactionHistory:updateTransactionHistory,
+    isAfterPayAllowed:isAfterPayAllowed,
+    getAfterPayAccountId:getAfterPayAccountId
 };
 
 module.exports = apexxHelper;

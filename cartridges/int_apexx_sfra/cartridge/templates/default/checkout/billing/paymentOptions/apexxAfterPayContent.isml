@@ -1,0 +1,9 @@
+<div class="tab-pane apexx-afterpay-content" id="apexx-afterpay-content" role="tabpanel">
+      
+      <fieldset class="payment-form-fields">
+            <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="APEXX_AFTERPAY">
+	        <input type="hidden" class="form-control" name="afterPayAction"  >
+			<div id="afterpay-main" data-hosted-get-url="${URLUtils.https('ApexxAfterPay-Get')}" />
+			<input type="image" id="apexxAfterPay" src="${URLUtils.staticURL('/images/apexx_after_pay.png')}" border="0" name="submit" alt="AfterPay - The safer, easier way to pay online!">
+	  </fieldset>
+</div>
