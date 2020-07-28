@@ -37,6 +37,7 @@ function handle(basket, paymentInformation) {
     var cardSecurityCode = paymentInformation.securityCode.value;
     var expirationMonth = paymentInformation.expirationMonth.value;
     var expirationYear = paymentInformation.expirationYear.value;
+
     var serverErrors = [];
     var creditCardStatus;
 
@@ -63,6 +64,7 @@ function handle(basket, paymentInformation) {
         paymentInstrument.setCreditCardHolder(currentBasket.billingAddress.fullName);
         paymentInstrument.setCreditCardNumber(cardNumber);
         paymentInstrument.setCreditCardExpirationMonth(expirationMonth);
+
         paymentInstrument.setCreditCardExpirationYear(expirationYear);
         if (token) {
             paymentInstrument.setCreditCardToken(token);
@@ -98,7 +100,7 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
 
             var saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
 
-            //return {error: true,saleTransactionResponseData:saleTransactionResponseData};
+           // return {error: true,saleTransactionResponseData:saleTransactionResponseData};
 
             if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object.authorization_code) {
 
@@ -225,7 +227,7 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
     var paymentTransaction = paymentInstrumentRecord.getPaymentTransaction();
     var customer = orderRecord.getCustomer();
     var Money = require('dw/value/Money');
-
+    
     Transaction.wrap(function() {
         if (responseTransaction.status == "CAPTURED") {
             orderRecord.custom.apexxTransactionType = "CAPTURE";

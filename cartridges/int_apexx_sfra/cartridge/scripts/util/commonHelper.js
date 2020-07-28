@@ -316,7 +316,7 @@ function isAfterPayAllowed(currentBasket) {
 	var orderCurrency = currentBasket.currencyCode;
 	var countryCode = currentBasket.billingAddress.countryCode.value;
     for each(account in appPreference.Apexx_AfterPay_Account_IDs ) {
-        var arrSplit = account.split('-');
+        var arrSplit = account.split('_');
         
         if(countryCode === arrSplit[0] && orderCurrency === arrSplit[1]){
         	return arrSplit[2];
@@ -337,7 +337,7 @@ function getAfterPayAccountId(order) {
 	var orderCurrency = order.getCurrencyCode();
 	var countryCode = order.billingAddress.countryCode.value;
     for each(account in appPreference.Apexx_AfterPay_Account_IDs ) {
-        var arrSplit = account.split('-');
+        var arrSplit = account.split('_');
         
         if(countryCode === arrSplit[0] && orderCurrency === arrSplit[1]){
         	return arrSplit[2];

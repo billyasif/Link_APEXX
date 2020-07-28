@@ -166,16 +166,32 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.merchant_reference = paymentReference;
         commonBillingObject.user_agent = appPreference.USER_AGENT;
         commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
-        commonBillingObject.three_ds = {};
-        commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_Direct_Three_Ds;
+        
         if(cardToken){
         	commonBillingObject.card = {};
-            commonBillingObject.card.cvv = cardObject.cvv;
+            commonBillingObject.three_ds = {}
+            if(appPreference.Apexx_Direct_Recurring_Type == "oneclick"){
+               commonBillingObject.card.cvv = cardObject.cvv;
+            }
             commonBillingObject.card.token = cardToken;
+            commonBillingObject.three_ds.three_ds_required = false
+
 
         }else{
-        	
+            
+        	commonBillingObject.three_ds = {};
         	commonBillingObject.card = cardObject;
+        	
+        	if(appPreference.Apexx_Direct_Recurring_Type =="oneclick" || appPreference.Apexx_Direct_Recurring_Type == "recurring"){
+                
+        		commonBillingObject.three_ds.three_ds_required = false;
+
+        	}else{
+                
+        		commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_Direct_Three_Ds;
+
+        	}
+
         }
         
         commonBillingObject.recurring_type = appPreference.Apexx_Direct_Recurring_Type;

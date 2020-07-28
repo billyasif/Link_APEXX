@@ -144,7 +144,7 @@ server.post(
         if (payLoad) {
             var response = apexxServiceWrapper.makeServiceCall('POST', endPoint, payLoad);
 
-            if (response.object.id && response.object.status === 'AUTHORISED' || response.object.status === 'CAPTURED') {
+            if (response.object._id && response.object.status === 'AUTHORISED' || response.object.status === 'CAPTURED') {
                 var paymentInstrument = order.getPaymentInstruments()[0];
                 var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstrument.paymentMethod).paymentProcessor;
                 cardProcessor.saveTransactionData(order, paymentInstrument, response.object);
