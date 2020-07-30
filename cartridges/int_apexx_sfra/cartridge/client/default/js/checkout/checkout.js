@@ -3,7 +3,7 @@
 
 var addressHelpers = require('base/checkout/address');
 var shippingHelpers = require('base/checkout/shipping');
-var billingHelpers = require('base/checkout/shipping');
+var billingHelpers = require('./billing');
 var summaryHelpers = require('base/checkout/summary');
 var formHelpers = require('base/checkout/formErrors');
 var scrollAnimate = require('base/components/scrollAnimate');
@@ -330,13 +330,14 @@ var scrollAnimate = require('base/components/scrollAnimate');
                                 }
                             } else {
                             	
+                            	
                             	 var continueUrl = data.continueUrl;
                                  var urlParams = {
                                      ID: data.orderID,
                                      token: data.orderToken
                                  };
                             	
-                            	
+                                
                                 if(data.paymentMethod == 'APEXX_HOSTED' && data.token && data.iframe == true){
                                 	var frame = '<iframe  id="hostedIframe" class="holds-the-iframe" src="'+ data.continueUrl +'"  scrolling="auto"></iframe>';
                                     $('#paymentIFrameWindow').html(frame);
@@ -345,7 +346,8 @@ var scrollAnimate = require('base/components/scrollAnimate');
                                }
                                 
                                
-                                if(data.paymentMethod == 'CREDIT_CARD' && data.threeDsData &&  data.iframe == true){
+                                if(data.paymentMethod == 'CREDIT_CARD' || data.paymentMethod == 'APEXX_CLIENT_SIDE' && data.threeDsData &&  data.iframe == true){
+                                	
                                 	var form3Ds = '';
                                 	form3Ds =     '<form name="redirectForm" id="redirectForm" action="'+data.threeDsData.three_ds.acsURL+'" method="POST">';  
                                 	form3Ds +=   '<input type="hidden" name="PaReq" id="PaReq" value="'+data.threeDsData.three_ds.paReq+'">'; 

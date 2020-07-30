@@ -2017,11 +2017,17 @@ APEXX.setPublicKey([YOUR PUBLIC KEY]);</description>
             </attribute-definition>
            
            <attribute-definition attribute-id="Apexx_AfterPay_Capture">
-                <display-name xml:lang="x-default">Auth and Capture Transaction</display-name>
-                <type>boolean</type>
-                <mandatory-flag>true</mandatory-flag>
+                 <display-name xml:lang="x-default">AfterPay Capture </display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
-                <default-value>true</default-value>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Authorize Only</display>
+                        <value>false</value>
+                    </value-definition>
+
+                </value-definitions>
             </attribute-definition>
             <attribute-definition attribute-id="Apexx_AfterPay_Dynamic_Descriptor">
                 <display-name xml:lang="x-default">AfterPay Pay Dynamic Descriptor</display-name>

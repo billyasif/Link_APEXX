@@ -71,7 +71,7 @@ server.get('API',function(req,res,next){
 	var StringUtils = require('dw/util/StringUtils');
 	var Calendar = require('dw/util/Calendar');
 	//var CustomerPaymentInstrument = require('dw/customer/CustomerPaymentInstrument');
-    var customerWallet = customer.getProfile().getWallet().getPaymentInstruments()['0'].getCreditCardToken();
+    //var customerWallet = customer.getProfile().getWallet().getPaymentInstruments()['0'].getCreditCardToken();
 
 //	var BillingForm = server.forms.getForm('billing').creditCardFields;
     //var ObjectPaymentModel = commonHelper.convertFormToObject(BillingForm);
@@ -90,7 +90,7 @@ server.get('API',function(req,res,next){
    
    //res.json({'toccken':Object.keys(order.adjustedShippingTotalTax) });
 
-   res.json(currentBasket.billingAddress.countryCode.value);return next();
+   res.json({'customer':Object.keys(appPreference.Apexx_Direct_Three_Ds)});return next();
    //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
 
   // res.json(Object.keys(paymentInstruments));return next();

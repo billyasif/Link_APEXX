@@ -129,6 +129,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+           <attribute-definition attribute-id="apexxRecurringType">
+                <display-name xml:lang="x-default">Apexx Recurring Type</display-name>
+                <description xml:lang="x-default">Apexx Recurring Type</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
             <attribute-definition attribute-id="apexxReasonCode">
                 <display-name xml:lang="x-default">Apexx Reason Code</display-name>
                 <description xml:lang="x-default">Apexx Reason Code</description>
@@ -137,6 +145,13 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="apexxTransactionType">
+		<display-name xml:lang="x-default">Apexx Transaction Type</display-name>
+		<type>string</type>
+		<mandatory-flag>false</mandatory-flag>
+		<externally-managed-flag>false</externally-managed-flag>
+		<min-length>0</min-length>
+	   </attribute-definition>
            <attribute-definition attribute-id="apexxAvsResult">
                 <display-name xml:lang="x-default">Apexx Avs Result</display-name>
                 <description xml:lang="x-default">Apexx Avs Result</description>

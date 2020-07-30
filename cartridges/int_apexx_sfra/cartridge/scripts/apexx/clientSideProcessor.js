@@ -13,8 +13,9 @@ var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_DIRECT_PAY;
 var dwSession = require("dw/system/Session");
 var CONST = {
-		APEXX_PAYMENT_METHOD: 'APEXX_CLIENT_SIDE'
-	};
+    APEXX_PAYMENT_METHOD: 'APEXX_CLIENT_SIDE',
+	STATUS_PROCESSING: 'Processing'
+};
 
 
 /**
@@ -25,16 +26,16 @@ var CONST = {
  * @return {Object} returns an error object
  */
 function handle(basket, paymentInformation) {
-	var currentBasket = basket;
+    var currentBasket = basket;
     var cardErrors = {};
-    
+
     var cseCardOwner = paymentInformation.cseCardOwner.value;
     var cseCardNumber = paymentInformation.cseCardNumber.value;
     var cseSecurityCode = paymentInformation.cseSecurityCode.value;
     var cseExpirationMonth = paymentInformation.cseExpirationMonth.value;
     var cseExpirationYear = paymentInformation.cseExpirationYear.value;
     var cseEncryptedData = paymentInformation.cseEncryptedData.value;
-
+    var transactionType = appPreference.Apexx_Client_Side_Capture == true ? "CAPTURE" : "AUTH";
     var serverErrors = [];
     var creditCardStatus;
 
@@ -44,7 +45,7 @@ function handle(basket, paymentInformation) {
 
     Transaction.wrap(function() {
         var paymentInstruments = currentBasket.getPaymentInstruments(
-        	CONST.APEXX_PAYMENT_METHOD
+            CONST.APEXX_PAYMENT_METHOD
         );
         collections.forEach(paymentInstruments, function(item) {
             currentBasket.removePaymentInstrument(item);
@@ -52,14 +53,19 @@ function handle(basket, paymentInformation) {
 
 
         var paymentInstrument = currentBasket.createPaymentInstrument(
-        	CONST.APEXX_PAYMENT_METHOD,currentBasket.totalGrossPrice
+            CONST.APEXX_PAYMENT_METHOD, currentBasket.totalGrossPrice
         );
-        
+
         paymentInstrument.setCreditCardHolder(cseCardOwner);
         paymentInstrument.setCreditCardNumber(cseCardNumber);
         paymentInstrument.setCreditCardExpirationMonth(cseExpirationMonth);
         paymentInstrument.setCreditCardExpirationYear(cseExpirationYear);
-        paymentInstrument.custom.encryptedData = cseEncryptedData;
+        if (cseEncryptedData != false) {
+            paymentInstrument.custom.encryptedData = cseEncryptedData;
+        }
+        paymentInstrument.custom.apexxTransactionType = transactionType;
+        paymentInstrument.custom.apexxRecurringType = appPreference.Apexx_Client_Side_Recurring_Type;
+        paymentInstrument.custom.apexx3dSecureStatus = appPreference.Apexx_Client_Three_Ds;
 
 
 
@@ -90,8 +96,7 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
 
 
             var saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
-          
-            //return {error: true,saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData};
+
 
             if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object.authorization_code) {
 
@@ -101,29 +106,36 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
                     updateSaveCardStatus(saleTransactionRequestData, paymentInstrument);
                 }
 
-                if (saleTransactionRequestData.card.saveCard == true) {
-                    saveCustomerCreditCard(paymentInstrument, saleTransactionResponseData.object);
-                }
-
-
                 return {
+
                     authorized: true
                 };
 
             } else if (saleTransactionResponseData.ok == true && saleTransactionRequestData.three_ds.three_ds_required == true) {
-                updateSaveCardStatus(saleTransactionRequestData, paymentInstrument);
 
                 return {
                     authorized: true,
                     threeDsObj: saleTransactionResponseData.object
 
                 };
+            } else if (saleTransactionResponseData.object.status === "DECLINED" || saleTransactionResponseData.object.status === "FAILED") {
+                saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+                return {
+
+                    authorized: true
+                };
+            } else if (saleTransactionResponseData.ok == true || saleTransactionResponseData.ok == false && saleTransactionResponseData.object.code) {
+                saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+                return {
+
+                    authorized: true
+                }
             } else {
                 var errorObj = {
                     error: true,
                     errorCode: saleTransactionResponseData.object.reason_code,
                     errorMessage: saleTransactionResponseData.object.reason_message,
-                    errorResponse: saleTransactionResponseData
+                    errorResponse:{saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
                 };
                 return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
             }
@@ -172,35 +184,6 @@ function authorizeFailedFlow(orderRecord, paymentProcessor, paymentInstrumentRec
     }
 }
 
-/**
- * Save used credit cart as customers payment method
- * @param {dw.order.OrderPaymentInstrument} paymentInstrument Current payment instrument
- * @param {Object} saleTransactionResponseData Response data from API call
- */
-function saveCustomerCreditCard(paymentInstrument, saleTransactionResponseData) {
-    if (saleTransactionResponseData.card.token) {
-        var customerWallet = customer.getProfile().getWallet();
-        var card = {
-            expirationMonth: saleTransactionResponseData.card.expiry_month,
-            expirationYear: saleTransactionResponseData.card.expiry_year,
-            number: saleTransactionResponseData.card.card_number,
-            type: paymentInstrument.creditCardType,
-            owner: paymentInstrument.creditCardHolder,
-            token: saleTransactionResponseData.card.token
-        };
-
-        Transaction.wrap(function() {
-
-            var customerPaymentInstrument = customerWallet.createPaymentInstrument(paymentInstrument.getPaymentMethod());
-            customerPaymentInstrument.setCreditCardHolder(card.owner);
-            customerPaymentInstrument.setCreditCardNumber(card.number);
-            customerPaymentInstrument.setCreditCardExpirationMonth(parseInt(card.expirationMonth, 10));
-            customerPaymentInstrument.setCreditCardExpirationYear(parseInt(card.expirationYear, 10));
-            customerPaymentInstrument.setCreditCardType(card.type);
-            customerPaymentInstrument.setCreditCardToken(card.token);
-        });
-    }
-}
 
 
 /**
@@ -218,25 +201,51 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
     var paymentTransaction = paymentInstrumentRecord.getPaymentTransaction();
     var customer = orderRecord.getCustomer();
     var Money = require('dw/value/Money');
+    var transactionType = appPreference.Apexx_Client_Side_Capture == true ? "CAPTURE" : "AUTH";
 
     Transaction.wrap(function() {
         if (responseTransaction.status == "CAPTURED") {
-            orderRecord.custom.apexxTransactionType = "CAPTURE";
+            paymentTransaction.setType(PT.TYPE_CAPTURE);
+            orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_PAID);
             orderRecord.custom.apexxPaidAmount = authAmount;
             orderRecord.custom.apexxCaptureAmount = paidAmount;
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
 
-        } else {
-            orderRecord.custom.apexxTransactionType = "AUTH";
+        } else if (paymentInstrumentRecord.custom.apexxTransactionType == false && responseTransaction.status == "AUTHORISED") {
+            paymentTransaction.setType(PT.TYPE_AUTH);
+            orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-        }
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
 
+        } else if (responseTransaction.status == "DECLINED") {
+            orderRecord.custom.apexxTransactionType = transactionType;
+
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+        } else if (responseTransaction.status == "FAILED") {
+            orderRecord.custom.apexxTransactionType = transactionType;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+
+        }
+        if (responseTransaction.code) {
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            orderRecord.custom.apexxTransactionType = transactionType;
+            orderRecord.custom.apexxTransactionType = "FAILED";
+            orderRecord.custom.apexxTransactionStatus = "FAILED";
+            return;
+        }
         paymentTransaction.setTransactionID(responseTransaction._id);
         paymentTransaction.setPaymentProcessor(paymentProcessor);
-        paymentTransaction.setAmount(new Money(responseTransaction.amount, orderRecord.getCurrencyCode()));
+        if (responseTransaction.amount) {
+            paymentTransaction.setAmount(new Money(responseTransaction.amount, orderRecord.getCurrencyCode()));
+        }
+        orderRecord.custom.apexxTransactionStatus = (responseTransaction.status === "CAPTURED") ? CONST.STATUS_PROCESSING : responseTransaction.status;
 
         orderRecord.custom.isApexxOrder = true;
-        orderRecord.custom.apexxTransactionStatus = responseTransaction.status;
+        orderRecord.custom.apexxTransactionType = transactionType;
         orderRecord.custom.apexxAuthAmount = responseTransaction.authorization_code ? authAmount : 0.0;
         orderRecord.custom.apexxTransactionID = responseTransaction._id;
         orderRecord.custom.apexxMerchantReference = responseTransaction.merchant_reference;
@@ -246,13 +255,7 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
         paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_Client_Three_Ds;
         paymentInstrumentRecord.custom.apexxAuthorizationCode = responseTransaction.authorization_code;
 
-
-        if (responseTransaction.status === 'AUTHORISED') {
-            paymentTransaction.setType(PT.TYPE_AUTH);
-        }
-
         if (responseTransaction.card) {
-
             paymentInstrumentRecord.custom.apexxPaymentMethodToken = responseTransaction.card.token;
             paymentInstrumentRecord.custom.apexxCreditCardType = responseTransaction.card_brand;
             paymentInstrumentRecord.custom.apexxCreditCardLastDigits = responseTransaction.card.card_number;
@@ -264,19 +267,6 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
 
 }
 
-function updateSaveCardStatus(saleTransactionRequestData, paymentInstrument) {
-    var status = false;;
-
-    if (saleTransactionRequestData.card.saveCard == true) {
-        status = true;
-    }
-
-    Transaction.wrap(function() {
-        paymentInstrument.custom.apexxSaveCreditCard = status;
-    });
-
-}
 exports.handle = handle;
 exports.authorize = authorize;
 exports.saveTransactionData = saveTransactionData;
-exports.saveCustomerCreditCard = saveCustomerCreditCard;

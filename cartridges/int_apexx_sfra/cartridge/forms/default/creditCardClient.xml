@@ -19,7 +19,7 @@
     <field formid="cseSecurityCode" label="profile.securitycode" type="string" mandatory="true" binding="cseSecurityCode"
            max-length="4" missing-error="error.card.info.missing.securityCode" />        
 
-    <field formid="cseEncryptedData" label="label.input.creditcard.owner" type="string" mandatory="true" binding="cseEncryptedData" /> 
+    <field formid="cseEncryptedData"  min-length="100" label="label.input.creditcard.owner" type="string" mandatory="true" binding="cseEncryptedData" /> 
            
            
 

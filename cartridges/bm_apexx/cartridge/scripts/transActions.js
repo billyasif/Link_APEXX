@@ -680,7 +680,7 @@ function setAfterPayOrderAttributesHistory(action, order, response, paidAmount) 
 
 
     if (action === 'capture' && captureAmount) {
-        var transactionStatus = (response.status && captureAmount < authAmount) ? "PAYMENT_STATUS_PARTPAID" : response.status;
+        var transactionStatus = (response.status && captureAmount < authAmount) ? "PAYMENT_STATUS_PARTPAID" : "Processing";
         Transaction.wrap(function() {
             order.custom.apexxCaptureId = response._id || ''; // eslint-disable-line no-param-reassign
             order.custom.apexxMerchantReference = response.merchant_reference || ''; // eslint-disable-line no-param-reassign

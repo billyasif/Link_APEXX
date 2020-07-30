@@ -12,17 +12,7 @@ var CONST = {
 };
 
 
-/**
- * Checks if APEXX payment method
- *
- * @param paymentMethodID
- * @returns {boolean} true/false
- */
- function isApexxPaymentMethod (paymentMethodID) {
-	var PaymentMgr = require('dw/order/PaymentMgr');
-	var paymentProcessorID = (PaymentMgr.getPaymentMethod(paymentMethodID)).paymentProcessor.ID
-	return (CONST.APEXX_HOSTED_PAYMENT_PROCESSOR_ID === paymentProcessorID) ? true : false;
-}
+
 /**
  * Logs custom messages
  * @param {Object} message - message to log
@@ -347,6 +337,21 @@ function getAfterPayAccountId(order) {
 
     return false;
 }
+
+
+/**
+ * Checks if APEXX payment method
+ *
+ * @param paymentMethodID
+ * @returns {boolean} true/false
+ */
+function isApexxPaymentMethod(paymentMethodID,processorID) {
+	var PaymentMgr = require('dw/order/PaymentMgr');
+	var paymentProcessorID = (PaymentMgr.getPaymentMethod(paymentMethodID)).paymentProcessor.ID
+	return (processorID === paymentProcessorID) ? true : false;
+}
+
+
 
 var apexxHelper = {
     log: log,

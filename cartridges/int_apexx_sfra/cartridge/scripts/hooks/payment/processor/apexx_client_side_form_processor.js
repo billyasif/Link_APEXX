@@ -57,7 +57,7 @@ function processForm(req, paymentForm, viewFormData) {
         cseEncryptedData: {
             value: paymentForm.creditCardClientFields.cseEncryptedData.value,
             htmlName: paymentForm.creditCardClientFields.cseEncryptedData.htmlName
-        }
+        } 
     };
 
     return {

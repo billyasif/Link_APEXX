@@ -17,7 +17,8 @@ var appPreference = require('~/cartridge/config/appPreference')();
 var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_DIRECT_PAY;
 var CONST = {
-		APEXX_PAYMENT_METHOD: 'APEXX_GOOGLEPAY'
+		APEXX_PAYMENT_METHOD: 'APEXX_GOOGLEPAY',
+		STATUS_PROCESSING: 'Processing'
 	};
 
 /**
@@ -29,6 +30,8 @@ var CONST = {
  */
 function handle(basket, paymentInformation) {
     var currentBasket = basket;
+    var transactionType = appPreference.Apexx_Direct_Capture == true  ? "CAPTURE" : "AUTH";
+
     var cardErrors = {};
     var serverErrors = [];
     var error = false;
@@ -48,6 +51,9 @@ function handle(basket, paymentInformation) {
          paymentInstrument.custom.apexxDpan = request.httpParameterMap.dpan.value;
          paymentInstrument.custom.apexxEci = request.httpParameterMap.eci.value;
          
+         paymentInstrument.custom.apexxTransactionType = transactionType;
+         paymentInstrument.custom.apexxRecurringType = appPreference.Apexx_GooglePay_Recurring_Type;
+         paymentInstrument.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
     });
     
 
@@ -78,12 +84,18 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
          //return {error: true,saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData};
          saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
 
-    } else {
+    } else if (saleTransactionResponseData.ok == true || saleTransactionResponseData.ok == false  && saleTransactionResponseData.object.status == "DECLINED" || saleTransactionResponseData.object.status == "FAILED"){
+        saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+        return {
+            authorized: true
+        };
+
+    }else {
             var errorObj = {
                 error: true,
                 errorCode: '',
                 errorMessage: '',
-                errorResponse: saleTransactionResponseData
+                errorResponse:{saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
             }
             return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
         }
@@ -140,25 +152,42 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
     var paymentTransaction = paymentInstrumentRecord.getPaymentTransaction();
     var customer = orderRecord.getCustomer();
     var Money = require('dw/value/Money');
+    var transactionType = appPreference.Apexx_Direct_Capture == true  ? "CAPTURE" : "AUTH";
 
     Transaction.wrap(function() {
+              
         if (responseTransaction.status == "CAPTURED") {
-            orderRecord.custom.apexxTransactionType = "CAPTURE";
+            paymentTransaction.setType(PT.TYPE_CAPTURE);
+        	orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_PAID);
             orderRecord.custom.apexxPaidAmount = authAmount;
             orderRecord.custom.apexxCaptureAmount = paidAmount;
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
 
-        } else {
-            orderRecord.custom.apexxTransactionType = "AUTH";
+        } else if (responseTransaction.status == "AUTHORISED") {
+            paymentTransaction.setType(PT.TYPE_AUTH);
+        	orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-        }
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
 
+        }else if (responseTransaction.status == "DECLINED") {
+            orderRecord.custom.apexxTransactionType = transactionType;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+
+        }else if (responseTransaction.status == "FAILED") {
+            orderRecord.custom.apexxTransactionType = transactionType;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+
+        }
+        
         paymentTransaction.setTransactionID(responseTransaction._id);
         paymentTransaction.setPaymentProcessor(paymentProcessor);
         paymentTransaction.setAmount(new Money(responseTransaction.amount, orderRecord.getCurrencyCode()));
+        orderRecord.custom.apexxTransactionStatus = (responseTransaction.status === "CAPTURED") ? CONST.STATUS_PROCESSING : responseTransaction.status;
 
         orderRecord.custom.isApexxOrder = true;
-        orderRecord.custom.apexxTransactionStatus = responseTransaction.status;
         orderRecord.custom.apexxAuthAmount = responseTransaction.authorization_code ? authAmount : 0.0;
         orderRecord.custom.apexxTransactionID = responseTransaction._id;
         orderRecord.custom.apexxMerchantReference = responseTransaction.merchant_reference;
@@ -168,10 +197,6 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
         paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
         paymentInstrumentRecord.custom.apexxAuthorizationCode = responseTransaction.authorization_code;
 
-
-        if (responseTransaction.status === 'AUTHORISED') {
-            paymentTransaction.setType(PT.TYPE_AUTH);
-        }
 
     });
 

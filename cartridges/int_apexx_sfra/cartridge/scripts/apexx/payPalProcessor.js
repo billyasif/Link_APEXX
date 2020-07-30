@@ -27,18 +27,27 @@ var CONST = {
  */
 function handle(basket, paymentInformation) {
     var currentBasket = basket;
+    var paymentInstrument;
     var cardErrors = {};
     var serverErrors = [];
     var error = false;
+    var transactionType = appPreference.Apexx_PayPal_Capture == true  ? "CAPTURE" : "AUTH";
 
     try {
         Transaction.wrap(function () {
-            var paymentInstruments = currentBasket.getPaymentInstruments();
-            collections.forEach(paymentInstruments, function(item) {
-                currentBasket.removePaymentInstrument(item);
-            });
-
-            currentBasket.createPaymentInstrument(paymentInformation.paymentMethodID, currentBasket.totalGrossPrice);
+        	var paymentInstruments = currentBasket.getPaymentInstruments();
+            var iter = paymentInstruments.iterator();
+            var currentPi = null;
+            while (iter.hasNext()) {
+            	currentPi = iter.next();
+                var paymentMethod = currentPi.paymentMethod;
+                if (paymentMethod != null && typeof paymentMethod !== 'undefined' && commonHelper.isApexxPaymentMethod(paymentMethod,CONST.APEXX_HOSTED_PAYMENT_PROCESSOR_ID)) {
+                	currentBasket.removePaymentInstrument(currentPi);
+                }
+            }
+            paymentInstrument = currentBasket.createPaymentInstrument(paymentInformation.paymentMethodID, currentBasket.totalGrossPrice);
+            paymentInstrument.custom.apexxTransactionType = transactionType;
+            paymentInstrument.custom.apexxRecurringType = appPreference.Apexx_Paypal_Recurring_Type;
         });
     } catch (e) {
         error = true;
@@ -85,7 +94,7 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
                 error: true,
                 errorCode: '',
                 errorMessage: '',
-                errorResponse: saleTransactionResponseData
+                errorResponse:{saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
             }
             return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
         }
@@ -128,7 +137,6 @@ function authorizeFailedFlow(orderRecord, paymentProcessor, paymentInstrumentRec
     }
 }
 
-
 /**
  * Save result of the success sale transaction
  * @param {dw.order.Order} orderRecord Current order
@@ -167,5 +175,6 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, saleTransacti
 
     });
 }
+
 exports.handle = handle;
 exports.authorize = authorize;

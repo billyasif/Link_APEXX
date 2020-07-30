@@ -18,7 +18,7 @@ $(document).ready(function() {
 		var Json = {};
 		
 		//$('form[data-apexx="payment-form"]').submit(function( event ) {
-			$( ".submit-payment  , .place-order" ).click(function(event) {
+			$( ".submit-payment" ).click(function(event) {
 				
 				$('input[data-apexx]').each(function( key ) {
 				

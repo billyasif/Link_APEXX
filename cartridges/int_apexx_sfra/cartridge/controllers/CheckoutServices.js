@@ -74,10 +74,6 @@ server.replace(
         }
 
         var paymentProcessor = PaymentManager.getPaymentMethod(paymentMethodIdValue).getPaymentProcessor();
-
-        
-        
-        
         var paymentFormResult;
         if (HookManager.hasHook('app.payment.form.processor.' + paymentProcessor.ID.toLowerCase())) {
             paymentFormResult = HookManager.callHook('app.payment.form.processor.' + paymentProcessor.ID.toLowerCase(),
@@ -421,16 +417,10 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     // Handles payment authorization
     var handlePaymentResult = COHelpers.handlePayments(order, order.orderNo);
     
-//    res.json({
-//        error: true,
-//        errorMessage:handlePaymentResult
-//    });
-//    return next();
-    
     if (handlePaymentResult.error) {
         res.json({
             error: true,
-            errorMessage:Resource.msg(Resource.msg('error.technical', 'checkout', null))
+            errorMessage:handlePaymentResult
         });
         return next();
     }
@@ -530,13 +520,13 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         return next();
     }
     
-    
+   //res.json({"p":handlePaymentResult});return next();
    //Apexx Iframe 3DS  Window Setting 
-    
     if('threeDsObj' in handlePaymentResult){
     	objThreeDs = handlePaymentResult.threeDsObj;
     	threeDsTransId = ('_id' in handlePaymentResult.threeDsObj) ? handlePaymentResult.threeDsObj._id : '';
-        threeDsReturnUrl = appPreference.RETURN_URL_DIRECT_CREDIT_THREE_DS + '?transactionId='+ threeDsTransId + '&orderId=' + order.orderNo;
+        
+    	threeDsReturnUrl = appPreference.RETURN_URL_DIRECT_CREDIT_THREE_DS + '?transactionId='+ threeDsTransId + '&orderId=' + order.orderNo+ '&method=' + paymentMethodIdValue;
         
         res.json({
             error: false,

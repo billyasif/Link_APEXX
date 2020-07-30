@@ -15,7 +15,8 @@ var appPreference = require('~/cartridge/config/appPreference')();
 var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_AFTERPAY;
 var CONST = {
-		APEXX_PAYPAL: 'APEXX_AFTERPAY'
+		APEXX_AFTERPAY: 'APEXX_AFTERPAY',
+		STATUS_PROCESSING: 'Processing'
 	};
 
 /**
@@ -30,15 +31,19 @@ function handle(basket, paymentInformation) {
     var cardErrors = {};
     var serverErrors = [];
     var error = false;
-
     try {
         Transaction.wrap(function () {
-            var paymentInstruments = currentBasket.getPaymentInstruments();
-            collections.forEach(paymentInstruments, function(item) {
-                currentBasket.removePaymentInstrument(item);
-            });
-
-            currentBasket.createPaymentInstrument(paymentInformation.paymentMethodID, currentBasket.totalGrossPrice);
+        	 var paymentInstruments = currentBasket.getPaymentInstruments();
+             var iter = paymentInstruments.iterator();
+             var currentPi = null;
+             while (iter.hasNext()) {
+             	currentPi = iter.next();
+                 var paymentMethod = currentPi.paymentMethod;
+                 if (paymentMethod != null && typeof paymentMethod !== 'undefined' && commonHelper.isApexxPaymentMethod(paymentMethod,CONST.APEXX_AFTERPAY)) {
+                 	currentBasket.removePaymentInstrument(currentPi);
+                 }
+             }
+             paymentInstrument = currentBasket.createPaymentInstrument(paymentInformation.paymentMethodID, currentBasket.totalGrossPrice);
         });
     } catch (e) {
         error = true;
@@ -87,12 +92,18 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
 
         if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object._id ) {
         saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
-        } else {
+        } else if (saleTransactionResponseData.ok == true || saleTransactionResponseData.ok == false  && saleTransactionResponseData.object.status == "DECLINED" || saleTransactionResponseData.object.status == "FAILED"){
+            saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+            return {
+                authorized: true
+            };
+
+        }else {
             var errorObj = {
                 error: true,
                 errorCode: '',
                 errorMessage: '',
-                errorResponse: saleTransactionResponseData
+                errorResponse:{saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
             }
             return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
         }
@@ -151,27 +162,54 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
     var paymentTransaction = paymentInstrumentRecord.getPaymentTransaction();
     var customer = orderRecord.getCustomer();
     var Money = require('dw/value/Money');
-    
+    var transactionType = "AUTHORISED";
+
     Transaction.wrap(function() {
-        
-        orderRecord.custom.apexxTransactionType = "AUTH";
-        orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-        paymentTransaction.setTransactionID(responseTransaction._id);
-        paymentTransaction.setPaymentProcessor(paymentProcessor);
-        paymentTransaction.setAmount(new Money(responseTransaction.afterpay.gross_amount, orderRecord.getCurrencyCode()));
+       
+       if (responseTransaction.status == "AUTHORISED") {
+           
+    	    paymentTransaction.setType(PT.TYPE_AUTH);
+        	orderRecord.custom.apexxTransactionType = responseTransaction.status;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            if(responseTransaction.reason_message)
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message || '';
+            if(responseTransaction._id)
+            paymentTransaction.setTransactionID(responseTransaction._id);
+            if(paymentProcessor)
+            paymentTransaction.setPaymentProcessor(paymentProcessor);
+            if(responseTransaction.status)
+            orderRecord.custom.apexxAuthAmount = (responseTransaction.status == 'AUTHORISED')  ? authAmount : 0.0;
 
-        orderRecord.custom.isApexxOrder = true;
-        orderRecord.custom.apexxTransactionStatus = responseTransaction.status;
-        orderRecord.custom.apexxAuthAmount = (responseTransaction.status == 'AUTHORISED')  ? authAmount : 0.0;
-        orderRecord.custom.apexxTransactionID = responseTransaction._id;
-        orderRecord.custom.apexxMerchantReference = responseTransaction.merchant_reference;
-        updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.afterpay.gross_amount);
+        }else if (responseTransaction.status == "DECLINED") {
+            orderRecord.custom.apexxTransactionType = responseTransaction.status;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message || '';
+            if(responseTransaction._id)
+            paymentTransaction.setTransactionID(responseTransaction._id);
+            if(paymentProcessor)
+            paymentTransaction.setPaymentProcessor(paymentProcessor);
+            if(transactionType)
+            paymentTransaction.setType(PT.TYPE_AUTH);
 
-        if (responseTransaction.status === 'AUTHORISED') {
+
+        }else if (responseTransaction.status == "FAILED") {
+            orderRecord.custom.apexxTransactionType = responseTransaction.status;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message || '';
+            if(responseTransaction._id)
+            paymentTransaction.setTransactionID(responseTransaction._id);
+            if(paymentProcessor)
+            paymentTransaction.setPaymentProcessor(paymentProcessor);
+            if(transactionType)
             paymentTransaction.setType(PT.TYPE_AUTH);
         }
 
-
+        paymentTransaction.setAmount(new Money(responseTransaction.afterpay.gross_amount, orderRecord.getCurrencyCode()));
+        orderRecord.custom.isApexxOrder = true;
+        orderRecord.custom.apexxTransactionStatus = (responseTransaction.status === "CAPTURED") ? CONST.STATUS_PROCESSING : responseTransaction.status;
+        orderRecord.custom.apexxTransactionID = responseTransaction._id || '';
+        orderRecord.custom.apexxMerchantReference = responseTransaction.merchant_reference || '';
+        updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.afterpay.gross_amount);
 
     });
 
