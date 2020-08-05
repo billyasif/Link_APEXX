@@ -3,6 +3,7 @@
 var PaymentMgr = require('dw/order/PaymentMgr');
 var PaymentInstrument = require('dw/order/PaymentInstrument');
 var collections = require('*/cartridge/scripts/util/collections');
+var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 
 /**
  * Creates an array of objects containing applicable payment methods
@@ -15,19 +16,12 @@ function applicablePaymentMethods(paymentMethods) {
    
     return collections.map(paymentMethods, function (method) {
     	
-    	if(method.ID == "APEXX_AFTERPAY" && customer.authenticated == false){
-    		return {
-                ID: "",
-                name: ""
-            };	
-    	}
-    
-		return {
-            ID: method.ID,
-            name: method.name
-        };	
 
-        
+    		return {
+                ID: method.ID,
+                name: method.name
+            };		
+    	
     });
 }
 

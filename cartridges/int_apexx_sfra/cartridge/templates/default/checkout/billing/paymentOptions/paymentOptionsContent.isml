@@ -20,4 +20,7 @@
         <isinclude template="checkout/billing/paymentOptions/apexxAfterPayContent" />
     </isif>
     
+    <isif condition="${paymentOption.ID === 'DW_APPLE_PAY' }">
+        <isinclude template="checkout/billing/paymentOptions/applePayContent" />
+    </isif>
 </isloop>

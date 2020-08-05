@@ -87,10 +87,12 @@ server.get('API',function(req,res,next){
 
    //var objReq = objectHelper.createSaleRequestObject(order,paymentInstruments,paymentProcessor);
    //var ObjectBilling = objectHelper.ApexxBillToObject(order, true);
-   
-   //res.json({'toccken':Object.keys(order.adjustedShippingTotalTax) });
+   var PaymentInstrument = require('dw/order/PaymentInstrument');
 
-   res.json({'customer':Object.keys(appPreference.Apexx_Direct_Three_Ds)});return next();
+   //res.json({'toccken':Object.keys(order.adjustedShippingTotalTax) });
+   var paymentInstruments = order.getPaymentInstruments(PaymentInstrument.METHOD_DW_APPLE_PAY);
+   
+   res.json({'customer':commonHelper.isAfterPayAllowed()});return next();
    //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
 
   // res.json(Object.keys(paymentInstruments));return next();

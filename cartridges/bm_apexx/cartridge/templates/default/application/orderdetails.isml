@@ -256,7 +256,7 @@
 						<input type="radio" name="operation" value="capture" id="radiocapture" ${canCapture ? '' : 'disabled'} /> <label for="radiocapture">${Resource.msg('operations.capture.label','apexx',null)}</label>
 					</td>
 					<td>
-						<input type="text" name="captureamount" value="${captureAmount}" disabled } />
+						<input type="text" name="captureamount" value="${captureAmount}"  } />
 						<span> ${order.getCurrencyCode()}</span>
 					</td>
 				</tr>
@@ -264,8 +264,9 @@
 					<td>
 						<input type="radio" name="operation" value="refund" id="radiorefund" ${canRefund ? '' : 'disabled'} /> <label for="radiorefund">${Resource.msg('operations.credit.label','apexx',null)}</label>
 					</td>
+					
 					<td>
-						<input type="text" name="refundamount" value="${paidAmount}"  disabled } />
+						<input type="text" name="refundamount" value="${paidAmount}"  } />
 						<span> ${order.getCurrencyCode()}</span>
 					</td>
 				</tr>

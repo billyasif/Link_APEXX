@@ -2,6 +2,7 @@ var publicKeyString;
 let APEXX = {};
 
 function setPublicKey(publicKey) {
+	//alert(publicKey);
 	publicKeyString = publicKey;
 }
 
@@ -12,7 +13,6 @@ function getPublicKey() {
 APEXX.setPublicKey = setPublicKey;
 
 
-
 $(document).ready(function() {
 
 		var Json = {};
@@ -21,7 +21,6 @@ $(document).ready(function() {
 			$( ".submit-payment" ).click(function(event) {
 				
 				$('input[data-apexx]').each(function( key ) {
-				
 				if($(this).data('apexx') != "encrypted_data" || $(this).data('apexx') != "masked_card_number"){
 						
 					if($(this).data('apexx') == "card_holder_name" && !fieldIsNull($( this ).val())){
@@ -33,8 +32,8 @@ $(document).ready(function() {
 				}
 				
 			});
-			
 			var maskedCardNumber = setMaskedCardNumber($('input[data-apexx = "card_number"]').val());
+
 			var cardField = $('input[data-apexx = "masked_card_number"]');
 			
 			if(!fieldIsNull(maskedCardNumber) && !fieldIsNull(cardField)){
@@ -47,7 +46,12 @@ $(document).ready(function() {
 			if (publicKeyString.length != 0) {
 				var encrypt = new JSEncrypt();
 				encrypt.setPublicKey(publicKeyString);
+				
+				console.log(JSON.stringify(Json));
+
 				var encryptedData = encrypt.encrypt(JSON.stringify(Json));
+				//alert(JSON.stringify(encryptedData));
+
 				$('input[data-apexx="encrypted_data"]').val(encryptedData)
 		    }
 			
@@ -64,7 +68,7 @@ function fieldIsNull(field){
 
 /** ***************** for masked card Number XXXXX************************** */
 function setMaskedCardNumber(cardNumber) {
-
+	//alert(cardNumber);
 	if(!fieldIsNull(cardNumber) && isValidCardNumberRegex(cardNumber)){
 		
 		var firstDigits = cardNumber.substr(0, 6);

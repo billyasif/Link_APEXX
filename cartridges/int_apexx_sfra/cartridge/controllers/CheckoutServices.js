@@ -63,8 +63,8 @@ server.replace(
         }
 
         
-        var paymentMethodIdValue = paymentForm.paymentMethod.value;
-
+    	var paymentMethodIdValue = server.forms.getForm('billing').paymentMethod.value; 
+        //res.json(paymentMethodIdValue);return next();
         if (!PaymentManager.getPaymentMethod(paymentMethodIdValue).paymentProcessor) {
             throw new Error(Resource.msg(
                 'error.payment.processor.missing',
@@ -525,7 +525,6 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     if('threeDsObj' in handlePaymentResult){
     	objThreeDs = handlePaymentResult.threeDsObj;
     	threeDsTransId = ('_id' in handlePaymentResult.threeDsObj) ? handlePaymentResult.threeDsObj._id : '';
-        
     	threeDsReturnUrl = appPreference.RETURN_URL_DIRECT_CREDIT_THREE_DS + '?transactionId='+ threeDsTransId + '&orderId=' + order.orderNo+ '&method=' + paymentMethodIdValue;
         
         res.json({

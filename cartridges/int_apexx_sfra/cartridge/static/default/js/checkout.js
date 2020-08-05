@@ -295,6 +295,16 @@ var scrollAnimate = __webpack_require__(6);
                                 defer.reject(err.responseJSON);
                             }
                         });
+                        
+                        if($('#afterPayStatus').val() === "true" ){
+                    		
+                     	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                     	   
+                         }else{
+                       	   
+                        	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+                         }
                     }
                     return defer;
                 } else if (stage === 'payment') {
@@ -439,6 +449,16 @@ var scrollAnimate = __webpack_require__(6);
                         }
                     });
 
+                    if($('#afterPayStatus').val() === "true" ){
+                		
+                  	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                  	   
+                      }else{
+                    	   
+                     	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+                      }
+                    
                     return defer;
                 } else if (stage === 'placeOrder') {
                     // disable the placeOrder button here
@@ -509,6 +529,16 @@ var scrollAnimate = __webpack_require__(6);
                         }
                     });
 
+                    if($('#afterPayStatus').val() === "true" ){
+                		
+                  	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                  	   
+                      }else{
+                    	   
+                     	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+                      }
+                    
                     return defer;
                 }
                 var p = $('<div>').promise(); // eslint-disable-line

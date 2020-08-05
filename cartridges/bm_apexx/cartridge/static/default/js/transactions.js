@@ -87,6 +87,7 @@ var trans = {
 						window.location.reload();
 					}
 					else{
+						//console.log(result);
 						alert(Resources.TRANSACTION_FAILED);
 					}
 			});

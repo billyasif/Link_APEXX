@@ -284,6 +284,7 @@ function captureTransaction(orderNo, amount) {
 //    }
        
     }else{
+      
       var endPoint = appPreferenceBM.SERVICE_HTTP_CAPTURE;
       var payLoad = makeCaptureRequest(order, amount , transactionID);
       // try {

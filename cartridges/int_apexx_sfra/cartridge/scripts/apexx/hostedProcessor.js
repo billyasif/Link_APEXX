@@ -14,10 +14,12 @@ var collections = require('*/cartridge/scripts/util/collections');
 var appPreference = require('~/cartridge/config/appPreference')();
 var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_HOSTED;
+var transactionType = appPreference.Apexx_Hosted_Capture == true ? "CAPTURE" : "AUTH";
+
 var CONST = {
-		APEXX_HOSTED_PAYMENT_PROCESSOR_ID: 'APEXX_HOSTED',
-		STATUS_PROCESSING: 'Processing'
-	};
+    APEXX_HOSTED_PAYMENT_PROCESSOR_ID: 'APEXX_HOSTED',
+    STATUS_PROCESSING: 'Processing'
+};
 
 /**
  * Verifies that entered credit card information is a valid card. If the information is valid a
@@ -33,18 +35,17 @@ function handle(basket, paymentInformation) {
     var cardErrors = {};
     var serverErrors = [];
     var error = false;
-    var transactionType = appPreference.Apexx_Hosted_Capture == true  ? "CAPTURE" : "AUTH";
 
     try {
-        Transaction.wrap(function () {
+        Transaction.wrap(function() {
             var paymentInstruments = currentBasket.getPaymentInstruments();
             var iter = paymentInstruments.iterator();
             var currentPi = null;
             while (iter.hasNext()) {
-            	currentPi = iter.next();
+                currentPi = iter.next();
                 var paymentMethod = currentPi.paymentMethod;
-                if (paymentMethod != null && typeof paymentMethod !== 'undefined' && commonHelper.isApexxPaymentMethod(paymentMethod,CONST.APEXX_HOSTED_PAYMENT_PROCESSOR_ID)) {
-                	currentBasket.removePaymentInstrument(currentPi);
+                if (paymentMethod != null && typeof paymentMethod !== 'undefined' && commonHelper.isApexxPaymentMethod(paymentMethod, CONST.APEXX_HOSTED_PAYMENT_PROCESSOR_ID)) {
+                    currentBasket.removePaymentInstrument(currentPi);
                 }
             }
             paymentInstrument = currentBasket.createPaymentInstrument(paymentInformation.paymentMethodID, currentBasket.totalGrossPrice);
@@ -53,7 +54,7 @@ function handle(basket, paymentInformation) {
             paymentInstrument.custom.apexxRecurringType = appPreference.Apexx_Hosted_Recurring_Type;
             paymentInstrument.custom.apexx3dSecureStatus = appPreference.Apexx_hosted_3ds_true_false;
         });
-        
+
 
     } catch (e) {
         error = true;
@@ -82,11 +83,15 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
     if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
         var saleTransactionResponseData = null;
         var saleTransactionRequestData = null;
-        
+
         saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
 
-         saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST',endPoint, saleTransactionRequestData);
-
+        saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
+       
+        var logger = require('dw/system/Logger').getLogger('APEXX_HOSTED_LOGGER');
+        logger.info("logged");
+        
+        
         if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object._id && saleTransactionResponseData.object.url) {
             saveTransactionData(order, paymentInstrument, saleTransactionRequestData, saleTransactionResponseData.object);
         } else {
@@ -94,7 +99,10 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
                 error: true,
                 errorCode: '',
                 errorMessage: '',
-                errorResponse:{saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
+                errorResponse: {
+                    saleTransactionRequestData: saleTransactionRequestData,
+                    saleTransactionResponseData: saleTransactionResponseData
+                }
             }
             return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
         }
@@ -152,12 +160,10 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, saleTransacti
     var customer = orderRecord.getCustomer();
     var Money = require('dw/value/Money');
     var threeDSecureInfo;
-    var transactionType = appPreference.Apexx_Hosted_Capture == true  ? "CAPTURE" : "AUTH";
 
-	Transaction.wrap(function() {
-		if (responseTransaction.status == "CAPTURED") {
+    Transaction.wrap(function() {
+        if (responseTransaction.status == "CAPTURED") {
             paymentTransaction.setType(PT.TYPE_CAPTURE);
-        	orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_PAID);
             orderRecord.custom.apexxPaidAmount = authAmount;
             orderRecord.custom.apexxCaptureAmount = paidAmount;
@@ -165,27 +171,29 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, saleTransacti
 
         } else if (responseTransaction.status == "AUTHORISED") {
             paymentTransaction.setType(PT.TYPE_AUTH);
-        	orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
             paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
 
 
-        }else if (responseTransaction.status == "DECLINED") {
-            orderRecord.custom.apexxTransactionType = transactionType;
+        } else if (responseTransaction.status == "DECLINED") {
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
             paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
 
-        }else if (responseTransaction.status == "FAILED") {
-            orderRecord.custom.apexxTransactionType = transactionType;
+        } else if (responseTransaction.status == "FAILED") {
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
             paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
 
         }
         orderRecord.custom.apexxTransactionStatus = (responseTransaction.status === "CAPTURED") ? CONST.STATUS_PROCESSING : responseTransaction.status;
+        orderRecord.custom.apexxTransactionType = transactionType;
 
-    	paymentTransaction.setPaymentProcessor(paymentProcessor);
-    	paymentTransaction.setAmount(new Money(saleTransactionRequestData.amount, orderRecord.getCurrencyCode()));
-    	threeDSecureInfo = saleTransactionRequestData.three_ds;
+        paymentTransaction.setPaymentProcessor(paymentProcessor);
+        
+        if(saleTransactionRequestData.amount){
+           paymentTransaction.setAmount(new Money(saleTransactionRequestData.amount, orderRecord.getCurrencyCode()));
+        }
+        
+        threeDSecureInfo = saleTransactionRequestData.three_ds;
         paymentInstrumentRecord.custom.apexx3dSecureStatus = threeDSecureInfo ? threeDSecureInfo.three_ds_required : null;
         orderRecord.custom.isApexxOrder = true;
         paymentInstrumentRecord.custom.apexxHostedPaymentPageToken = responseTransaction._id;

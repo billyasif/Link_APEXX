@@ -95,7 +95,6 @@ server.get(
         var Locale = require('dw/util/Locale');
         var collections = require('*/cartridge/scripts/util/collections');
         var validationHelpers = require('*/cartridge/scripts/helpers/basketValidationHelpers');
-
         var currentBasket = BasketMgr.getCurrentBasket();
         if (!currentBasket) {
             res.redirect(URLUtils.url('Cart-Show'));

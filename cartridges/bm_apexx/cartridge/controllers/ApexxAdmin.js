@@ -38,9 +38,9 @@ function orderDetails() {
     var orderNo = request.httpParameterMap.OrderNo.stringValue; // eslint-disable-line no-undef
     var order = OrderMgr.searchOrder('orderNo = {0}', orderNo);
     var dueAmount = utils.round(order.getTotalGrossPrice().value - (order.custom.apexxPaidAmount || 0.0));
-    var paidAmount = utils.round(order.custom.apexxPaidAmount || 0.0);
-    var authAmount = utils.round(order.custom.apexxAuthAmount || 0.0);
-    var captureAmount = utils.round(order.custom.apexxAuthAmount - order.custom.apexxCaptureAmount) || 0.0;
+    var paidAmount = order.custom.apexxPaidAmount || 0.0;
+    var authAmount = order.totalGrossPrice.value;
+    var captureAmount = utils.round(order.totalGrossPrice.value - order.custom.apexxCaptureAmount) || 0.0;
     var transactionHistory = order.custom.apexxTransactionHistory || '[]';
    
     var transType =  order.custom.apexxTransactionType?order.custom.apexxTransactionType.toUpperCase():"";
@@ -49,7 +49,7 @@ function orderDetails() {
     var canRefund;
     var canCancel;
     
-   if(transType == 'AUTH' && (transStatus == 'AUTHORISED' || transStatus == 'PAYMENT_STATUS_PARTPAID') || ((transStatus == 'COMPLETED' || transStatus == 'AUTHORISED') && captureAmount > 0)){
+   if((transType == 'AUTH' || transType == 'CAPTURE') && (transStatus == 'AUTHORISED' || transStatus == 'PAYMENT_STATUS_PARTPAID' || transStatus == 'CAPTURED') && (authAmount !== paidAmount) ){
     	var canCapture = "canCapture";
     }
     if((transType == 'PAYMENT' && transStatus == 'COMPLETED') || (transType == 'CAPTURE' && transStatus == 'COMPLETED') || (paidAmount > 0 &&  dueAmount < order.getTotalGrossPrice().getValue())){
@@ -60,22 +60,22 @@ function orderDetails() {
     	var canCancel = "canCancel";
     }
     
-    
+   // var canCapture = "canCapture";    
     transactionHistory = sortHistory(transactionHistory);
-//var r = require('~/cartridge/scripts/util/response');
-//return r.renderJSON({transactionHistory:transactionHistory});
+    var r = require('~/cartridge/scripts/util/response');
+    //return r.renderJSON({captureAmount:(transStatus == 'AUTHORISED' || transStatus == 'PAYMENT_STATUS_PARTPAID' || transStatus == 'CAPTURED')});
     
     ISML.renderTemplate('application/orderdetails', {
         resourceHelper: resourceHelper,
         order: order,
-        transactionHistory: transactionHistory,
-        dueAmount: dueAmount,
-        paidAmount: paidAmount,
-        authAmount: authAmount,
-        captureAmount: captureAmount,
-        canCapture:canCapture,
-        canRefund:canRefund,
-        canCancel:canCancel
+        transactionHistory: transactionHistory,// eslint-disable-line no-undef
+        dueAmount: dueAmount,// eslint-disable-line no-undef
+        paidAmount: paidAmount,// eslint-disable-line no-undef
+        authAmount: authAmount,// eslint-disable-line no-undef
+        captureAmount: captureAmount,// eslint-disable-line no-undef
+        canCapture:canCapture,// eslint-disable-line no-undef
+        canRefund:canRefund,// eslint-disable-line no-undef
+        canCancel:canCancel// eslint-disable-line no-undef
         
         
     });

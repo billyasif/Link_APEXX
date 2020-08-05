@@ -208,6 +208,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.merchant_reference = paymentReference;
         commonBillingObject.payment_product_type = appPreference.Apexx_PayPal_payment_product_type;
         commonBillingObject.shopper_interaction = appPreference.Apexx_PayPal_shopper_interaction;
+        commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
 
 
 
@@ -333,7 +334,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.merchant_reference = paymentReference;
         commonBillingObject.recurring_type = appPreference.Apexx_GooglePay_Recurring_Type;
         commonBillingObject.user_agent = appPreference.USER_AGENT;
-        //commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
+        commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
         var fraud_predictions = {};
         fraud_predictions.error_message = appPreference.Apexx_GooglePay_Fraud_Predictions_Error_Message;
         fraud_predictions.rec = appPreference.Apexx_GooglePay_Fraud_Predictions_Rec;
@@ -367,7 +368,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
       commonBillingObject.dynamic_descriptor = appPreference.Apexx_Client_Side_Dynamic_Descriptor;
       commonBillingObject.merchant_reference = paymentReference;
       commonBillingObject.user_agent = appPreference.USER_AGENT;
-     // commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
+      commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
       commonBillingObject.three_ds = {};
       commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_Client_Three_Ds ? true : false;
       commonBillingObject.user_agent = appPreference.USER_AGENT;
@@ -390,12 +391,13 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
   commonBillingObject.dynamic_descriptor = appPreference.Apexx_AfterPay_Dynamic_Descriptor;
   commonBillingObject.user_agent = appPreference.USER_AGENT;
   commonBillingObject.shopper_interaction = appPreference.Apexx_AfterPay_Shopper_Interaction;
-  
+  commonBillingObject.webhook_transaction_update = appPreference.WEB_HOOK_TRANSACTION_UPDATE;
+
 
   
 
   commonBillingObject.billing_address = billingAddress;
-  commonBillingObject.billing_address.country = "DE";
+  //commonBillingObject.billing_address.country = "DE";
 
   
   
@@ -531,7 +533,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
   delivery_customer.city = billingAddress.city;
   delivery_customer.postal_code = billingAddress.postal_code;
   delivery_customer.country = billingAddress.country;
-  delivery_customer.country = "DE";
+  //delivery_customer.country = "DE";
 
 
   delivery_customer.phone = order.billingAddress.getPhone();

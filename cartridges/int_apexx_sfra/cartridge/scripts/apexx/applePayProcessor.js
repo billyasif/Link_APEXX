@@ -17,9 +17,50 @@ var appPreference = require('~/cartridge/config/appPreference')();
 var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_DIRECT_PAY;
 var CONST = {
-    APEXX_PAYMENT_METHOD: 'APEXX_GOOGLEPAY',
+    APEXX_PAYMENT_METHOD: 'DW_APPLE_PAY',
     STATUS_PROCESSING: 'Processing'
 };
+
+
+/**
+*
+* @param {Object} responseBillingAddress billing data from apple response
+*/
+function setBillingAddress(responseBillingAddress) {
+   var billingForm = server.forms.getForm('billing');
+   var billingAddress = {
+       firstName: responseBillingAddress.givenName,
+       lastName: responseBillingAddress.lastName,
+       address1: responseBillingAddress.addressLines[0],
+       address2: responseBillingAddress.addressLines[1] ? responseBillingAddress.addressLines[1] : '',
+       city: responseBillingAddress.locality,
+       stateCode: responseBillingAddress.administrativeArea,
+       postalCode: responseBillingAddress.postalCode,
+       country: responseBillingAddress.countryCode,
+       paymentMethod: paymentMethodID
+   };
+   billingForm.copyFrom(billingAddress);
+}
+
+/**
+*
+* @param {Object} responseShippingAddress billing data from apple response
+*/
+function setShippingAddress(responseShippingAddress) {
+   var shippingForm = server.forms.getForm('shipping');
+   var shippingAddress = {
+       firstName: responseShippingAddress.givenName,
+       lastName: responseShippingAddress.lastName,
+       address1: responseShippingAddress.addressLines[0],
+       address2: responseShippingAddress.addressLines[1] ? responseShippingAddress.addressLines[1] : '',
+       city: responseShippingAddress.locality,
+       stateCode: responseShippingAddress.administrativeArea,
+       postalCode: responseShippingAddress.postalCode,
+       country: responseShippingAddress.countryCode,
+       phone: responseShippingAddress.phoneNumber
+   };
+   shippingForm.copyFrom(shippingAddress);
+}
 
 /**
  * Verifies that entered credit card information is a valid card. If the information is valid a
@@ -44,16 +85,7 @@ function handle(basket, paymentInformation) {
 
         var paymentInstrument = currentBasket.createPaymentInstrument(CONST.APEXX_PAYMENT_METHOD, currentBasket.totalGrossPrice);
 
-        paymentInstrument.custom.apexxCryptogram = request.httpParameterMap.cryptogram.value;
-        paymentInstrument.custom.apexxExpiryMonth = request.httpParameterMap.expiry_month.value;
-        paymentInstrument.custom.apexxExpiryYear = request.httpParameterMap.expiry_year.value;
-
-        paymentInstrument.custom.apexxDpan = request.httpParameterMap.dpan.value;
-        paymentInstrument.custom.apexxEci = request.httpParameterMap.eci.value;
-
-        paymentInstrument.custom.apexxTransactionType = transactionType;
-        paymentInstrument.custom.apexxRecurringType = appPreference.Apexx_GooglePay_Recurring_Type;
-        paymentInstrument.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
+        
     });
 
 
@@ -72,45 +104,39 @@ function handle(basket, paymentInformation) {
  * @returns {Object} success object
  */
 function authorize(orderNumber, paymentInstrument, paymentProcessor) {
-    var order = OrderMgr.getOrder(orderNumber);
-    if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
-        var saleTransactionResponseData = null;
-        var saleTransactionRequestData = null;
+   return {
+        authorized: true
+    }; 
+}
 
-        saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
-        saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
-        var logger = require('dw/system/Logger').getLogger('DW_APPLE_PAY_LOGGER');
-        logger.info("logged");
-//        return {
-//        	error:true,
-//            saleTransactionRequestData: saleTransactionRequestData,
-//            saleTransactionResponseData: saleTransactionResponseData
-//        }
-        saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+function authorizeOrderPayment(order, responseData) {
+    var status = Status.ERROR;
+    var authResponseStatus;
+    var paymentMethod = require('dw/order/PaymentMgr').getPaymentMethod(paymentMethodID);
 
-    } else if (saleTransactionResponseData.ok == true || saleTransactionResponseData.ok == false && saleTransactionResponseData.object.status == "DECLINED" || saleTransactionResponseData.object.status == "FAILED") {
-        saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
-        return {
-            authorized: true
-        };
-
-    } else {
-        var errorObj = {
-            error: true,
-            errorCode: '',
-            errorMessage: '',
-            errorResponse: {
-                saleTransactionRequestData: saleTransactionRequestData,
-                saleTransactionResponseData: saleTransactionResponseData
-            }
+    setBillingAddress(responseData.payment.billingContact);
+    setShippingAddress(responseData.payment.shippingContact);
+    Transaction.wrap(function () {
+         //  lineItemCtnr.paymentInstrument field is deprecated.  Get default payment method.
+        var paymentInstrument = null;
+        if ( !empty(order.getPaymentInstruments()) ) {
+            paymentInstrument = order.getPaymentInstruments()[0];
+            paymentInstrument.paymentTransaction.paymentProcessor = paymentMethod.getPaymentProcessor();
         }
-        return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
+        else {
+            return new Status(status);
+        }
+        paymentInstrument.paymentTransaction.paymentProcessor = paymentMethod.getPaymentProcessor();
+    });
+    authResponseStatus = require('~/cartridge/scripts/mobilepayments/adapter/MobilePaymentsAdapter').processPayment(order);
+
+
+    if (CardHelper.HandleCardResponse(authResponseStatus.ServiceResponse.serviceResponse).authorized || CardHelper.HandleCardResponse(authResponseStatus.ServiceResponse.serviceResponse).review) {
+        status = Status.OK;
     }
 
-    return {
-        authorized: true
-    };
-}
+    return new Status(status);
+};
 
 
 
@@ -170,26 +196,22 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
             orderRecord.custom.apexxPaidAmount = authAmount;
             orderRecord.custom.apexxCaptureAmount = paidAmount;
             paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
-            orderRecord.custom.apexxTransactionStatus = 'Processing';
 
         } else if (responseTransaction.status == "AUTHORISED") {
             paymentTransaction.setType(PT.TYPE_AUTH);
             orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
             paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
-            orderRecord.custom.apexxTransactionStatus = 'AUTHORISED';
 
         } else if (responseTransaction.status == "DECLINED") {
             orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
             paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
-            orderRecord.custom.apexxTransactionStatus = 'DECLINED';
 
         } else if (responseTransaction.status == "FAILED") {
             orderRecord.custom.apexxTransactionType = transactionType;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
             paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
-            orderRecord.custom.apexxTransactionStatus = 'FAILED';
 
         }
 
@@ -201,6 +223,7 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
      	   paymentTransaction.setAmount(new Money(responseTransaction.amount, orderRecord.getCurrencyCode()));
         }       
         
+        orderRecord.custom.apexxTransactionStatus = (responseTransaction.status === "CAPTURED") ? CONST.STATUS_PROCESSING : responseTransaction.status;
 
         orderRecord.custom.isApexxOrder = true;
         orderRecord.custom.apexxAuthAmount = responseTransaction.authorization_code ? authAmount : 0.0;
@@ -216,4 +239,5 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
 
 }
 exports.handle = handle;
+exports.authorizeOrderPayment = authorizeOrderPayment;
 exports.authorize = authorize;

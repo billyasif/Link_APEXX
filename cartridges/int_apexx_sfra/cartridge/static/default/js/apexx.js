@@ -14,7 +14,12 @@
            if (window.focus) {newwindow.focus()}
         }
 	});
-
+    
+//	if($('#afterPayStatus').val() === "true" ){
+//		
+//	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+//    }
+	
 }(jQuery));
 
 

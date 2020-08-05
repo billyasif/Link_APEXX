@@ -14,7 +14,7 @@ var endPoint = appPreference.SERVICE_HTTP_DIRECT_PAY;
 var dwSession = require("dw/system/Session");
 var CONST = {
     APEXX_PAYMENT_METHOD: 'APEXX_CLIENT_SIDE',
-	STATUS_PROCESSING: 'Processing'
+    STATUS_PROCESSING: 'Processing'
 };
 
 
@@ -96,8 +96,13 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
 
 
             var saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
-
-
+//            return{
+//            	error:true,
+//            	saleTransactionRequestData: saleTransactionRequestData,
+//                saleTransactionResponseData: saleTransactionResponseData
+//            }
+            var logger = require('dw/system/Logger').getLogger('APEXX_CLIENT_SIDE_LOGGER');
+            logger.info("logged");
             if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object.authorization_code) {
 
                 saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
@@ -118,24 +123,27 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
                     threeDsObj: saleTransactionResponseData.object
 
                 };
-            } else if (saleTransactionResponseData.object.status === "DECLINED" || saleTransactionResponseData.object.status === "FAILED") {
-                saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
-                return {
-
-                    authorized: true
-                };
             } else if (saleTransactionResponseData.ok == true || saleTransactionResponseData.ok == false && saleTransactionResponseData.object.code) {
                 saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
                 return {
 
                     authorized: true
                 }
+            } else if (saleTransactionResponseData.object.status !== "AUTHORIZED" || saleTransactionResponseData.object.status !== "CAPTURED") {
+                saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+                return {
+
+                    authorized: true
+                };
             } else {
                 var errorObj = {
                     error: true,
                     errorCode: saleTransactionResponseData.object.reason_code,
                     errorMessage: saleTransactionResponseData.object.reason_message,
-                    errorResponse:{saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
+                    errorResponse: {
+                        saleTransactionRequestData: saleTransactionRequestData,
+                        saleTransactionResponseData: saleTransactionResponseData
+                    }
                 };
                 return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
             }
@@ -249,7 +257,6 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
         orderRecord.custom.apexxAuthAmount = responseTransaction.authorization_code ? authAmount : 0.0;
         orderRecord.custom.apexxTransactionID = responseTransaction._id;
         orderRecord.custom.apexxMerchantReference = responseTransaction.merchant_reference;
-        commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.amount);
 
 
         paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_Client_Three_Ds;
@@ -262,6 +269,8 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
             paymentInstrumentRecord.custom.apexxCardExpirationMonth = parseInt(responseTransaction.card.expiry_month, 10);
             paymentInstrumentRecord.custom.apexxCardExpirationYear = parseInt(responseTransaction.card.expiry_year, 10);
         }
+
+        commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.amount);
 
     });
 

@@ -165,6 +165,16 @@ var scrollAnimate = require('base/components/scrollAnimate');
                                 defer.reject(err.responseJSON);
                             }
                         });
+                        
+                        if($('#afterPayStatus').val() === "true" ){
+                    		
+                     	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                     	   
+                         }else{
+                       	   
+                        	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+                         }
                     }
                     return defer;
                 } else if (stage === 'payment') {
@@ -309,6 +319,16 @@ var scrollAnimate = require('base/components/scrollAnimate');
                         }
                     });
 
+                    if($('#afterPayStatus').val() === "true" ){
+                		
+                  	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                  	   
+                      }else{
+                    	   
+                     	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+                      }
+                    
                     return defer;
                 } else if (stage === 'placeOrder') {
                     // disable the placeOrder button here
@@ -379,6 +399,16 @@ var scrollAnimate = require('base/components/scrollAnimate');
                         }
                     });
 
+                    if($('#afterPayStatus').val() === "true" ){
+                		
+                  	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                  	   
+                      }else{
+                    	   
+                     	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+                      }
+                    
                     return defer;
                 }
                 var p = $('<div>').promise(); // eslint-disable-line

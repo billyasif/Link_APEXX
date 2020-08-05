@@ -49,6 +49,18 @@
         {
             "name": "app.payment.form.processor.apexx_afterpay",
             "script": "./cartridge/scripts/hooks/payment/processor/apexx_afterpay_form_processor"
+        },
+        {
+            "name": "app.payment.processor.apexx_applepay",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_applepay"
+        },
+        {
+            "name": "app.payment.form.processor.apexx_applepay",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_applepay_form_processor"
+        },
+        {
+            "name": "dw.extensions.applepay.paymentAuthorized.authorizeOrderPayment",
+            "script": "./cartridge/scripts/hooks/payment/processor/apexx_applepay"
         }
         
     ]

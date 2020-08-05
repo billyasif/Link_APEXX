@@ -21,6 +21,7 @@ server.use(
         if ('status' in data)
             var status = data.status;
             var order = OrderMgr.getOrder(orderId);
+            res.json({'status':true,'message':'order has been updated,payment has been updated'});return next();
 
 
         if (order && status) {
@@ -57,7 +58,8 @@ server.use(
                 	paymentTransaction.setAmount(new Money(amount, order.getCurrencyCode()));
 
                 if ('status' in data)
-                    order.custom.apexxTransactionStatus = data.status;
+                    var transactionStatus = data.status == "CAPTURED"  ? "Processing" : data.status;
+                    order.custom.apexxTransactionStatus = transactionStatus;
                 	paymentTransaction.setType(PT.TYPE_AUTH);
 
                 if ('merchant_reference' in data)

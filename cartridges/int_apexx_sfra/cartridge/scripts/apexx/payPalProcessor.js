@@ -15,8 +15,8 @@ var appPreference = require('~/cartridge/config/appPreference')();
 var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_PAYPAL;
 var CONST = {
-		APEXX_PAYPAL: 'APEXX_PAYPAL'
-	};
+    APEXX_PAYPAL: 'APEXX_PAYPAL'
+};
 
 /**
  * Verifies that entered credit card information is a valid card. If the information is valid a
@@ -31,18 +31,18 @@ function handle(basket, paymentInformation) {
     var cardErrors = {};
     var serverErrors = [];
     var error = false;
-    var transactionType = appPreference.Apexx_PayPal_Capture == true  ? "CAPTURE" : "AUTH";
+    var transactionType = appPreference.Apexx_PayPal_Capture == true ? "CAPTURE" : "AUTH";
 
     try {
-        Transaction.wrap(function () {
-        	var paymentInstruments = currentBasket.getPaymentInstruments();
+        Transaction.wrap(function() {
+            var paymentInstruments = currentBasket.getPaymentInstruments();
             var iter = paymentInstruments.iterator();
             var currentPi = null;
             while (iter.hasNext()) {
-            	currentPi = iter.next();
+                currentPi = iter.next();
                 var paymentMethod = currentPi.paymentMethod;
-                if (paymentMethod != null && typeof paymentMethod !== 'undefined' && commonHelper.isApexxPaymentMethod(paymentMethod,CONST.APEXX_HOSTED_PAYMENT_PROCESSOR_ID)) {
-                	currentBasket.removePaymentInstrument(currentPi);
+                if (paymentMethod != null && typeof paymentMethod !== 'undefined' && commonHelper.isApexxPaymentMethod(paymentMethod, CONST.APEXX_PAYPAL)) {
+                    currentBasket.removePaymentInstrument(currentPi);
                 }
             }
             paymentInstrument = currentBasket.createPaymentInstrument(paymentInformation.paymentMethodID, currentBasket.totalGrossPrice);
@@ -77,15 +77,13 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
     if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
         var saleTransactionResponseData = null;
         var saleTransactionRequestData = null;
-        
-        saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
-       // return {error: true,saleTransactionRequestData:saleTransactionRequestData};
 
-        saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST',endPoint, saleTransactionRequestData);
-       
+        saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
+
+        saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
         
-        
-        //return {error: true,saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData};
+        var logger = require('dw/system/Logger').getLogger('APEXX_PAYPAL_LOGGER');
+        logger.info("logged");
         
         if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object._id && saleTransactionResponseData.object.url) {
             saveTransactionData(order, paymentInstrument, saleTransactionRequestData, saleTransactionResponseData.object);
@@ -94,7 +92,10 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
                 error: true,
                 errorCode: '',
                 errorMessage: '',
-                errorResponse:{saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
+                errorResponse: {
+                    saleTransactionRequestData: saleTransactionRequestData,
+                    saleTransactionResponseData: saleTransactionResponseData
+                }
             }
             return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
         }
@@ -151,20 +152,22 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, saleTransacti
     var customer = orderRecord.getCustomer();
     var Money = require('dw/value/Money');
     var threeDSecureInfo;
-    
-	Transaction.wrap(function() {
-    	if (saleTransactionRequestData.capture_now == true) { 
-        	
-    		orderRecord.custom.apexxTransactionType = "CAPTURE";
+
+    Transaction.wrap(function() {
+        if (saleTransactionRequestData.capture_now == true) {
+
+            orderRecord.custom.apexxTransactionType = "CAPTURE";
 
         } else {
-        	
-        	orderRecord.custom.apexxTransactionType = "AUTH";
+
+            orderRecord.custom.apexxTransactionType = "AUTH";
         }
-    	
-    	paymentTransaction.setPaymentProcessor(paymentProcessor);
-    	paymentTransaction.setAmount(new Money(saleTransactionRequestData.amount, orderRecord.getCurrencyCode()));
-    	threeDSecureInfo = saleTransactionRequestData.three_ds;
+
+        paymentTransaction.setPaymentProcessor(paymentProcessor);
+        if(saleTransactionRequestData.amount){
+           paymentTransaction.setAmount(new Money(saleTransactionRequestData.amount, orderRecord.getCurrencyCode()));
+        }
+        threeDSecureInfo = saleTransactionRequestData.three_ds;
         paymentInstrumentRecord.custom.apexx3dSecureStatus = threeDSecureInfo ? threeDSecureInfo.three_ds_required : null;
         orderRecord.custom.isApexxOrder = true;
         orderRecord.custom.apexxTransactionID = responseTransaction._id;

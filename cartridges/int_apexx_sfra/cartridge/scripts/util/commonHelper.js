@@ -302,19 +302,30 @@ function getCurrencyCode(method){
  * @param {string} currencyCode - Currency Code
  * @return {string} XML <merchant-account-id>MerchantID</merchant-account-id>
  */
-function isAfterPayAllowed(currentBasket) {
-	var orderCurrency = currentBasket.currencyCode;
-	var countryCode = currentBasket.billingAddress.countryCode.value;
-    for each(account in appPreference.Apexx_AfterPay_Account_IDs ) {
-        var arrSplit = account.split('_');
+function isAfterPayAllowed() {
+        var currentBasket = BasketMgr.getCurrentBasket();
+        var arr = new Array();
         
-        if(countryCode === arrSplit[0] && orderCurrency === arrSplit[1]){
-        	return arrSplit[2];
-        	break;
+        if(!currentBasket){
+        	return true;
         }
-	}
+        if(currentBasket.currencyCode && currentBasket.custom.selectedShipCountry){
+   	    var orderCurrency = currentBasket.currencyCode;
+   		//var BillingCountryCode = currentBasket.billingAddress.countryCode.value;
+   		for each(account in appPreference.Apexx_AfterPay_Account_IDs ) {
+   		        var arrSplit = account.split('_');
+   		        if(currentBasket.custom.selectedShipCountry == arrSplit[0] && orderCurrency == arrSplit[1] ){
+   		        	arr.push(currentBasket.custom.selectedShipCountry)
+   		        }
+   			}
+   	    }
+       
+	    if(!customer.authenticated || arr.length < 1){
+	    	return true;
+	    }
+	    
+    	return false;
 
-    return false;
 }
 
 
@@ -350,6 +361,7 @@ function isApexxPaymentMethod(paymentMethodID,processorID) {
 	var paymentProcessorID = (PaymentMgr.getPaymentMethod(paymentMethodID)).paymentProcessor.ID
 	return (processorID === paymentProcessorID) ? true : false;
 }
+
 
 
 

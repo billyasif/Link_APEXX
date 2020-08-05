@@ -41,7 +41,7 @@
             <isif condition=${creditCardClientFields.cseExpirationMonth.mandatory === true}>required</isif>
             ${creditCardClientFields.cseExpirationMonth.htmlName}">
             <label class="form-control-label" for="expirationMonth">${Resource.msg('field.credit.card.expiration.month','cseCreditCard',null)}</label>
-            <input type="text" data-apexx="exp_month" class="form-control" name="${creditCardClientFields.cseExpirationMonth.htmlName}" id="cseExpirationMonth"  value="" />
+            <input type="text" data-apexx="expiry_month" class="form-control" name="${creditCardClientFields.cseExpirationMonth.htmlName}" id="cseExpirationMonth"  value="" />
 
             <div class="invalid-feedback" id="expirationMonthInvalidMessage"></div>
         </div>
@@ -52,7 +52,7 @@
             <isif condition=${creditCardClientFields.cseExpirationYear.mandatory === true}>required</isif>
             ${creditCardClientFields.cseExpirationYear.htmlName}">
             <label class="form-control-label" for="expirationYear">${Resource.msg('field.credit.card.expiration.year','cseCreditCard',null)}</label>
-            <input type="text" data-apexx="exp_year" class="form-control" name="${creditCardClientFields.cseExpirationYear.htmlName}" id="cseExpirationYear"  value="" />
+            <input type="text" data-apexx="expiry_year" class="form-control" name="${creditCardClientFields.cseExpirationYear.htmlName}" id="cseExpirationYear"  value="" />
 
             <div class="invalid-feedback" id="expirationYearInvalidMessage"></div>
         </div>
@@ -79,6 +79,5 @@
 
 <input type="hidden" data-apexx="encrypted_data" class="form-control" name="${creditCardClientFields.cseEncryptedData.htmlName}" id="cseEncryptedData"  value="" />
 
-<input type="hidden" data-apexx="masked_card_number" class="form-control" name="${creditCardClientFields.cseMaskedCardNumber.htmlName}" id="cseMaskedCardNumber"  value="" />
 
 

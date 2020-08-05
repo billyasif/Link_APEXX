@@ -5,9 +5,8 @@
     assets.addCss('/css/apexx.css');
 </isscript>
 
-
 <script type="text/javascript"> 
      window.onload = function() { 
-       APEXX.setPublicKey("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn3P021J2zw7EtrsNbaG9JatO64bH1qMU8s+boDYs5zy2lFO0mHgQTHB5Uq+zv2IGNw1NnLfD9wLEVqYd8s5HYRBGVXZuyncKzoonvxa0YCTi95DruwHAfibl9u/ty6pk3lbrCILFZxEF1qpW5ZMFygfB8T9jAN87OR5ZYZwFEhu//JJZzpkHIPdUhm+kxPaKdzlHsmEdau0jtC5oDk7a0RM+TCRnGcIpuNC7JcKGt5l5airkWoOlh+aAMcJcptxUdYjP4HQ7x+G0RdVjlTjFdofj5yroEWdB1wLfCLdLzmpspu6vscRNVE+jTvgYyLFcxueVYl+MZPoTXmo3TuEV2wIDAQAB");
+	   APEXX.setPublicKey("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAijuOcfEUnGhySZvMwbd9h3eYvQn1rivk5OayNbJGYP/TmZNBAsA7eTXYm/SNvcBbQwdTkCoSZE/mxPZJ6X28Zedaex1f0D2M38rbElJyGXbPqdmjNFy6FojTNvMYIivOL8d+I38Mn5vUFx86IrhAD4rb41qfVRtdepJPT6sc7km9IPbcglno8IeRRh1Cc1zJ6ULV7w29lxlpfHZxF3v9HMySz0rPy9q6PV22IwdqCO8GBZJ/TLF9+PI824N4CfaTdXsAhIBfo2nji0ChTSbLr5E6E63V/+ilxP7yKc7ezwRI6tN+OynXvzXpzXY4oWdZEoEXVai4ATlm3BPkaIWfAwIDAQAB");
      } 
 </script> 
