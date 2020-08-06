@@ -73,45 +73,55 @@ function handle(basket, paymentInformation) {
  */
 function authorize(orderNumber, paymentInstrument, paymentProcessor) {
     var order = OrderMgr.getOrder(orderNumber);
-    if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
-        var saleTransactionResponseData = null;
-        var saleTransactionRequestData = null;
+    try {
+    	if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
+      
+            var saleTransactionResponseData = null;
+            var saleTransactionRequestData = null;
 
-        saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
-        saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
-        var logger = require('dw/system/Logger').getLogger('DW_APPLE_PAY_LOGGER');
-        logger.info("logged");
-//        return {
-//        	error:true,
-//            saleTransactionRequestData: saleTransactionRequestData,
-//            saleTransactionResponseData: saleTransactionResponseData
-//        }
-        saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+            saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
+            saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
+            var logger = require('dw/system/Logger').getLogger('DW_APPLE_PAY_LOGGER');
+            logger.info("logged");
+            //        return {
+            //        	error:true,
+            //            saleTransactionRequestData: saleTransactionRequestData,
+            //            saleTransactionResponseData: saleTransactionResponseData
+            //        }
+            saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
 
-    } else if (saleTransactionResponseData.ok == true || saleTransactionResponseData.ok == false && saleTransactionResponseData.object.status == "DECLINED" || saleTransactionResponseData.object.status == "FAILED") {
-        saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+        } else if (saleTransactionResponseData.ok == true || saleTransactionResponseData.ok == false && saleTransactionResponseData.object.status == "DECLINED" || saleTransactionResponseData.object.status == "FAILED") {
+            saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+            return {
+                authorized: true
+            };
+
+        } else {
+            var errorObj = {
+                error: true,
+                errorCode: '',
+                errorMessage: '',
+                errorResponse: {
+                    saleTransactionRequestData: saleTransactionRequestData,
+                    saleTransactionResponseData: saleTransactionResponseData
+                }
+            }
+            return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
+        }
+
         return {
             authorized: true
         };
-
-    } else {
+    } catch (error) {
         var errorObj = {
             error: true,
-            errorCode: '',
-            errorMessage: '',
-            errorResponse: {
-                saleTransactionRequestData: saleTransactionRequestData,
-                saleTransactionResponseData: saleTransactionResponseData
-            }
+            errorCode: error.name,
+            errorMessage: error.message,
+            errorResponse: error.message
         }
         return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
     }
-
-    return {
-        authorized: true
-    };
 }
-
 
 
 
@@ -193,14 +203,26 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
 
         }
 
+        if (('status' in responseTransaction) === false) {
+            if (responseTransaction._id) {
+                paymentTransaction.setTransactionID(responseTransaction._id);
+            }
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            orderRecord.custom.apexxTransactionType = transactionType;
+            orderRecord.custom.apexxTransactionStatus = "FAILED";
+            orderRecord.custom.isApexxOrder = true;
+
+            return;
+        }
         paymentTransaction.setTransactionID(responseTransaction._id);
         paymentTransaction.setPaymentProcessor(paymentProcessor);
-       
-        
-        if(responseTransaction.amount){
-     	   paymentTransaction.setAmount(new Money(responseTransaction.amount, orderRecord.getCurrencyCode()));
-        }       
-        
+
+
+        if (responseTransaction.amount) {
+            paymentTransaction.setAmount(new Money(responseTransaction.amount, orderRecord.getCurrencyCode()));
+        }
+
 
         orderRecord.custom.isApexxOrder = true;
         orderRecord.custom.apexxAuthAmount = responseTransaction.authorization_code ? authAmount : 0.0;

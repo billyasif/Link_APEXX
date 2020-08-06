@@ -1,0 +1,53 @@
+<isif condition="${pdict.status === 'FAILED' || pdict.status === 'DECLINED'}">
+<isset name="status" value="${pdict.status}" scope="page" />
+<isset name="reason" value="${pdict.reason}" scope="page" />
+<isset name="transactionId" value="${pdict.transactionId}" scope="page" />
+
+    <div class="alert alert-danger" role="alert">
+  		${Resource.msg('apexx.failed.order.message', 'general', null)}
+  		<isif condition="${status}">
+  		<br/>
+  			<span class="summary-section-label order-number-label">${Resource.msg('apexx.order.status', 'general', null)}</span>
+            <span class="summary-details order-number"><strong>${pdict.status}</strong></span>
+        <br/>
+        </isif>
+        <isif condition="${reason}">
+        	<span class="summary-section-label order-number-label">${Resource.msg('apexx.reason.code', 'general', null)}</span>
+            <span class="summary-details order-number"><strong>${pdict.reason}</strong></span>
+        	<br/>
+		</isif>
+       <isif condition="${transactionId}">
+       
+        	<span class="summary-section-label order-number-label">${Resource.msg('apexx.transaction.id', 'general', null)}</span>
+            <span class="summary-details order-number"><strong>${pdict.transactionId}</strong></span>
+        <br/>
+        </isif>
+	</div>
+</isif>
+<div class="card confirm-details">
+    <div class="card-header">
+        <h2 class="card-header-custom">${Resource.msg('title.receipt', 'confirmation', null)}</h2>
+    </div>
+
+    <div class="card-body">
+        <p>
+            <span class="summary-section-label order-number-label">${Resource.msg('label.order.number', 'confirmation', null)}</span>
+            <span class="summary-details order-number">${pdict.order.orderNumber}</span>
+            <br/>
+            <span class="summary-section-label order-date-label">${Resource.msg('label.order.date', 'confirmation', null)}</span>
+            <span class="summary-details order-date"><isprint value="${pdict.order.creationDate}" style="DATE_SHORT"/></span>
+        </p>
+
+        <isinclude template="checkout/shipping/shippingSummary" />
+        <isinclude template="checkout/billing/billingSummary" />
+
+    </div>
+</div>
+
+<isinclude template="checkout/orderProductSummary" />
+
+<div class="card checkout-order-total-summary">
+    <div class="card-body order-total-summary">
+        <isinclude template="checkout/orderTotalSummary" />
+    </div>
+</div>

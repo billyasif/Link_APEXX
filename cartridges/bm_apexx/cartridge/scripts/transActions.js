@@ -58,21 +58,22 @@ function updateOrderStatus(orderNo) {
  * @param {string} amount - refund amount
  * @returns {Object} response
  */
-function refundTransaction(orderNo, amount) {
+function refundTransaction(orderNo, amount,captureid) {
+	
     var order = OrderMgr.searchOrder('orderNo = {0}', orderNo);
+
     var endPoint = appPreferenceBM.SERVICE_HTTP_REFUND;
     var status = false;
     var transactionHistory;
-    var transactionID = order.getPaymentTransaction().transactionID;
+    var transactionID = (captureid !== "") ? captureid  : order.getPaymentTransaction().transactionID;
+
     var captureID = order.custom.apexxCaptureId || '';
     var error;
     var refundAmount;
     var payLoad;
     var response;
     var paidAmount;
-    
     var paymentInstruments = order.getPaymentInstruments()[0];
-
     var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
    
     if(paymentProcessor.ID === 'APEXX_AfterPay'){
@@ -246,6 +247,9 @@ function captureTransaction(orderNo, amount) {
     var order = OrderMgr.searchOrder('orderNo = {0}', orderNo);
     var status = false;
     var amount = amount;
+    var paymentMethod = order.getPaymentInstruments()[0].getPaymentMethod();
+    var grossAmount = (order.custom.apexxPaidAmount) ? order.totalGrossPrice.value - order.custom.apexxPaidAmount  : order.totalGrossPrice.value;
+    var remainCaptureAmount = grossAmount - amount ;
     var request;
     var response;
     var error;
@@ -289,8 +293,16 @@ function captureTransaction(orderNo, amount) {
       var payLoad = makeCaptureRequest(order, amount , transactionID);
       // try {
       // eslint-disable-line no-param-reassign
-      var response = callAction(endPoint, payLoad);
       
+      if(paymentMethod === "APEXX_PAYPAL" && remainCaptureAmount <= 0){
+    	  payLoad.final_capture = true;
+    	
+      }else if(paymentMethod === "APEXX_PAYPAL" && remainCaptureAmount >= 0){
+    	  payLoad.final_capture = false;
+      }
+     
+      var response = callAction(endPoint, payLoad);
+      return response;
       if (response && response.ok === false) {
           status = false;
           response = JSON.stringify(response.object);
@@ -715,7 +727,7 @@ function setAfterPayOrderAttributesHistory(action, order, response, paidAmount) 
 
 
 function updateTransactionHistory(action, order, response, amount) {
-	
+	var amount = (action === 'cancel') ? order.totalGrossPrice.value : amount;
     var transactionHistory = order.custom.apexxTransactionHistory || '[]';
     var response = response.object;
     var transactionType = action.toUpperCase() || '';
@@ -754,8 +766,8 @@ function getDateFormat(format) {
 exports.captureTransaction = function(orderNo, amount) {
     return captureTransaction(orderNo, amount);
 };
-exports.refundTransaction = function(orderNo, amount) {
-    return refundTransaction(orderNo, amount);
+exports.refundTransaction = function(orderNo, amount,captureid) {
+    return refundTransaction(orderNo, amount,captureid);
 };
 exports.cancelTransaction = function(orderNo) {
     return cancelTransaction(orderNo);

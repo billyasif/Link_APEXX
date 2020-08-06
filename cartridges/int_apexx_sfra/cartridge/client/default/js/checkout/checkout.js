@@ -21,6 +21,13 @@ var scrollAnimate = require('base/components/scrollAnimate');
  *
  */
 (function ($) {
+	if($('#afterPayStatus').val() === "true" ){
+		
+		   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+	    }else{
+	 	   $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+	    }
     $.fn.checkout = function () { // eslint-disable-line
         var plugin = this;
 
@@ -142,7 +149,8 @@ var scrollAnimate = require('base/components/scrollAnimate');
                             data: shippingFormData,
                             callback: function (data) {
                                 shippingFormData = data;
-                            }
+                            },
+                            
                         });
                         // disable the next:Payment button here
                         $('body').trigger('checkout:disableButton', '.next-step-button button');
@@ -154,6 +162,16 @@ var scrollAnimate = require('base/components/scrollAnimate');
                                  // enable the next:Payment button here
                                 $('body').trigger('checkout:enableButton', '.next-step-button button');
                                 shippingHelpers.methods.shippingFormResponse(defer, data);
+                                //console.log(data.afterPayStatus);return false;
+                                if(data !== undefined){
+                                	
+                                   if(data.afterPayStatus){ 
+                             	     $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                                   }else{
+                               	     $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+                                   }
+                             	   
+                                 }
                             },
                             error: function (err) {
                                 // enable the next:Payment button here
@@ -165,16 +183,8 @@ var scrollAnimate = require('base/components/scrollAnimate');
                                 defer.reject(err.responseJSON);
                             }
                         });
-                        
-                        if($('#afterPayStatus').val() === "true" ){
-                    		
-                     	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
-                     	   
-                         }else{
-                       	   
-                        	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
-
-                         }
+                     
+                   
                     }
                     return defer;
                 } else if (stage === 'payment') {
@@ -254,7 +264,7 @@ var scrollAnimate = require('base/components/scrollAnimate');
                     }
                      // disable the next:Place Order button here
                     $('body').trigger('checkout:disableButton', '.next-step-button button');
-
+                   
                     $.ajax({
                         url: $('#dwfrm_billing').attr('action'),
                         method: 'POST',
@@ -306,6 +316,17 @@ var scrollAnimate = require('base/components/scrollAnimate');
                                     $('.cancel-new-payment').removeClass('checkout-hidden');
                                 }
 
+                                if(data !== undefined){
+                                	
+                                    if(data.afterPayStatus){ 
+                              	     $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                                    }else{
+                                    	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+                                    }
+                              	   
+                                  }
+                                
+                                
                                 scrollAnimate();
                                 defer.resolve(data);
                             }
@@ -319,16 +340,6 @@ var scrollAnimate = require('base/components/scrollAnimate');
                         }
                     });
 
-                    if($('#afterPayStatus').val() === "true" ){
-                		
-                  	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
-                  	   
-                      }else{
-                    	   
-                     	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
-
-                      }
-                    
                     return defer;
                 } else if (stage === 'placeOrder') {
                     // disable the placeOrder button here
@@ -399,16 +410,6 @@ var scrollAnimate = require('base/components/scrollAnimate');
                         }
                     });
 
-                    if($('#afterPayStatus').val() === "true" ){
-                		
-                  	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
-                  	   
-                      }else{
-                    	   
-                     	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
-
-                      }
-                    
                     return defer;
                 }
                 var p = $('<div>').promise(); // eslint-disable-line

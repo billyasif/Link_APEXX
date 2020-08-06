@@ -51,6 +51,12 @@ function handle(basket, paymentInformation) {
 
 
     Transaction.wrap(function() {
+
+        var paymentInstruments = currentBasket.getPaymentInstruments();
+        collections.forEach(paymentInstruments, function(item) {
+            currentBasket.removePaymentInstrument(item);
+        });
+
         var paymentInstruments = currentBasket.getPaymentInstruments(
             PaymentInstrument.METHOD_CREDIT_CARD
         );
@@ -103,62 +109,69 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
 
     if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
 
-    	  try {
-              var saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
+        try {
+            var saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
 
-              var saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
-              var logger = require('dw/system/Logger').getLogger('APEXX_CREDIT_LOGGER');
-              logger.info("logged");
-              if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object.authorization_code) {
+            var saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
+            var logger = require('dw/system/Logger').getLogger('APEXX_CREDIT_LOGGER');
+            logger.info("logged");
 
-                  saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
-
-                  if (saleTransactionRequestData.three_ds.three_ds_required == true) {
-                      updateSaveCardStatus(saleTransactionRequestData, paymentInstrument);
-                  }
-
-                  if (saleTransactionRequestData.card.saveCard == true) {
-                      saveCustomerCreditCard(paymentInstrument, saleTransactionResponseData.object);
-                  }
+            //return {error:true,saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
 
 
-                  return {
-                      authorized: true
-                  };
+            if (saleTransactionResponseData.ok == true && saleTransactionResponseData.object.authorization_code) {
 
-              }else if (saleTransactionResponseData.ok == true && saleTransactionRequestData.three_ds.three_ds_required == true) {
-                  updateSaveCardStatus(saleTransactionRequestData, paymentInstrument);
+                saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
 
-                  return {
-                      authorized: true,
-                      threeDsObj: saleTransactionResponseData.object
+                if (saleTransactionRequestData.three_ds.three_ds_required == true) {
+                    updateSaveCardStatus(saleTransactionRequestData, paymentInstrument);
+                }
 
-                  };
-              }else if (saleTransactionResponseData.object.status !== "AUTHORIZED" || saleTransactionResponseData.object.status !== "CAPTURED"){
-                  saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
-                  return {
-                      authorized: true
-                  };
+                if (saleTransactionRequestData.card.saveCard == true) {
+                    saveCustomerCreditCard(paymentInstrument, saleTransactionResponseData.object);
+                }
 
-              }else {
-                  var errorObj = {
-                      error: true,
-                      errorCode: saleTransactionResponseData.object.reason_code,
-                      errorMessage: saleTransactionResponseData.object.reason_message,
-                      errorResponse:{saleTransactionRequestData:saleTransactionRequestData,saleTransactionResponseData:saleTransactionResponseData}
-                  };
-                  return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
-              }
 
-          } catch (error) {
-              var errorObj = {
-                  error: true,
-                  errorCode: error.name,
-                  errorMessage: error.message,
-                  errorResponse: error.message
-              }
-              return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
-          }
+                return {
+                    authorized: true
+                };
+
+            } else if (saleTransactionResponseData.ok == true && saleTransactionRequestData.three_ds.three_ds_required == true) {
+                updateSaveCardStatus(saleTransactionRequestData, paymentInstrument);
+
+                return {
+                    authorized: true,
+                    threeDsObj: saleTransactionResponseData.object
+
+                };
+            } else if (saleTransactionResponseData.object.status !== "AUTHORIZED" || saleTransactionResponseData.object.status !== "CAPTURED") {
+                saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+                return {
+                    authorized: true
+                };
+
+            } else {
+                var errorObj = {
+                    error: true,
+                    errorCode: saleTransactionResponseData.object.reason_code,
+                    errorMessage: saleTransactionResponseData.object.reason_message,
+                    errorResponse: {
+                        saleTransactionRequestData: saleTransactionRequestData,
+                        saleTransactionResponseData: saleTransactionResponseData
+                    }
+                };
+                return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
+            }
+
+        } catch (error) {
+            var errorObj = {
+                error: true,
+                errorCode: error.name,
+                errorMessage: error.message,
+                errorResponse: error.message
+            }
+            return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
+        }
 
     }
 }
@@ -273,6 +286,20 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
     }
 
     Transaction.wrap(function() {
+
+    	if (('status' in responseTransaction) === false && ('url' in responseTransaction) === false) {
+            if (responseTransaction._id) {
+                paymentTransaction.setTransactionID(responseTransaction._id);
+            }
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
+            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+            orderRecord.custom.apexxTransactionType = transactionType;
+            orderRecord.custom.apexxTransactionStatus = "FAILED";
+            orderRecord.custom.isApexxOrder = true;
+
+            return;
+        }
+
         paymentTransaction.setTransactionID(responseTransaction._id);
         paymentTransaction.setPaymentProcessor(paymentProcessor);
         if (responseTransaction.amount) {

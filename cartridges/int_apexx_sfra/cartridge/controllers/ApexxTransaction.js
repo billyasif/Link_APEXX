@@ -25,6 +25,7 @@ server.post(
     'HostedUpdateTransaction',
     function(req, res, next) {
         var orderId = httpParameterMap.merchant_reference.getValue(); //'00001257';//
+        
         var order = OrderMgr.getOrder(orderId);
         try {
             var paymentInstrumentsOBJ = order.getPaymentInstruments()[0];
@@ -106,6 +107,22 @@ server.post(
 
 
                 }
+                
+                var responseTransaction = paramsToJson('Transaction');
+                if (('status' in responseTransaction) === false ) {
+                    orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+                    orderRecord.custom.apexxTransactionType = transactionType;
+                    orderRecord.custom.apexxTransactionStatus = "FAILED";
+                    orderRecord.custom.isApexxOrder = true;
+                    if(responseTransaction._id){
+                        paymentTransaction.setTransactionID(responseTransaction._id);
+                   	}
+                    if(responseTransaction.message){
+                        paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
+                    }
+                    return;
+                }
+                
             	order.custom.apexxTransactionType = transactionType;
 
                 var threeDSecureInfo = saleTransactionRequestData.three_ds;
@@ -188,7 +205,22 @@ server.post(
 	                    cardProcessor.saveTransactionData(order, paymentInstrument, response.object);
 	                }
 	            }
-
+	            
+	            var responseTransaction = paramsToJson('Transaction');
+                if (('status' in responseTransaction) === false ) {
+                    orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+                    orderRecord.custom.apexxTransactionType = transactionType;
+                    orderRecord.custom.apexxTransactionStatus = "FAILED";
+                    orderRecord.custom.isApexxOrder = true;
+                    if(responseTransaction._id){
+                        paymentTransaction.setTransactionID(responseTransaction._id);
+                   	}
+                    if(responseTransaction.message){
+                        paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
+                    }
+                    return;
+                }
+	            
 	            res.render('apexx/closepopup.isml', {
 	                isError: isError,
 	                isAuth: authAmount,
@@ -250,6 +282,22 @@ server.post(
 	                            paymentInstrumentRecord.custom.apexxReasonCode = reason_code;
 
 	                        }
+	                        
+	                        var responseTransaction = paramsToJson('Transaction');
+	                        if (('status' in responseTransaction) === false ) {
+	                            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+	                            orderRecord.custom.apexxTransactionType = transactionType;
+	                            orderRecord.custom.apexxTransactionStatus = "FAILED";
+	                            orderRecord.custom.isApexxOrder = true;
+	                            if(responseTransaction._id){
+	                                paymentTransaction.setTransactionID(responseTransaction._id);
+	                           	}
+	                            if(responseTransaction.message){
+	                                paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
+	                            }
+	                            return;
+	                        }
+	                        
 	                        orderRecord.custom.apexxTransactionType = transactionType;
 
 	                        paymentTransaction.setTransactionID(_id);

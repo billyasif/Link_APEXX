@@ -15,10 +15,13 @@
         }
 	});
     
-//	if($('#afterPayStatus').val() === "true" ){
-//		
-//	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
-//    }
+	if($('#afterPayStatus').val() === "true" ){
+		
+	   //$('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+    }else{
+ 	   //$('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+    }
 	
 }(jQuery));
 

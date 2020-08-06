@@ -155,9 +155,9 @@ function updatePaymentInformation(order) {
     // update payment details
     var $paymentSummary = $('.payment-details');
     var htmlToAppend = '';
-
+    //console.log(order.billing.payment.selectedPaymentInstruments);
     if (order.billing.payment && order.billing.payment.selectedPaymentInstruments
-        && order.billing.payment.selectedPaymentInstruments.length > 0) {
+        && order.billing.payment.selectedPaymentInstruments.length > 0 && order.billing.payment.selectedPaymentInstruments[0].paymentMethod === "CREDIT_CARD") {
         htmlToAppend += '<span>' + order.resources.cardType + ' '
             + order.billing.payment.selectedPaymentInstruments[0].type
             + '</span><div>'
@@ -167,6 +167,21 @@ function updatePaymentInformation(order) {
             + order.billing.payment.selectedPaymentInstruments[0].expirationMonth
             + '/' + order.billing.payment.selectedPaymentInstruments[0].expirationYear
             + '</span></div>';
+    }else if(order.billing.payment.selectedPaymentInstruments.length){
+    	 var payments = order.billing.payment.applicablePaymentMethods;
+         var paymentName = null;
+
+         for (var i = 0, len = payments.length; i < len; i++) {
+             if (payments[i].ID === order.billing.payment.selectedPaymentInstruments[0].paymentMethod) {
+                 paymentName = payments[i].name;
+                 break;
+             }
+         }
+         if (paymentName == null) {
+             paymentName = order.billing.payment.selectedPaymentInstruments[0].paymentMethod;
+         }
+         
+         htmlToAppend += '<span>' + paymentName + '</span></br>';
     }
 
     $paymentSummary.empty().append(htmlToAppend);

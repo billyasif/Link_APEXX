@@ -6,7 +6,7 @@
             <isif condition=${creditCardClientFields.cseCardNumber.mandatory === true}>required</isif>
             ${creditCardClientFields.cseCardNumber.htmlName}">
             <label class="form-control-label" for="cseCardNumber">${Resource.msg('field.credit.card.number','cseCreditCard',null)}</label>
-            <div class="card-number-wrapper">
+            <div>
                 <input type="text" data-apexx="card_number" class="form-control cseCardNumber" id="cseCardNumber" value=""
                     <isprint value=${creditCardClientFields.cseCardNumber.attributes} encoding="off"/>
                     autocomplete="cc-number"

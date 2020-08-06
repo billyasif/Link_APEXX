@@ -10,6 +10,7 @@ const paypalProcessor = require('*/cartridge/scripts/apexx/payPalProcessor');
 const objSite = require("dw/system/Site");
 const appPreference = require('*/cartridge/config/appPreference')();
 var BasketMgr = require('dw/order/BasketMgr');
+var Money = require('dw/value/Money');
 
 var endPoint = appPreference.SERVICE_HTTP_PAYPAL;
 
@@ -80,7 +81,7 @@ server.get('API',function(req,res,next){
 //  var service = apexxServiceWrapper.apexxServiceDirectPay;
 //	saleTransactionResponseData = apexxServiceWrapper.makeServiceCall(service,saleTransactionRequestData);
    var OrderMgr = require('dw/order/OrderMgr');
-   var order  = OrderMgr.getOrder("00008705");
+   var order  = OrderMgr.getOrder("00016258");
    var paymentInstruments = order.getPaymentInstruments()[0];
    var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
    var currentBasket = BasketMgr.getCurrentBasket();
@@ -89,10 +90,31 @@ server.get('API',function(req,res,next){
    //var ObjectBilling = objectHelper.ApexxBillToObject(order, true);
    var PaymentInstrument = require('dw/order/PaymentInstrument');
 
+   
    //res.json({'toccken':Object.keys(order.adjustedShippingTotalTax) });
    var paymentInstruments = order.getPaymentInstruments(PaymentInstrument.METHOD_DW_APPLE_PAY);
-   
-   res.json({'customer':commonHelper.isAfterPayAllowed()});return next();
+   var amount = 10;
+   var grossAmount = order.totalGrossPrice.getValue();
+   var giftCertTotal = new Money(4.00, order.currencyCode);
+   var orderTotal = order.totalGrossPrice;
+   var amountOpen = orderTotal.subtract(giftCertTotal);
+
+   var remainCaptureAmount = grossAmount - amount ;
+   var orderTotalGrossPrice = order.getTotalGrossPrice().value;
+   var amount = 16.99;
+   var grossAmount = order.totalGrossPrice.value;
+   var remainCaptureAmount = grossAmount - amount ;
+    var payload = {}; 
+    var paymentMethod = order.getPaymentInstruments()[0].getPaymentMethod();
+    var paymentMethod = order.getPaymentInstruments()[0].getPaymentMethod();
+   if(remainCaptureAmount <= 0){
+ 	  payload.final_capture = true;
+   }else if(remainCaptureAmount >= 0){
+ 	  payload.final_capture = false;
+   }
+   res.json({'price':payload});
+  
+   res.json({'customer':Object.keys(order.getTotalGrossPrice())});return next();
    //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
 
   // res.json(Object.keys(paymentInstruments));return next();

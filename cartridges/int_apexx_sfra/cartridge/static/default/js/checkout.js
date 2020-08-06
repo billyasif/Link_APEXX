@@ -151,6 +151,13 @@ var scrollAnimate = __webpack_require__(6);
  *
  */
 (function ($) {
+	if($('#afterPayStatus').val() === "true" ){
+		
+		   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+	    }else{
+	 	   $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+
+	    }
     $.fn.checkout = function () { // eslint-disable-line
         var plugin = this;
 
@@ -272,7 +279,8 @@ var scrollAnimate = __webpack_require__(6);
                             data: shippingFormData,
                             callback: function (data) {
                                 shippingFormData = data;
-                            }
+                            },
+                            
                         });
                         // disable the next:Payment button here
                         $('body').trigger('checkout:disableButton', '.next-step-button button');
@@ -284,6 +292,16 @@ var scrollAnimate = __webpack_require__(6);
                                  // enable the next:Payment button here
                                 $('body').trigger('checkout:enableButton', '.next-step-button button');
                                 shippingHelpers.methods.shippingFormResponse(defer, data);
+                                //console.log(data.afterPayStatus);return false;
+                                if(data !== undefined){
+                                	
+                                   if(data.afterPayStatus){ 
+                             	     $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                                   }else{
+                               	     $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+                                   }
+                             	   
+                                 }
                             },
                             error: function (err) {
                                 // enable the next:Payment button here
@@ -295,16 +313,8 @@ var scrollAnimate = __webpack_require__(6);
                                 defer.reject(err.responseJSON);
                             }
                         });
-                        
-                        if($('#afterPayStatus').val() === "true" ){
-                    		
-                     	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
-                     	   
-                         }else{
-                       	   
-                        	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
-
-                         }
+                     
+                   
                     }
                     return defer;
                 } else if (stage === 'payment') {
@@ -384,7 +394,7 @@ var scrollAnimate = __webpack_require__(6);
                     }
                      // disable the next:Place Order button here
                     $('body').trigger('checkout:disableButton', '.next-step-button button');
-
+                   
                     $.ajax({
                         url: $('#dwfrm_billing').attr('action'),
                         method: 'POST',
@@ -436,6 +446,17 @@ var scrollAnimate = __webpack_require__(6);
                                     $('.cancel-new-payment').removeClass('checkout-hidden');
                                 }
 
+                                if(data !== undefined){
+                                	
+                                    if(data.afterPayStatus){ 
+                              	     $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
+                                    }else{
+                                    	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
+                                    }
+                              	   
+                                  }
+                                
+                                
                                 scrollAnimate();
                                 defer.resolve(data);
                             }
@@ -449,16 +470,6 @@ var scrollAnimate = __webpack_require__(6);
                         }
                     });
 
-                    if($('#afterPayStatus').val() === "true" ){
-                		
-                  	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
-                  	   
-                      }else{
-                    	   
-                     	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
-
-                      }
-                    
                     return defer;
                 } else if (stage === 'placeOrder') {
                     // disable the placeOrder button here
@@ -529,16 +540,6 @@ var scrollAnimate = __webpack_require__(6);
                         }
                     });
 
-                    if($('#afterPayStatus').val() === "true" ){
-                		
-                  	   $('form  [data-method-id="APEXX_AFTERPAY"]').hide();
-                  	   
-                      }else{
-                    	   
-                     	 $('form  [data-method-id="APEXX_AFTERPAY"]').show();
-
-                      }
-                    
                     return defer;
                 }
                 var p = $('<div>').promise(); // eslint-disable-line
@@ -2299,9 +2300,9 @@ function updatePaymentInformation(order) {
     // update payment details
     var $paymentSummary = $('.payment-details');
     var htmlToAppend = '';
-
+    //console.log(order.billing.payment.selectedPaymentInstruments);
     if (order.billing.payment && order.billing.payment.selectedPaymentInstruments
-        && order.billing.payment.selectedPaymentInstruments.length > 0) {
+        && order.billing.payment.selectedPaymentInstruments.length > 0 && order.billing.payment.selectedPaymentInstruments[0].paymentMethod === "CREDIT_CARD") {
         htmlToAppend += '<span>' + order.resources.cardType + ' '
             + order.billing.payment.selectedPaymentInstruments[0].type
             + '</span><div>'
@@ -2311,6 +2312,21 @@ function updatePaymentInformation(order) {
             + order.billing.payment.selectedPaymentInstruments[0].expirationMonth
             + '/' + order.billing.payment.selectedPaymentInstruments[0].expirationYear
             + '</span></div>';
+    }else if(order.billing.payment.selectedPaymentInstruments.length){
+    	 var payments = order.billing.payment.applicablePaymentMethods;
+         var paymentName = null;
+
+         for (var i = 0, len = payments.length; i < len; i++) {
+             if (payments[i].ID === order.billing.payment.selectedPaymentInstruments[0].paymentMethod) {
+                 paymentName = payments[i].name;
+                 break;
+             }
+         }
+         if (paymentName == null) {
+             paymentName = order.billing.payment.selectedPaymentInstruments[0].paymentMethod;
+         }
+         
+         htmlToAppend += '<span>' + paymentName + '</span></br>';
     }
 
     $paymentSummary.empty().append(htmlToAppend);

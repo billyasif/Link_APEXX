@@ -12,7 +12,12 @@ function performAction() {
     var action = request.httpParameterMap.action.value; // eslint-disable-line no-undef
     var orderNo = request.httpParameterMap.orderno.value; // eslint-disable-line no-undef
     var amount = request.httpParameterMap.amount.value; // eslint-disable-line no-undef
+    var captureid = request.httpParameterMap.captureid.value; // eslint-disable-line no-undef
     var transActions = require('~/cartridge/scripts/transActions');
+    var r = require('~/cartridge/scripts/util/response');
+
+    
+
     var result;
   
     
@@ -24,7 +29,7 @@ function performAction() {
         result = transActions.cancelTransaction(orderNo);
         break;
     case 'refund':
-        result = transActions.refundTransaction(orderNo, amount);
+        result = transActions.refundTransaction(orderNo, amount,captureid);
         break;
     }
    

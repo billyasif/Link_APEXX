@@ -4,6 +4,7 @@ var server = require('server');
 server.extend(module.superModule);
 var BasketMgr = require('dw/order/BasketMgr');
 var Transaction = require('dw/system/Transaction');
+var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 
 var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 
@@ -22,7 +23,9 @@ server.append(
                 Transaction.wrap(function() {
                     currentBasket.custom.selectedShipCountry = form.shippingAddress.addressFields.country.value;
                 });
-                next();
+                
+                res.json({'afterPayStatus':commonHelper.isAfterPayAllowed()});
+                return next();
             });
 
 module.exports = server.exports();

@@ -21,7 +21,7 @@ server.use(
         if ('status' in data)
             var status = data.status;
             var order = OrderMgr.getOrder(orderId);
-            res.json({'status':true,'message':'order has been updated,payment has been updated'});return next();
+           // res.json({'status':true,'message':'order has been updated,payment has been updated'});return next();
 
 
         if (order && status) {
@@ -37,8 +37,11 @@ server.use(
                     order.setPaymentStatus(order.PAYMENT_STATUS_PAID);
 
                     if ('amount' in data)
-                    order.custom.apexxPaidAmount = data.amount;
-                    order.custom.apexxAuthAmount = data.amount;
+                    var apexxPaidAmount = data.amount /100;	
+                    var apexxAuthAmount = data.amount /100;	
+
+                    order.custom.apexxPaidAmount = apexxPaidAmount.toFixed(2);
+                    order.custom.apexxAuthAmount = apexxAuthAmount.toFixed(2);
 
                 } else {
                 	
@@ -54,7 +57,7 @@ server.use(
                 if ('amount' in data)
                     var amount = data.amount / 100;
 
-                    order.custom.apexxAuthAmount = amount;
+                    order.custom.apexxAuthAmount = amount.toFixed(2);
                 	paymentTransaction.setAmount(new Money(amount, order.getCurrencyCode()));
 
                 if ('status' in data)

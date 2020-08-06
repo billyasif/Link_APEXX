@@ -616,4 +616,12 @@ ApexxHelper.updateData = function (method, dataObject) {
     }
 };
 
+
+function IsApexxApplicable(){
+	
+	var basket = BasketMgr.getCurrentBasket();
+	
+	return true;
+}
+
 module.exports = ApexxHelper;

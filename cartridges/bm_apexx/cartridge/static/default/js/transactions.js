@@ -26,6 +26,9 @@ var trans = {
 				orderno = j('input[name=orderno]').val(),
 				maxCaptureAmount = parseFloat(j('input[name=maxcaptureamount]').val(), 10),
 				maxRefundAmount = parseFloat(j('input[name=maxrefundamount]').val(), 10),
+				captureid = j('input[name=captureid]').val(),
+				paymentMethod = j('input[name=paymentMethod]').val(),
+
 				url, postData, amount;
 			
 			if(!action){
@@ -72,22 +75,24 @@ var trans = {
 			postData = {
 				action: action,
 				orderno: orderno,
-				amount: amount
+				amount: amount,
+				captureid:captureid,
+				paymentMethod,paymentMethod
 			};
 			
 			button.prop("disabled", true);
 			button.text(Resources.TRANSACTION_PROCESSING);
-			
+		
 			j.post(url, postData, function(result){
 				button.prop("disabled", false);
 				button.text(buttonLabel);
-
+				//console.log(result);return false;
 				if(result && result.status){
 						alert(Resources.TRANSACTION_SUCCESS);
 						window.location.reload();
+
 					}
 					else{
-						//console.log(result);
 						alert(Resources.TRANSACTION_FAILED);
 					}
 			});
@@ -113,10 +118,15 @@ var trans = {
 			var input = j(this);
 			
 			if(input.val() != ""){
-				input.val(parseFloat(input.val(), 10));
+				if(this.name !== 'captureid'){
+				   input.val(parseFloat(input.val(), 10));
+				}
 			}
+			
 			else if(input.val().indexOf('.') == 0){
-				input.val("0" + input.val());
+				if(this.name !== 'captureid'){
+					input.val("0" + input.val());
+				}
 			}
 		});
 	}

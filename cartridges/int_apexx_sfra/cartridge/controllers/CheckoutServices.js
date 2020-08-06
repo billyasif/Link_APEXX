@@ -7,6 +7,7 @@ const base = module.superModule;
 server.extend(base);
 var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 var appPreference = require('~/cartridge/config/appPreference')();
+var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 
 //API
 var PaymentMgr = require('dw/order/PaymentMgr');
@@ -199,8 +200,31 @@ server.replace(
                 return;
             }
 
-
-
+            // Validate payment instrument
+                var paymentMethodIdValue = paymentForm.paymentMethod.value;
+	            if(paymentMethodIdValue === "CREDIT_CARD"){
+	            var creditCardPaymentMethod = PaymentMgr.getPaymentMethod(PaymentInstrument.METHOD_CREDIT_CARD);
+	            var paymentCard = PaymentMgr.getPaymentCard(billingData.paymentInformation.cardType.value);
+	
+	            var applicablePaymentCards = creditCardPaymentMethod.getApplicablePaymentCards(
+	                req.currentCustomer.raw,
+	                req.geolocation.countryCode,
+	                null
+	            );
+	
+	            if (!applicablePaymentCards.contains(paymentCard)) {
+	                // Invalid Payment Instrument
+	                var invalidPaymentMethod = Resource.msg('error.payment.not.valid', 'checkout', null);
+	                delete billingData.paymentInformation;
+	                res.json({
+	                    form: billingForm,
+	                    fieldErrors: [],
+	                    serverErrors: [invalidPaymentMethod],
+	                    error: true
+	                });
+	                return;
+	            }
+            }
             // check to make sure there is a payment processor
             if (!PaymentMgr.getPaymentMethod(paymentMethodID).paymentProcessor) {
                 throw new Error(Resource.msg(
@@ -295,7 +319,8 @@ server.replace(
                 order: basketModel,
                 form: billingForm,
                 paymentMethod:paymentMethodIdValue,
-                error: false
+                error: false,
+                afterPayStatus:commonHelper.isAfterPayAllowed()
             });
         });
 

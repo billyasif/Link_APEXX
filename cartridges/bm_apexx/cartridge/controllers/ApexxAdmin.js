@@ -42,14 +42,15 @@ function orderDetails() {
     var authAmount = order.totalGrossPrice.value;
     var captureAmount = utils.round(order.totalGrossPrice.value - order.custom.apexxCaptureAmount) || 0.0;
     var transactionHistory = order.custom.apexxTransactionHistory || '[]';
-   
+    var paymentInstruments = order.getPaymentInstruments()[0];
+    var orderReasonMessage = !(paymentInstruments.custom.apexxReasonCode) ? 'Success' : paymentInstruments.custom.apexxReasonCode;
     var transType =  order.custom.apexxTransactionType?order.custom.apexxTransactionType.toUpperCase():"";
     var transStatus = order.custom.apexxTransactionStatus?order.custom.apexxTransactionStatus.toUpperCase():"";
     var canCapture;
     var canRefund;
     var canCancel;
     
-   if((transType == 'AUTH' || transType == 'CAPTURE') && (transStatus == 'AUTHORISED' || transStatus == 'PAYMENT_STATUS_PARTPAID' || transStatus == 'CAPTURED') && (authAmount !== paidAmount) ){
+   if((transType == 'AUTH' || transType == 'CAPTURE') && (transStatus == 'AUTHORISED' || transStatus == 'PAYMENT_STATUS_PARTPAID' || transStatus == 'Processing' || transStatus == 'CAPTURED') && (authAmount !== paidAmount) ){
     	var canCapture = "canCapture";
     }
     if((transType == 'PAYMENT' && transStatus == 'COMPLETED') || (transType == 'CAPTURE' && transStatus == 'COMPLETED') || (paidAmount > 0 &&  dueAmount < order.getTotalGrossPrice().getValue())){
@@ -63,21 +64,20 @@ function orderDetails() {
    // var canCapture = "canCapture";    
     transactionHistory = sortHistory(transactionHistory);
     var r = require('~/cartridge/scripts/util/response');
-    //return r.renderJSON({captureAmount:(transStatus == 'AUTHORISED' || transStatus == 'PAYMENT_STATUS_PARTPAID' || transStatus == 'CAPTURED')});
+    //return r.renderJSON({paymentMethod});
     
     ISML.renderTemplate('application/orderdetails', {
         resourceHelper: resourceHelper,
         order: order,
         transactionHistory: transactionHistory,// eslint-disable-line no-undef
-        dueAmount: dueAmount,// eslint-disable-line no-undef
-        paidAmount: paidAmount,// eslint-disable-line no-undef
-        authAmount: authAmount,// eslint-disable-line no-undef
-        captureAmount: captureAmount,// eslint-disable-line no-undef
+        dueAmount: dueAmount.toFixed(2),// eslint-disable-line no-undef
+        paidAmount: paidAmount.toFixed(2),// eslint-disable-line no-undef
+        authAmount: authAmount.toFixed(2),// eslint-disable-line no-undef
+        captureAmount: captureAmount.toFixed(2),// eslint-disable-line no-undef
+        orderReasonMessage:orderReasonMessage,// eslint-disable-line no-undef
         canCapture:canCapture,// eslint-disable-line no-undef
         canRefund:canRefund,// eslint-disable-line no-undef
         canCancel:canCancel// eslint-disable-line no-undef
-        
-        
     });
 }
 
