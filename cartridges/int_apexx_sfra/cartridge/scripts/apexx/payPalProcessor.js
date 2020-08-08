@@ -12,6 +12,9 @@ var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 var objectHelper = require('*/cartridge/scripts/util/objectHelper');
 var collections = require('*/cartridge/scripts/util/collections');
 var appPreference = require('~/cartridge/config/appPreference')();
+var apexxConstants = require('*/cartridge/scripts/util/apexxConstants');
+var apexxHelper = require('*/cartridge/scripts/util/apexxHelper');
+
 var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_PAYPAL;
 var CONST = {
@@ -77,7 +80,27 @@ function handle(basket, paymentInformation) {
   */
 function authorize(orderNumber, paymentInstrument, paymentProcessor) {
   var order = OrderMgr.getOrder(orderNumber);
-
+  try {
+      if (order.orderNo) {
+      	Transaction.begin();
+      	order.setPaymentStatus(order.PAYMENT_STATUS_NOTPAID);
+      	order.setStatus(order.CONFIRMATION_STATUS_NOTCONFIRMED);
+      	order.custom.apexxTransactionStatus = apexxConstants.PENDING_ORDER_STATUS;
+      	order.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
+      	order.custom.isApexxOrder = true;
+        paymentInstrument.custom.apexxReasonCode = apexxConstants.REASON_IN_COMPLETE;
+        Transaction.commit();
+      }
+  } catch (error) {
+      var errorObj = {
+          error: true,
+          errorCode: error.name,
+          errorMessage: error.message,
+          errorResponse: error.message
+      }
+      return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
+  }
+  
   if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
     try {
       var saleTransactionResponseData = null;
@@ -139,8 +162,7 @@ function authorizeFailedFlow(orderRecord, paymentProcessor, paymentInstrumentRec
   var paymentTransaction = paymentInstrumentRecord.getPaymentTransaction();
   var customer = orderRecord.getCustomer();
   var BasketMgr = require('dw/order/BasketMgr');
-
-
+  
   Transaction.wrap(function() {
     paymentTransaction.setPaymentProcessor(paymentProcessor);
     orderRecord.custom.isApexxOrder = true;
@@ -174,11 +196,11 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, saleTransacti
   Transaction.wrap(function() {
     if (transactionType == true) {
 
-      orderRecord.custom.apexxTransactionType = "CAPTURE";
+      orderRecord.custom.apexxTransactionType = apexxConstants.TRANSACTION_TYPE_CAPTURE;
 
     } else {
 
-      orderRecord.custom.apexxTransactionType = "AUTH";
+      orderRecord.custom.apexxTransactionType = apexxConstants.TRANSACTION_TYPE_AUTH;
     }
 
     if (('status' in responseTransaction) === false) {
@@ -187,8 +209,8 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, saleTransacti
       }
       paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
       orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-      orderRecord.custom.apexxTransactionType = (transactionType) ? 'CAPTURE' : 'AUTH';
-      orderRecord.custom.apexxTransactionStatus = "FAILED";
+      orderRecord.custom.apexxTransactionType = (transactionType) ? apexxConstants.TRANSACTION_TYPE_CAPTURE : apexxConstants.TRANSACTION_TYPE_AUTH;
+      orderRecord.custom.apexxTransactionStatus = apexxConstants.PENDING_ORDER_STATUS;
       orderRecord.custom.isApexxOrder = true;
 
       return;

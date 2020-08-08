@@ -53,7 +53,7 @@ function updateOrderStatus(orderNo) {
 }
 
 /**
- * Credit action
+ * Refund Transaction 
  * @param {string} orderNo - order no
  * @param {string} amount - refund amount
  * @returns {Object} response
@@ -61,7 +61,7 @@ function updateOrderStatus(orderNo) {
 function refundTransaction(orderNo, amount,captureid) {
 	
     var order = OrderMgr.searchOrder('orderNo = {0}', orderNo);
-
+ 
     var endPoint = appPreferenceBM.SERVICE_HTTP_REFUND;
     var status = false;
     var transactionHistory;
@@ -143,6 +143,8 @@ function refundTransaction(orderNo, amount,captureid) {
     }
     
     return {
+    	payLoad:payLoad,
+    	response:response,
         status: status,
         error: error
     };
@@ -230,10 +232,13 @@ function cancelTransaction(orderNo) {
        
 
     return {
+    	payLoad:payLoad,
+    	response:response,
         status: status,
         error: error
     };
 }
+
 
 
 
@@ -302,7 +307,7 @@ function captureTransaction(orderNo, amount) {
       }
      
       var response = callAction(endPoint, payLoad);
-      return response;
+      
       if (response && response.ok === false) {
           status = false;
           response = JSON.stringify(response.object);
@@ -324,6 +329,8 @@ function captureTransaction(orderNo, amount) {
     }
  
     return {
+    	payLoad:payLoad,
+    	response:response,
         status: status,
         error: error
     };
@@ -335,7 +342,6 @@ function captureTransaction(orderNo, amount) {
  * @param {Object} order - order object
  * @param {string} amount - capture amount
  * @param {string} transactionID - transaction id
- * @returns {Object} transaction details
  */
 function makeCaptureRequest(order, amount, transactionID) {
     var orderNo = order.orderNo;
@@ -348,11 +354,10 @@ function makeCaptureRequest(order, amount, transactionID) {
 
 
 /**
- * Generate Capture Request
+ * Generate Capture Request AfterPay
  * @param {Object} order - order object
  * @param {string} amount - capture amount
  * @param {string} transactionID - transaction id
- * @returns {Object} transaction details
  */
 function makeAfterPayCaptureRequest(order, amount, transactionID) {
         var orderNo = order.orderNo;
@@ -469,7 +474,7 @@ function makeAfterPayCaptureRequest(order, amount, transactionID) {
  * @param {Object} order - order object
  * @param {string} amount - refund amount
  * @param {string} transactionID - transaction id
- * @returns {Object} transaction details
+ * @returns {Object} captureID details
  */
 function makeRefundRequest(order, amount, transactionID, captureID) {
     return {
@@ -479,14 +484,11 @@ function makeRefundRequest(order, amount, transactionID, captureID) {
 }
 
 /**
- * generate Void Request
- * @param {string} captureID - Capture ID
- * @returns {Object} Capture object
+ * Generate credit Request AfterPay
+ * @param {Object} order - order object
+ * @param {Object} transactionID - transaction id
  */
 function makeAfterPayRefundRequest(order, transactionID) {
-	
-	
-	
       var refundRequest = {};
       refundRequest.endPointUrl  = order.custom.apexxTransactionID;
       refundRequest.capture_id  = order.custom.apexxCaptureId;
@@ -587,8 +589,8 @@ function makeAfterPayRefundRequest(order, transactionID) {
 
 /**
  * generate Void Request
- * @param {string} captureID - Capture ID
- * @returns {Object} Capture object
+ * @param {string} orderNo - orderNo
+ * @param {string} transactionID - transaction id
  */
 function makeCancelRequest(orderNo, transactionID) {
     var endPointUrl = transactionID + '/cancel';
@@ -600,7 +602,7 @@ function makeCancelRequest(orderNo, transactionID) {
 
 
 /**
- * generate Void Request
+ * generate Void Request For AfterPay
  * @param {string} captureID - Capture ID
  * @returns {Object} Capture object
  */
@@ -676,7 +678,7 @@ function setOrderAttributesHistory(action, order, response, paidAmount) {
 
 
 /**
- * Keeps the transaction details in order custom attributes and history
+ * Keeps the transaction details in order custom attributes and history For AfterPay
  * @param {string} action - transaction action
  * @param {Object} order - order object
  * @param {Object} response -response object
@@ -725,7 +727,13 @@ function setAfterPayOrderAttributesHistory(action, order, response, paidAmount) 
 
 }
 
-
+/**
+ * For order history updates
+ * @param {string} action - transaction action
+ * @param {Object} order - order object
+ * @param {Object} response -response object
+ * @param {string} amount - amount
+ */
 function updateTransactionHistory(action, order, response, amount) {
 	var amount = (action === 'cancel') ? order.totalGrossPrice.value : amount;
     var transactionHistory = order.custom.apexxTransactionHistory || '[]';
@@ -755,6 +763,10 @@ function updateTransactionHistory(action, order, response, amount) {
 
 
 
+/**
+ * For date format
+ * @param {Object} Date
+ */
 
 function getDateFormat(format) {
 

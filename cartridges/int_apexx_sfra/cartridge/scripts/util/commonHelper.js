@@ -6,12 +6,7 @@ var Transaction = require('dw/system/Transaction');
 var appPreference = require('~/cartridge/config/appPreference')();
 const objSite = require("dw/system/Site");
 var BasketMgr = require('dw/order/BasketMgr');
-
-var CONST = {
-	APEXX_HOSTED_PAYMENT_PROCESSOR_ID: 'APEXX_HOSTED'
-};
-
-
+var apexxConstants = require('*/cartridge/scripts/util/apexxConstants');
 
 /**
  * Logs custom messages
@@ -68,16 +63,17 @@ function isInt(n){
 function updateTransactionHistory(action, order, response, amount) {
     var transactionHistory = order.custom.apexxTransactionHistory || '[]';
     var response = (response.object) ? response.object : response;
-    var transactionType = order.custom.apexxTransactionType || '';
-    var merchant_reference = response.merchant_reference ? response.merchant_reference : order.orderNo;
-    var ID = response._id ? response._id : '';
-    var status = response.status || '';
     
+    var transactionType = order.custom.apexxTransactionType || apexxConstants.NO_TRANSACTION_TYPE_FOUND;
+    var merchant_reference = response.merchant_reference ? response.merchant_reference : apexxConstants.NO_REFERENCE;
+    var ID = response._id ? response._id : apexxConstants.NO_ID_FOUND;
+    var status = response.status || apexxConstants.PENDING_ORDER_STATUS;
+    var amount = amount || '0.00';
     transactionHistory = JSON.parse(transactionHistory);
    
     transactionHistory.push({
         id: ID,
-        merchant_reference: merchant_reference || '',
+        merchant_reference: merchant_reference,
         status: status,
         type: transactionType,
         amount: amount,
@@ -328,6 +324,40 @@ function isAfterPayAllowed() {
 
 }
 
+/**
+ * Create XML string for <merchant-account-id />
+ * @param {string} currencyCode - Currency Code
+ * @return {string} XML <merchant-account-id>MerchantID</merchant-account-id>
+ */
+function isAfterPayAllowedOnBilling() {
+        var currentBasket = BasketMgr.getCurrentBasket();
+        var arr = new Array();
+        
+        if(!currentBasket){
+        	return true;
+        }
+        if(currentBasket.currencyCode && currentBasket.custom.selectedShipCountry){
+   	    var orderCurrency = currentBasket.currencyCode;
+   		var BillingCountryCode = currentBasket.billingAddress.countryCode.value;
+   		
+   		for each(account in appPreference.Apexx_AfterPay_Account_IDs ) {
+   		        var arrSplit = account.split('_');
+   		        if(BillingCountryCode == arrSplit[0] && orderCurrency == arrSplit[1] ){
+   		        	arr.push(currentBasket.custom.selectedShipCountry)
+   		        }
+   			}
+   	    }
+        
+	    if(!customer.authenticated || arr.length < 1){
+	    	
+	    	return true;
+	    }
+	    
+    	return false;
+
+}
+
+
 
 /**
  * Create XML string for <merchant-account-id />
@@ -380,7 +410,8 @@ var apexxHelper = {
     getCurrencyCode:getCurrencyCode,
     updateTransactionHistory:updateTransactionHistory,
     isAfterPayAllowed:isAfterPayAllowed,
-    getAfterPayAccountId:getAfterPayAccountId
+    getAfterPayAccountId:getAfterPayAccountId,
+    isAfterPayAllowedOnBilling:isAfterPayAllowedOnBilling
 };
 
 module.exports = apexxHelper;

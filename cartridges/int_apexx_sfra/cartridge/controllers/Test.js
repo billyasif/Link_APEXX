@@ -112,9 +112,9 @@ server.get('API',function(req,res,next){
    }else if(remainCaptureAmount >= 0){
  	  payload.final_capture = false;
    }
-   res.json({'price':payload});
+   res.json({'price':customer.getProfile()});
   
-   res.json({'customer':Object.keys(order.getTotalGrossPrice())});return next();
+   res.json({'customer':Object.keys(customer.getProfile())});return next();
    //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
 
   // res.json(Object.keys(paymentInstruments));return next();

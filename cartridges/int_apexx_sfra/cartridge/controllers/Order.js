@@ -21,8 +21,16 @@ server.replace(
         var Locale = require('dw/util/Locale');
         var order = OrderMgr.getOrder(req.querystring.ID);
         var token = req.querystring.token ? req.querystring.token : null;
+        var status;
+        var reason;
+        var transactionId;
+        if(order){
         var paymentInstruments = order.getPaymentInstruments()[0];
         var paymentTransaction = paymentInstruments.getPaymentTransaction();
+        status = order.custom.apexxTransactionStatus;
+        reason = paymentInstruments.custom.apexxReasonCode;
+        transactionId = paymentTransaction.getTransactionID();
+        }
 
 
         //res.json({'status':order.custom.apexxTransactionStatus});return next();
@@ -75,9 +83,9 @@ server.replace(
                 returningCustomer: false,
                 passwordForm: passwordForm,
                 reportingURLs: reportingURLs,
-                status:order.custom.apexxTransactionStatus,
-                reason:paymentInstruments.custom.apexxReasonCode,
-                transactionId : paymentTransaction.getTransactionID()
+                status:status,
+                reason:reason,
+                transactionId:transactionId
 
 
             });
@@ -86,9 +94,9 @@ server.replace(
                 order: orderModel,
                 returningCustomer: true,
                 reportingURLs: reportingURLs,
-                status:order.custom.apexxTransactionStatus,
-                reason:paymentInstruments.custom.apexxReasonCode,
-                transactionId : paymentTransaction.getTransactionID()
+                status:status,
+                reason:reason,
+                transactionId:transactionId
 
             });
         }

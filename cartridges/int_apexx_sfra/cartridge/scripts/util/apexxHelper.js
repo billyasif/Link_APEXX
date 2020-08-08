@@ -5,8 +5,14 @@ var dworder = require('dw/order');
 var Resource = require('dw/web/Resource');
 var Money = require('dw/value/Money');
 var CustomerMgr = require('dw/customer/CustomerMgr');
+var Transaction = require('dw/system/Transaction');
 
 var getPreference = require('~/cartridge/config/appPreference');
+var CONST = {
+	    STATUS_PROCESSING: 'Processing',
+	    PENDING_ORDER_STATUS: 'PENDING',
+	    REASON: "Order Incomplete"
+	};
 
 var ApexxHelper = {
     prefs: getPreference()
@@ -372,6 +378,30 @@ ApexxHelper.getDefaultCustomerApexxPaymentInstrument = function (customerId) {
     }
     return instruments && instruments.length ? instruments[0] : null;
 };
+
+ApexxHelper.badResponseUpdate = function (orderRecord,paymentTransaction,paymentInstrumentRecord,responseTransaction,type) {
+	try {
+		Transaction.begin();
+			if (responseTransaction._id) {
+		        paymentTransaction.setTransactionID(responseTransaction._id);
+		    }
+		    if(!responseTransaction.message){
+		    	paymentInstrumentRecord.custom.apexxReasonCode  = CONST.REASON;
+		    }else{
+		        paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
+		    }
+		    paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
+		    orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+		    orderRecord.custom.apexxTransactionType = type;
+		    orderRecord.custom.apexxTransactionStatus = CONST.PENDING_ORDER_STATUS;
+		    orderRecord.custom.isApexxOrder = true;
+	    Transaction.commit();
+	    return;
+	} catch (error) {
+		 return;
+	}
+};
+
 
 /**
  * Get saved Apexx customer payment method instrument

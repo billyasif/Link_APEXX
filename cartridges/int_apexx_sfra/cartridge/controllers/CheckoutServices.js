@@ -545,13 +545,12 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         return next();
     }
     
-   //res.json({"p":handlePaymentResult});return next();
    //Apexx Iframe 3DS  Window Setting 
     if('threeDsObj' in handlePaymentResult){
     	objThreeDs = handlePaymentResult.threeDsObj;
     	threeDsTransId = ('_id' in handlePaymentResult.threeDsObj) ? handlePaymentResult.threeDsObj._id : '';
     	threeDsReturnUrl = appPreference.RETURN_URL_DIRECT_CREDIT_THREE_DS + '?transactionId='+ threeDsTransId + '&orderId=' + order.orderNo+ '&method=' + paymentMethodIdValue;
-        
+
         res.json({
             error: false,
             iframe:true,

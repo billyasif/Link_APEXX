@@ -1,4 +1,4 @@
-<isif condition="${pdict.status === 'FAILED' || pdict.status === 'DECLINED'}">
+<isif condition="${pdict.status === 'FAILED' || pdict.status === 'DECLINED' ||  pdict.status === 'PENDING'}">
 <isset name="status" value="${pdict.status}" scope="page" />
 <isset name="reason" value="${pdict.reason}" scope="page" />
 <isset name="transactionId" value="${pdict.transactionId}" scope="page" />

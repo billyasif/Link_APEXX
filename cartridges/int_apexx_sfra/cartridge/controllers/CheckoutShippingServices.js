@@ -20,9 +20,11 @@ server.append(
     function (req, res, next) {
                 var form = server.forms.getForm('shipping');
                 var currentBasket = BasketMgr.getCurrentBasket();
-                Transaction.wrap(function() {
-                    currentBasket.custom.selectedShipCountry = form.shippingAddress.addressFields.country.value;
-                });
+                if(form.shippingAddress.addressFields.country.value){
+	                Transaction.wrap(function() {
+	                    currentBasket.custom.selectedShipCountry = form.shippingAddress.addressFields.country.value;
+	                });
+    			}
                 
                 res.json({'afterPayStatus':commonHelper.isAfterPayAllowed()});
                 return next();

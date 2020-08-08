@@ -86,7 +86,7 @@ var trans = {
 			j.post(url, postData, function(result){
 				button.prop("disabled", false);
 				button.text(buttonLabel);
-				//console.log(result);return false;
+				
 				if(result && result.status){
 						alert(Resources.TRANSACTION_SUCCESS);
 						window.location.reload();
@@ -94,6 +94,7 @@ var trans = {
 					}
 					else{
 						alert(Resources.TRANSACTION_FAILED);
+						console.log(result);
 					}
 			});
 		});

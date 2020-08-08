@@ -62,7 +62,7 @@ server.use(
 
                 if ('status' in data)
                     var transactionStatus = data.status == "CAPTURED"  ? "Processing" : data.status;
-                    order.custom.apexxTransactionStatus = transactionStatus;
+                    order.custom.apexxTransactionStatus = "CAPTURED";
                 	paymentTransaction.setType(PT.TYPE_AUTH);
 
                 if ('merchant_reference' in data)

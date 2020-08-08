@@ -6,6 +6,7 @@ var system = require('dw/system');
 var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 var dworder = require('dw/order');
 var appPreference = require('~/cartridge/config/appPreference')();
+var Money = require('dw/value/Money');
 
 /**
  * For Card object
@@ -314,6 +315,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.account = appPreference.Apexx_GooglePay_Account_Id;
 
         //commonBillingObject.organisation = appPreference.ORGANISATION;
+        //AllcommonBillingObject.currency = orderCurrency;
 
         commonBillingObject.amount = amount;
         commonBillingObject.capture_now = appPreference.Apexx_GooglePay_Capture ? true :false;
@@ -325,10 +327,10 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.card.googlepay.dpan = paymentInstrument.custom.apexxDpan;
         commonBillingObject.card.googlepay.eci = paymentInstrument.custom.apexxEci;
         commonBillingObject.customer = {};
-        commonBillingObject.customer.customer_id = "";
+        commonBillingObject.customer.customer_id =  '';
         commonBillingObject.customer.last_name= billingAddress.last_name;
         commonBillingObject.customer.postal_code = billingAddress.postal_code;
-        commonBillingObject.customer.account_number = "";
+        commonBillingObject.customer.account_number =  '';
         commonBillingObject.customer_ip = appPreference.CUSTOMER_IP;
         commonBillingObject.dynamic_descriptor = appPreference.Apexx_GooglePay_Dynamic_Descriptor;
         commonBillingObject.merchant_reference = paymentReference;
