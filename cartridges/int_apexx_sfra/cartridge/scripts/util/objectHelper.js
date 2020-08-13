@@ -222,7 +222,7 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
         commonBillingObject.paypal.order = {};
         commonBillingObject.paypal.order.invoice_number = order.getInvoiceNo();
         commonBillingObject.paypal.order.total_tax_amount = '0';
-        commonBillingObject.paypal.order.description = "First Create Order Payment";
+        commonBillingObject.paypal.order.description = appPreference.Apexx_PayPal_Dynamic_Descriptor;
         commonBillingObject.paypal.order.items = new Array();
         
         var totalQuantities = 0;  
@@ -346,8 +346,8 @@ function createSaleRequestObject(order, paymentInstrument, paymentProcessor) {
 
         commonBillingObject.billing_address = billingAddress;
         commonBillingObject.shopper_interaction = appPreference.Apexx_GooglePay_Shopper_Interaction;
-        commonBillingObject.three_ds = {};
-        commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_GooglePay_Three_Ds_Yes_No ? true :false;
+        //commonBillingObject.three_ds = {};
+        //commonBillingObject.three_ds.three_ds_required = appPreference.Apexx_GooglePay_Three_Ds_Yes_No ? true :false;
 
     }
     

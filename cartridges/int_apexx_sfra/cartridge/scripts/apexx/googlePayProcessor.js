@@ -54,7 +54,7 @@ function handle(basket, paymentInformation) {
 
         paymentInstrument.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
         paymentInstrument.custom.apexxRecurringType = appPreference.Apexx_GooglePay_Recurring_Type;
-        paymentInstrument.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
+        //paymentInstrument.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
     });
 
 
@@ -241,7 +241,7 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
         orderRecord.custom.apexxAuthAmount = responseTransaction.authorization_code ? authAmount : 0.0;
         orderRecord.custom.apexxTransactionID = responseTransaction._id;
         orderRecord.custom.apexxMerchantReference = responseTransaction.merchant_reference;
-        paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
+        //paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
         paymentInstrumentRecord.custom.apexxAuthorizationCode = responseTransaction.authorization_code;
 
         commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.amount);

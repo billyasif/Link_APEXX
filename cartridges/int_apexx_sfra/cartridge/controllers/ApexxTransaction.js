@@ -8,12 +8,16 @@ var PaymentMgr = require('dw/order/PaymentMgr');
 var Money = require('dw/value/Money');
 
 var cardProcessor = require('~/cartridge/scripts/apexx/cardProcessor');
+var clientSideProcessor = require('~/cartridge/scripts/apexx/clientSideProcessor');
+
 var objectHelper = require('*/cartridge/scripts/util/objectHelper');
 var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 var appPreference = require('~/cartridge/config/appPreference')();
 var apexxServiceWrapper = require('*/cartridge/scripts/service/apexxServiceWrapper');
 var PT = require('dw/order/PaymentTransaction');
 var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+var apexxConstants = require('*/cartridge/scripts/util/apexxConstants');
+
 var httpParameterMap = request.httpParameterMap;
 
 var CONST = {
@@ -181,7 +185,7 @@ server.post(
 	    'DirectCreditUpdateThreeDs',
 	    function(req, res, next) {
          // res.json();return next();
-	       try {
+	     ///  try {
 		    	var isError,isAuth,orderNo,orderToken;
 	            var orderId = req.querystring.orderId;
 	            var order = OrderMgr.getOrder(orderId);
@@ -189,8 +193,16 @@ server.post(
 	            var authAmount;
 	            var transactionId = req.querystring.transactionId;
 	            var method = req.querystring.method;
-	            var transactionType = (appPreference.Apexx_Hosted_Capture)  ? CONST.TYPE_CAPTURE : CONST.TYPE_AUTH;
-
+	            var paymentInstrument = order.getPaymentInstruments()[0];
+	            
+	            if(paymentInstrument.paymentMethod === 'CREDIT_CARD'){
+	              var transactionType = (appPreference.Apexx_Direct_Capture)  ? CONST.TYPE_CAPTURE : CONST.TYPE_AUTH;
+	            }
+	            
+	            if(paymentInstrument.paymentMethod === 'APEXX_CLIENT_SIDE'){
+		              var transactionType = (appPreference.Apexx_Client_Side_Capture)  ? CONST.TYPE_CAPTURE : CONST.TYPE_AUTH;
+		        }
+	            
 	            var threeDsResponse = paramsToJson(transactionId);
 	            var payLoad = {};
 	            payLoad._id = ('_id' in threeDsResponse) ? threeDsResponse._id : "";
@@ -203,7 +215,6 @@ server.post(
 	            
 	            payLoad.paRes = ('PaRes' in threeDsResponse) ? threeDsResponse.PaRes : "";
 	            var endPoint = appPreference.SERVICE_HTTP_DIRECT_AUTH;
-	            var paymentInstrument = order.getPaymentInstruments()[0];
 	            var status;
 	            var paymentTransaction = paymentInstrument.getPaymentTransaction();
 
@@ -216,13 +227,23 @@ server.post(
 	                if (response.object._id && response.object.status === CONST.STATUS_AUTHORISED || response.object.status === CONST.STATUS_CAPTURED) {
 	                    var paymentInstrument = order.getPaymentInstruments()[0];
 	                    var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstrument.paymentMethod).paymentProcessor;
-	                    cardProcessor.saveTransactionData(order, paymentInstrument, response.object);
+	                    
+	                    
+	                    if(paymentInstrument.paymentMethod === 'CREDIT_CARD'){
+		                    cardProcessor.saveTransactionData(order, paymentInstrument, response.object);
+		                    if (paymentInstrument.custom.apexxSaveCreditCard == true) {
 
-	                    if (paymentInstrument.custom.apexxSaveCreditCard == true) {
+		                        cardProcessor.saveCustomerCreditCard(paymentInstrument, response.object);
 
-	                        cardProcessor.saveCustomerCreditCard(paymentInstrument, response.object);
+		                    }
+	      	            }
+	      	            
+	      	            if(paymentInstrument.paymentMethod === 'APEXX_CLIENT_SIDE'){
+	      	            	clientSideProcessor.saveTransactionData(order, paymentInstrument, response.object);
+	      		        }
+	                    
 
-	                    }
+	                    
 
 	                } else if (response.object.status === CONST.STATUS_DECLINED || response.object.status === CONST.STATUS_FAILED) {
 
@@ -264,11 +285,11 @@ server.post(
 		            });
 	          }   
 
-	        } catch (e) {
-	            res.render('apexx/closepopup.isml', {
-	                isError: true
-	            });
-	        }
+//	        } catch (e) {
+//	            res.render('apexx/closepopup.isml', {
+//	                isError: true
+//	            });
+//	        }
 	        return next();
 	    });
 
@@ -303,19 +324,21 @@ server.post(
 	                            orderRecord.custom.apexxPaidAmount = amount;
 	                            orderRecord.custom.apexxCaptureAmount = amount;
 	                            paymentTransaction.setType(PT.TYPE_CAPTURE);
+	                            paymentInstrument.custom.apexxReasonCode = apexxConstants.REASON_SUCCESS;
 
 
 	                        } else if (status === CONST.STATUS_AUTHORISED) {
 	                            paymentTransaction.setType(PT.TYPE_AUTH);
 	                            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
+	                            paymentInstrument.custom.apexxReasonCode = apexxConstants.REASON_SUCCESS;
 
 	                        } else if (status === CONST.STATUS_DECLINED) {
 	                            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-	                            paymentInstrumentRecord.custom.apexxReasonCode = reason_code || "";
+	                            paymentInstrument.custom.apexxReasonCode = reason_code || "";
 
 	                        } else if (responseTransaction.status === CONST.STATUS_FAILED) {
 	                            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-	                            paymentInstrumentRecord.custom.apexxReasonCode = reason_code || "";
+	                            paymentInstrument.custom.apexxReasonCode = reason_code || "";
 
 	                        }
 	                        
@@ -417,4 +440,6 @@ function paramsToJson(transactionId) {
     }
     return data;
 }
+
+
 module.exports = server.exports();

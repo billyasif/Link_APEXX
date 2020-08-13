@@ -5,8 +5,6 @@
  */
 
 var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
-var appPreference = require('~/cartridge/config/appPreference')();
-var commonHelper = require('~/cartridge/scripts/util/commonHelper');
 const server_error = "Internal Server Error";
 
 /**
@@ -24,7 +22,7 @@ var service = LocalServiceRegistry.createService(endpoint, {
 	 */
 	createRequest: function (svc: HTTPService, requestParams) {
 		svc.addHeader("Content-Type", "application/json");
-        svc.addHeader("X-APIKEY", appPreference.XAPIKEY);
+        svc.addHeader("X-APIKEY", '9112b8801b5b4e1ea57aeffabb563142');
 
 		return JSON.stringify(requestParams);
 	},
@@ -66,10 +64,9 @@ var service = LocalServiceRegistry.createService(endpoint, {
 var makeServiceCall = function(method,endPoint, payload) {
 	var response = {};
 	
-  
+   
 	var svc = serviceWraper(endPoint);
-	
-	if('endPointUrl' in payload){
+	if(payload.endPointUrl){
 		var svcURL = svc.getURL();
 		var newURL = svcURL + payload.endPointUrl;
 	    svc.setURL(newURL);
@@ -77,16 +74,14 @@ var makeServiceCall = function(method,endPoint, payload) {
 	}
 	if(method){
 		svc.setRequestMethod(method);
-	}	
-	
-	if('afterpay' in payload){
-	    var requestAmount = commonHelper.floatToInt(payload.afterpay.gross_amount);
-	    
-	    if(commonHelper.isInt(requestAmount)){
-	    	payload.afterpay.gross_amount = payload.afterpay.gross_amount ;
-		}
-     }  
-	
+	}
+	 
+	if(payload.amount){
+			var requestAmount = floatToInt(payload.amount);
+		    if(isInt(requestAmount)){
+		    	payload.amount = requestAmount ;
+			}
+	}
 	
 	try {
 		var result = svc.call(payload);
@@ -96,38 +91,102 @@ var makeServiceCall = function(method,endPoint, payload) {
 		} else {
 			response.ok = true;
 			response.object = replaceAllBackSlash(result.object.text);
+			
 		}
 	} catch (e) {
 		response.ok = false;
 		response.object = replaceAllBackSlash(e.message);
 	}
-	
-	
-	if('gross_amount' in response.object.afterpay){
-		var responseAmount = commonHelper.intToFloat(response.object.afterpay.gross_amount);
-		response.object.afterpay.gross_amount = responseAmount;
+
+	if(response.object.amount){
+		var responseAmount = intToFloat(response.object.amount);
+		response.object.amount = responseAmount;
 	}
+	
+	
 	return response;
 }
 
 function replaceAllBackSlash(targetStr){
 	
-	try {
-	    var index = targetStr.indexOf("\\");
-	    while (index >= 0) {
-	        targetStr = targetStr.replace("\\", "");
-	        index = targetStr.indexOf("\\");
-	    }
-
-	    return JSON.parse(targetStr);
-	} catch (e) {
-	    return {
-	        "ok": false,
-	        "message":server_error,
-	        "object":{"status":'SFCC_BUG'}
-	    }
+		try {
+		    var index = targetStr.indexOf("\\");
+		    while (index >= 0) {
+		        targetStr = targetStr.replace("\\", "");
+		        index = targetStr.indexOf("\\");
+		    }
+	
+		    return JSON.parse(targetStr);
+		} catch (e) {
+		    return {
+		        "ok": false,
+		        "message":server_error,
+		        "object":{"status":'SFCC_BUG'}
+		    }
+		}
 	}
+
+function isObject(val) {
+    if (val === null) {
+        return false;
+    }
+    return ((typeof val === 'function') || (typeof val === 'object'));
 }
+
+/**
+ * Return amount
+ * @param {value} value - float
+ * @return {intValue} Integer
+ */
+
+var floatToInt = function(value){
+	
+	var intValue = '0';
+	if(value && isInt(value)){
+		var floatVal = parseFloat(value);
+		intValue = Math.round(floatVal * 100);
+		intValue = parseInt(intValue);
+	}
+	return intValue;
+}
+
+
+var isInt =  function (n){
+	if (isNaN(n)) {
+       return false;
+    }else{
+      return true;
+    }
+    
+}
+
+
+/**
+ * Return float
+ * @param {value} value - int
+ * @return {floatValue} Float
+ */
+var intToFloat = function(value){
+    var floatValue = '0.0';
+	
+	if(value &&  isInt(value)){
+		var intVal = parseInt(value);
+		floatValue = intVal / 100;
+		floatValue = parseFloat(floatValue);
+	}
+  return floatValue;
+}
+
+
+/*
+ * Module Exports
+ */
+
+module.exports = {
+		makeServiceCall:makeServiceCall
+};
+
+
 
 
 

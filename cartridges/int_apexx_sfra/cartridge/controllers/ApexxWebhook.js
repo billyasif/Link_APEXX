@@ -8,6 +8,7 @@ var PaymentMgr = require('dw/order/PaymentMgr');
 var logger = require('dw/system/Logger').getLogger('ApexxWebHookUpdate');
 var Transaction = require('dw/system/Transaction');
 var PaymentInstrument = require('dw/order/PaymentInstrument');
+var Money = require('dw/value/Money');
 
 
 server.use(
@@ -39,7 +40,8 @@ server.use(
                     if ('amount' in data)
                     var apexxPaidAmount = data.amount /100;	
                     var apexxAuthAmount = data.amount /100;	
-
+                    logger.info({'amount':apexxAuthAmount});
+                    if(isFloat(apexxAuthAmount))
                     order.custom.apexxPaidAmount = apexxPaidAmount.toFixed(2);
                     order.custom.apexxAuthAmount = apexxAuthAmount.toFixed(2);
 
@@ -56,14 +58,14 @@ server.use(
 
                 if ('amount' in data)
                     var amount = data.amount / 100;
-
+                	if(isFloat(amount))
                     order.custom.apexxAuthAmount = amount.toFixed(2);
                 	paymentTransaction.setAmount(new Money(amount, order.getCurrencyCode()));
 
                 if ('status' in data)
                     var transactionStatus = data.status == "CAPTURED"  ? "Processing" : data.status;
-                    order.custom.apexxTransactionStatus = "CAPTURED";
-                	paymentTransaction.setType(PT.TYPE_AUTH);
+                    order.custom.apexxTransactionStatus = transactionStatus;
+                	//paymentTransaction.setType(PT.TYPE_AUTH);
 
                 if ('merchant_reference' in data)
 
@@ -109,6 +111,10 @@ server.use(
         }
     }
 );
+
+function isFloat(n){
+    return Number(n) === n && n % 1 !== 0;
+}
 
 
 module.exports = server.exports();

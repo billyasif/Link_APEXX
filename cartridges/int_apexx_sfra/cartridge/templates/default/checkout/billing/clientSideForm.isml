@@ -6,8 +6,8 @@
             <isif condition=${creditCardClientFields.cseCardNumber.mandatory === true}>required</isif>
             ${creditCardClientFields.cseCardNumber.htmlName}">
             <label class="form-control-label" for="cseCardNumber">${Resource.msg('field.credit.card.number','cseCreditCard',null)}</label>
-            <div>
-                <input type="text" data-apexx="card_number" class="form-control cseCardNumber" id="cseCardNumber" value=""
+            <div class="cse-card-number-wrapper">
+                <input type="text" data-apexx="card_number"  oninput="this.value=this.value.replace(/[^0-9]/g,'');"  placeholder="Card Number" class="form-control cseCardNumber" id="cseCardNumber" value=""
                     <isprint value=${creditCardClientFields.cseCardNumber.attributes} encoding="off"/>
                     autocomplete="cc-number"
                     aria-describedby="cardNumberInvalidMessage"
@@ -26,7 +26,7 @@
             ${creditCardClientFields.cseCardOwner.htmlName}">
             <label class="form-control-label" for="cseCardOwner">${Resource.msg('field.credit.card.name','cseCreditCard',null)}</label>
             <div class="card-name-wrapper">
-            <input type="text" data-apexx="card_holder_name" class="form-control" name="${creditCardClientFields.cseCardOwner.htmlName}" id="cseCardOwner"  value="" />
+            <input type="text" data-apexx="card_holder_name" placeholder="Card Holder Name" class="form-control" name="${creditCardClientFields.cseCardOwner.htmlName}" id="cseCardOwner"  value="" />
 
             <div class="invalid-feedback" ></div>
             </div>
@@ -41,7 +41,7 @@
             <isif condition=${creditCardClientFields.cseExpirationMonth.mandatory === true}>required</isif>
             ${creditCardClientFields.cseExpirationMonth.htmlName}">
             <label class="form-control-label" for="expirationMonth">${Resource.msg('field.credit.card.expiration.month','cseCreditCard',null)}</label>
-            <input type="text" data-apexx="expiry_month" class="form-control" name="${creditCardClientFields.cseExpirationMonth.htmlName}" id="cseExpirationMonth"  value="" />
+            <input type="text" data-apexx="expiry_month" maxlength="2" oninput="this.value=this.value.replace(/[^0-9]/g,'');" placeholder="MM" class="form-control" name="${creditCardClientFields.cseExpirationMonth.htmlName}" id="cseExpirationMonth"  value="" />
 
             <div class="invalid-feedback" id="expirationMonthInvalidMessage"></div>
         </div>
@@ -52,7 +52,7 @@
             <isif condition=${creditCardClientFields.cseExpirationYear.mandatory === true}>required</isif>
             ${creditCardClientFields.cseExpirationYear.htmlName}">
             <label class="form-control-label" for="expirationYear">${Resource.msg('field.credit.card.expiration.year','cseCreditCard',null)}</label>
-            <input type="text" data-apexx="expiry_year" class="form-control" name="${creditCardClientFields.cseExpirationYear.htmlName}" id="cseExpirationYear"  value="" />
+            <input type="text" data-apexx="expiry_year" maxlength="2" oninput="this.value=this.value.replace(/[^0-9]/g,'');" placeholder="YY" class="form-control" name="${creditCardClientFields.cseExpirationYear.htmlName}" id="cseExpirationYear"  value="" />
 
             <div class="invalid-feedback" id="expirationYearInvalidMessage"></div>
         </div>
@@ -67,7 +67,7 @@
             ${creditCardClientFields.cseSecurityCode.htmlName}">
             <label class="form-control-label" for="securityCode">${Resource.msg('field.credit.card.security.code','cseCreditCard',null)}</label>
 
-            <input type="text" data-apexx="cvv" class="form-control securityCode" id="cseSecurityCode"
+            <input type="text" data-apexx="cvv" placeholder="CVV" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="form-control securityCode" id="cseSecurityCode"
                 <isprint value=${creditCardClientFields.cseSecurityCode.attributes} encoding="off"/>
                 aria-describedby="securityCodeInvalidMessage" >
             <div class="invalid-feedback" id="securityCodeInvalidMessage"></div>

@@ -7,6 +7,8 @@
 var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
 var appPreferenceBM = require('~/cartridge/config/appPreferenceBM');
 var apexxUtils = require('~/cartridge/scripts/util/apexxUtils');
+const server_error = "Internal Server Error";
+
 
 /**
  * Local Services Framework service definition
@@ -104,21 +106,34 @@ var makeServiceCall = function(method,endPoint, payload) {
 		response.object.amount = responseAmount;
 	}
 	
-	if(response.object.gross_amount){
-		var responseAmount = apexxUtils.intToFloat(response.object.gross_amount);
-		response.object.gross_amount = responseAmount;
-	}
 	
 	return response;
 }
 
 function replaceAllBackSlash(targetStr){
-    var index=targetStr.indexOf("\\");
-    while(index >= 0){
-        targetStr=targetStr.replace("\\","");
-        index=targetStr.indexOf("\\");
+	
+	try {
+	    var index = targetStr.indexOf("\\");
+	    while (index >= 0) {
+	        targetStr = targetStr.replace("\\", "");
+	        index = targetStr.indexOf("\\");
+	    }
+
+	    return JSON.parse(targetStr);
+	} catch (e) {
+	    return {
+	        "ok": false,
+	        "message":server_error,
+	        "object":{"status":'SFCC_BUG'}
+	    }
+	}
+}
+
+function isObject(val) {
+    if (val === null) {
+        return false;
     }
-    return JSON.parse(targetStr);
+    return ((typeof val === 'function') || (typeof val === 'object'));
 }
 
 /*

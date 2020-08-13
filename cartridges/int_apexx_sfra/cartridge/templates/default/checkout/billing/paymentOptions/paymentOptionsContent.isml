@@ -1,26 +1,26 @@
 <isinclude template="apexx/checkout/clientSideJsAndCss" />
 
 <isloop items="${pdict.order.billing.payment.applicablePaymentMethods}" var="paymentOption" status="loopSate">
-    <isif condition="${paymentOption.ID === 'CREDIT_CARD'  }">
+    <isif condition="${paymentOption.ID === 'CREDIT_CARD' && pdict.appPreference.Apexx_direct_credit_status }">
         <isinclude template="checkout/billing/paymentOptions/creditCardContent" />
     </isif>
-    <isif condition="${paymentOption.ID === 'APEXX_HOSTED' }">
+    <isif condition="${paymentOption.ID === 'APEXX_HOSTED' && pdict.appPreference.Apexx_hosted_status }">
         <isinclude template="checkout/billing/paymentOptions/apexxHostedContent" />
     </isif>
-    <isif condition="${paymentOption.ID === 'APEXX_PAYPAL' }">
+    <isif condition="${paymentOption.ID === 'APEXX_PAYPAL' && pdict.appPreference.Apexx_Paypal_Enable_Solution}">
         <isinclude template="checkout/billing/paymentOptions/apexxPaypalContent" />
     </isif>
-     <isif condition="${paymentOption.ID === 'APEXX_GOOGLEPAY' }">
+     <isif condition="${paymentOption.ID === 'APEXX_GOOGLEPAY' && pdict.appPreference.Apexx_GooglePay_Enable_Disable }">
         <isinclude template="checkout/billing/paymentOptions/apexxGooglePayContent" />
     </isif>
-     <isif condition="${paymentOption.ID === 'APEXX_CLIENT_SIDE'}">
+     <isif condition="${paymentOption.ID === 'APEXX_CLIENT_SIDE' && pdict.appPreference.Apexx_client_side_status }">
         <isinclude template="checkout/billing/paymentOptions/clientSideContent" />
     </isif>
-    <isif condition="${paymentOption.ID === 'APEXX_AFTERPAY'}">
+    <isif condition="${paymentOption.ID === 'APEXX_AFTERPAY' && pdict.appPreference.Apexx_AfterPay_Enable_Disable }">
         <isinclude template="checkout/billing/paymentOptions/apexxAfterPayContent" />
     </isif>
     
-    <isif condition="${paymentOption.ID === 'DW_APPLE_PAY' }">
+    <isif condition="${paymentOption.ID === 'DW_APPLE_PAY' && pdict.appPreference.Apexx_apple_Status }">
         <isinclude template="checkout/billing/paymentOptions/applePayContent" />
     </isif>
 </isloop>

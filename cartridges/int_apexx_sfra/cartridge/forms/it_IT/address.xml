@@ -14,9 +14,8 @@
     <field formid="city" label="label.input.city" type="string" mandatory="true" binding="city" min-length="2"
            max-length="50" missing-error="error.message.required" range-error="error.message.between2and50"/>
 
-     <!--  postal code -->
-    <field formid="postalCode" label="label.input.zipcode" type="string" mandatory="true" min-length="3" max-length="10"
-         
+    <!--  postal code -->
+    <field formid="postalCode" label="label.input.zipcode" type="string" mandatory="true" min-length="5" max-length="10"
            binding="postalCode"
            range-error="error.message.between5and10"
            missing-error="error.message.required"
@@ -28,7 +27,6 @@
         <options>
             <option optionid="IT" label="select.option.country.italy" value="IT"/>
             <option optionid="DE" label="select.option.country.germany" value="DE"/>
-            
         </options>
     </field>
 

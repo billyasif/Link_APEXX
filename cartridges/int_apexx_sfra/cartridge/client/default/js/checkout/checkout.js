@@ -370,9 +370,13 @@ var scrollAnimate = require('base/components/scrollAnimate');
                             	
                                 
                                 if(data.paymentMethod == 'APEXX_HOSTED' && data.token && data.iframe == true){
-                                	var frame = '<iframe  id="hostedIframe" class="holds-the-iframe" src="'+ data.continueUrl +'"  scrolling="auto"></iframe>';
+                                	var frame = '<iframe  id="hostedIframe" width="'+data.width+'" height="'+data.height+'" class="holds-the-iframe" src="'+ data.continueUrl +'"  scrolling="auto"></iframe>';
                                     $('#paymentIFrameWindow').html(frame);
                                		$(".place-order").hide();
+                               		
+                               		$("#hostedIframe").css("height", data.height);
+                               		$("#hostedIframe").css("width", data.width);
+
                                	    return;
                                }
                                 

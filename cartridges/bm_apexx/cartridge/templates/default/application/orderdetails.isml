@@ -50,8 +50,12 @@
 			<td class="table_detail left e s" nowrap="nowrap" width="75%><label class="item-label" for="">${order.getCustomerEmail()}</label></td>		
 		</tr>
 		<tr>
+			<td class="table_detail left e w s" nowrap="nowrap"><label class="item-label" for="">${Resource.msg('transactiontype','apexx',null)}</label></td>
+			<td class="table_detail left e s" nowrap="nowrap" width="75%><label class="item-label" for="">${order && order.custom.apexxTransactionType ? order.custom.apexxTransactionType : ''} </label></td>		
+		</tr>
+		<tr>
 			<td class="table_detail left e w s" nowrap="nowrap"><label class="item-label" for="">${Resource.msg('transactionstatus','apexx',null)}</label></td>
-			<td class="table_detail left e s" nowrap="nowrap" width="75%><label class="item-label" for="">${order && order.custom.apexxTransactionType ? order.custom.apexxTransactionType : ''} ${order && order.custom.apexxTransactionStatus ? order.custom.apexxTransactionStatus : ''}</label></td>		
+			<td class="table_detail left e s" nowrap="nowrap" width="75%><label class="item-label" for="">${order && order.custom.apexxTransactionStatus ? pdict.utils.camelcase(order.custom.apexxTransactionStatus) : ''}</label></td>		
 		</tr>
 	</tbody>
 </table>
@@ -228,7 +232,7 @@
 			    	<td class="left e s w" nowrap="nowrap">${transaction.id || '-'}</td>
 			    	<td class="left e s" nowrap="nowrap">${transaction.merchant_reference || '-'}</td>
 			    	<td class="left e s" nowrap="nowrap">${transaction.type || '-'}</td>
-			    	<td class="left e s" nowrap="nowrap">${transaction.status || '-'}</td>
+			    	<td class="left e s" nowrap="nowrap">${pdict.utils.camelcase(transaction.status) || '-'}</td>
 			    	<td class="right e s" nowrap="nowrap">${transaction.amount ? (order.getCurrencyCode() + ' ' + transaction.amount) : '-'}</td>
 			    	<isset name="calendarDate" value="${dw.util.Calendar(transaction.date ? new Date(transaction.date) : new Date())}" scope="page"/>
 		            <isset name="creationDate" value="${dw.util.StringUtils.formatCalendar(dw.util.Calendar(calendarDate), 'yyyy-MM-dd HH:mm')}" scope="page"/>

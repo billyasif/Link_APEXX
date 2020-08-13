@@ -191,6 +191,35 @@ Utils.isInt =  function (n){
     
 }
 
+Utils.camelcase = function (str) {
+    try {
+        str = str.trim();
+        str = str.toLowerCase();
+        var res = new Array();
+        var arrOfWords = str.split(" ");
+        if(arrOfWords.length === 1){
+            var arrOfWords = str.split("_");
+        }
+        const arrOfWordsCased = [];
+        if (arrOfWords.length > 1) {
+
+            for (let i = 0; i < arrOfWords.length; i++) {
+                var char;
+                char = arrOfWords[i].split("");
+                char[0] = char[0].toUpperCase();
+
+                res.push(char.join(""));
+            }
+            return res.join(" ");
+        } else {
+            str =  str.charAt(0).toUpperCase() + str.slice(1)
+            return str;
+        }
+    } catch (e) {
+        return e.message;
+    }
+}
+
 
 
 module.exports = Utils;

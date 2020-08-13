@@ -8,6 +8,7 @@
 /* API Includes */
 var OrderMgr = require('dw/order/OrderMgr');
 var ISML = require('dw/template/ISML');
+var utils = require('*/cartridge/scripts/util/apexxUtils');
 
 /**
  * Apexx Order List page
@@ -24,6 +25,8 @@ function orderList() {
         pageSize: pageSize,
         pageNumber: pageNumber,
         orderNumber: orderNumber
+       
+
     });
 
     ISML.renderTemplate('application/orderlist', orderListResponse);
@@ -34,13 +37,12 @@ function orderList() {
  * */
 function orderDetails() {
     var resourceHelper = require('~/cartridge/scripts/util/resource');
-    var utils = require('*/cartridge/scripts/util/apexxUtils');
     var orderNo = request.httpParameterMap.OrderNo.stringValue; // eslint-disable-line no-undef
     var order = OrderMgr.searchOrder('orderNo = {0}', orderNo);
-    var dueAmount = utils.round(order.getTotalGrossPrice().value - (order.custom.apexxPaidAmount || 0.0));
+    var dueAmount = order.getTotalGrossPrice().value - (order.custom.apexxPaidAmount || 0.0);
     var paidAmount = order.custom.apexxPaidAmount || 0.0;
     var authAmount = order.totalGrossPrice.value;
-    var captureAmount = utils.round(order.totalGrossPrice.value - order.custom.apexxCaptureAmount) || 0.0;
+    var captureAmount = order.totalGrossPrice.value - order.custom.apexxCaptureAmount || 0.0;
     var transactionHistory = order.custom.apexxTransactionHistory || '[]';
     var paymentInstruments = order.getPaymentInstruments()[0];
     var orderReasonMessage = !(paymentInstruments.custom.apexxReasonCode) ? 'Success' : paymentInstruments.custom.apexxReasonCode;
@@ -50,7 +52,7 @@ function orderDetails() {
     var canRefund;
     var canCancel;
     
-   if((transType == 'AUTH' || transType == 'CAPTURE') && (transStatus == 'AUTHORISED' || transStatus == 'PAYMENT_STATUS_PARTPAID' || transStatus == 'Processing' || transStatus == 'CAPTURED') && (authAmount !== paidAmount) ){
+   if((transType == 'AUTH' || transType == 'CAPTURE') && (transStatus == 'AUTHORISED' || transStatus == 'PARTIAL_CAPTURE' || transStatus == 'PROCESSING' || transStatus == 'CAPTURED') && (authAmount !== paidAmount) ){
     	var canCapture = "canCapture";
     }
     if((transType == 'PAYMENT' && transStatus == 'COMPLETED') || (transType == 'CAPTURE' && transStatus == 'COMPLETED') || (paidAmount > 0 &&  dueAmount < order.getTotalGrossPrice().getValue())){
@@ -60,14 +62,15 @@ function orderDetails() {
     	
     	var canCancel = "canCancel";
     }
-    
+    var grossAmount = (order.custom.apexxPaidAmount) ? order.totalGrossPrice.value - order.custom.apexxPaidAmount  : order.totalGrossPrice.value
    // var canCapture = "canCapture";    
     transactionHistory = sortHistory(transactionHistory);
     var r = require('~/cartridge/scripts/util/response');
-    //return r.renderJSON({paymentMethod});
+    //return r.renderJSON(order.custom.apexxCaptureAmount);
     
     ISML.renderTemplate('application/orderdetails', {
         resourceHelper: resourceHelper,
+        utils: utils,
         order: order,
         transactionHistory: transactionHistory,// eslint-disable-line no-undef
         dueAmount: dueAmount.toFixed(2),// eslint-disable-line no-undef

@@ -16,7 +16,6 @@
 
     <!--  postal code -->
     <field formid="postalCode" label="label.input.zipcode" type="string" mandatory="true" min-length="3" max-length="10"
-         
            binding="postalCode"
            range-error="error.message.between5and10"
            missing-error="error.message.required"

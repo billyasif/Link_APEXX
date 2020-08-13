@@ -63,11 +63,10 @@ function isInt(n){
 function updateTransactionHistory(action, order, response, amount) {
     var transactionHistory = order.custom.apexxTransactionHistory || '[]';
     var response = (response.object) ? response.object : response;
-    
+    var status = (response.status === apexxConstants.STATUS_CAPTURED) ? apexxConstants.STATUS_PROCESSING:(response.status) ? response.status : apexxConstants.PENDING_ORDER_STATUS;
     var transactionType = order.custom.apexxTransactionType || apexxConstants.NO_TRANSACTION_TYPE_FOUND;
     var merchant_reference = response.merchant_reference ? response.merchant_reference : apexxConstants.NO_REFERENCE;
     var ID = response._id ? response._id : apexxConstants.NO_ID_FOUND;
-    var status = response.status || apexxConstants.PENDING_ORDER_STATUS;
     var amount = amount || '0.00';
     transactionHistory = JSON.parse(transactionHistory);
    
@@ -392,7 +391,31 @@ function isApexxPaymentMethod(paymentMethodID,processorID) {
 	return (processorID === paymentProcessorID) ? true : false;
 }
 
+function camelcase(str) {
+    try {
+        str = str.trim();
+        str = str.toLowerCase();
+        var res = new Array();
+        const arrOfWords = str.split(" ");
+        const arrOfWordsCased = [];
+        if (arrOfWords.length > 1) {
 
+            for (let i = 0; i < arrOfWords.length; i++) {
+                var char;
+                char = arrOfWords[i].split("");
+                char[0] = char[0].toUpperCase();
+
+                res.push(char.join(""));
+            }
+            return res.join(" ");
+        } else {
+            str =  str.charAt(0).toUpperCase() + str.slice(1)
+            return str;
+        }
+    } catch (e) {
+        return e.message;
+    }
+}
 
 
 var apexxHelper = {
@@ -411,7 +434,8 @@ var apexxHelper = {
     updateTransactionHistory:updateTransactionHistory,
     isAfterPayAllowed:isAfterPayAllowed,
     getAfterPayAccountId:getAfterPayAccountId,
-    isAfterPayAllowedOnBilling:isAfterPayAllowedOnBilling
+    isAfterPayAllowedOnBilling:isAfterPayAllowedOnBilling,
+    camelcase:camelcase
 };
 
 module.exports = apexxHelper;

@@ -11,8 +11,10 @@ const objSite = require("dw/system/Site");
 const appPreference = require('*/cartridge/config/appPreference')();
 var BasketMgr = require('dw/order/BasketMgr');
 var Money = require('dw/value/Money');
-
-var endPoint = appPreference.SERVICE_HTTP_PAYPAL;
+const apexxServiceWrapperBM = require('./apexxServiceWrapperBMTemp');
+var logger = require('dw/system/Logger');
+var endPoint = "apexx.https.capture";
+var apexxConstants = require('*/cartridge/scripts/util/apexxConstants');
 
 var Transaction = require('dw/system/Transaction');
 
@@ -81,7 +83,7 @@ server.get('API',function(req,res,next){
 //  var service = apexxServiceWrapper.apexxServiceDirectPay;
 //	saleTransactionResponseData = apexxServiceWrapper.makeServiceCall(service,saleTransactionRequestData);
    var OrderMgr = require('dw/order/OrderMgr');
-   var order  = OrderMgr.getOrder("00016258");
+   var order  = OrderMgr.getOrder("00017611");
    var paymentInstruments = order.getPaymentInstruments()[0];
    var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
    var currentBasket = BasketMgr.getCurrentBasket();
@@ -92,29 +94,75 @@ server.get('API',function(req,res,next){
 
    
    //res.json({'toccken':Object.keys(order.adjustedShippingTotalTax) });
-   var paymentInstruments = order.getPaymentInstruments(PaymentInstrument.METHOD_DW_APPLE_PAY);
-   var amount = 10;
-   var grossAmount = order.totalGrossPrice.getValue();
-   var giftCertTotal = new Money(4.00, order.currencyCode);
-   var orderTotal = order.totalGrossPrice;
-   var amountOpen = orderTotal.subtract(giftCertTotal);
-
-   var remainCaptureAmount = grossAmount - amount ;
-   var orderTotalGrossPrice = order.getTotalGrossPrice().value;
-   var amount = 16.99;
+   //var paymentInstruments = order.getPaymentInstruments(PaymentInstrument.METHOD_DW_APPLE_PAY);
+//   var amount = 10;
+//   var grossAmount = order.totalGrossPrice.getValue();
+//   var giftCertTotal = new Money(4.00, order.currencyCode);
+//   var orderTotal = order.totalGrossPrice;
+//   var amountOpen = orderTotal.subtract(giftCertTotal);
+//   var paymentInstrument = order.getPaymentInstruments()[0];
+//   var remainCaptureAmount = grossAmount - amount ;
+//   var orderTotalGrossPrice = order.getTotalGrossPrice().value;
+//   var amount = 16.99;
+//   var grossAmount = order.totalGrossPrice.value;
+//   var remainCaptureAmount = grossAmount - amount ;
+//    var payload = {}; 
+//    var paymentMethod = order.getPaymentInstruments()[0].getPaymentMethod();
+//    var paymentMethod = order.getPaymentInstruments()[0].getPaymentMethod();
+//   if(remainCaptureAmount <= 0){
+// 	  payload.final_capture = true;
+//   }else if(remainCaptureAmount >= 0){
+// 	  payload.final_capture = false;
+//   }
+//   res.json({'InvoiceNo':order.getCapturedAmount()});
+//   var transactionHistory = order.custom.apexxTransactionHistory || '[]';
+//   //transactionHistory = JSON.parse(transactionHistory);
+//   transactionHistory = getCaptureReference(transactionHistory);
+   var payload = {"amount":4,"endPointUrl":"1e128000f7d64425909cbfd8285da813","capture_reference":"00017407","final_capture":false};
+   
+   
+   
+   
+   var Money = require('dw/value/Money');
+   var Currency = order.getCurrencyCode();
    var grossAmount = order.totalGrossPrice.value;
-   var remainCaptureAmount = grossAmount - amount ;
-    var payload = {}; 
-    var paymentMethod = order.getPaymentInstruments()[0].getPaymentMethod();
-    var paymentMethod = order.getPaymentInstruments()[0].getPaymentMethod();
-   if(remainCaptureAmount <= 0){
- 	  payload.final_capture = true;
-   }else if(remainCaptureAmount >= 0){
- 	  payload.final_capture = false;
+   var grossAmount = new Money(grossAmount, Currency);
+   var captureAmount = new Money(order.custom.apexxPaidAmount,Currency);
+   var reaminAmount = grossAmount.subtract(captureAmount).value;
+   var paidAmount = new Money(order.custom.apexxPaidAmount,Currency);
+
+   
+   var transactionStatus;
+   var Currency = order.getCurrencyCode();
+   var grossAmount = order.totalGrossPrice.value;
+   var grossAmount = new Money(grossAmount, Currency);
+   var captureAmount = new Money(order.custom.apexxPaidAmount,Currency);
+   var reaminAmount = grossAmount.subtract(captureAmount).value;
+   var paidAmount = new Money(order.custom.apexxPaidAmount,Currency);
+
+
+//   if((grossAmount.equals(captureAmount)) === true){
+//   	transactionStatus = apexxConstants.STATUS_PROCESSING;
+//   }
+   
+   if(paidAmount.value){
+   	
+   	transactionStatus = 'dsdsdsdsdsdsd';
    }
-   res.json({'price':customer.getProfile()});
-  
-   res.json({'customer':Object.keys(customer.getProfile())});return next();
+ 
+   
+   
+  // var method ="POST";
+  // var result = apexxServiceWrapperBM.makeServiceCall(method,endPoint, payload)
+   //res.json({'response':appPreference.Apexx_Hosted_Iframe_Width});return next();
+   //res.json({'paidAmt':logger.info('Hi Hello how')});return next();
+   //var logger = require('dw/system/Logger').getLogger('ApexxWebHook');
+	// logger.info("Webhook is being called");
+	 //res.json({'order':grossAmount.compareTo(captureAmount) });return next();
+	// res.json({'order':captureAmount.value,'gross':grossAmount.value });
+	 
+	 res.json({'response':order.getInvoiceNo()});return next();
+
    //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
 
   // res.json(Object.keys(paymentInstruments));return next();
@@ -181,6 +229,48 @@ function round(value) {
         return num;
     }
 };
+
+function getCaptureReference(transactionHistory){
+	
+	if(transactionHistory){
+	    transactionHistory = JSON.parse(transactionHistory);
+
+	    var count = new Array();
+	    for(var i = 0; i < transactionHistory.length; i++) {
+	    	if(transactionHistory[i].status === 'PAYMENT_STATUS_PARTPAID'){
+	    		count.push('PAYMENT_STATUS_PARTPAID');
+	    	}
+	    }
+	}
+	return count.length;
+
+}
+
+function camelcase(str) {
+    try {
+        str = str.trim();
+        str = str.toLowerCase();
+        var res = new Array();
+        const arrOfWords = str.split(" ");
+        const arrOfWordsCased = [];
+        if (arrOfWords.length > 1) {
+
+            for (let i = 0; i < arrOfWords.length; i++) {
+                var char;
+                char = arrOfWords[i].split("");
+                char[0] = char[0].toUpperCase();
+
+                res.push(char.join(""));
+            }
+            return res.join(" ");
+        } else {
+            str =  str.charAt(0).toUpperCase() + str.slice(1)
+            return str;
+        }
+    } catch (e) {
+        return e.message;
+    }
+}
 
 server.post('Submit', function (req, res, next) {
     this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow

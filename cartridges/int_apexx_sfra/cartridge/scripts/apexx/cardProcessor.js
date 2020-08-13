@@ -291,14 +291,14 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_PAID);
             orderRecord.custom.apexxPaidAmount = authAmount;
             orderRecord.custom.apexxCaptureAmount = paidAmount;
-            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+            paymentInstrumentRecord.custom.apexxReasonCode = apexxConstants.REASON_SUCCESS;;
         });
     } else if (responseTransaction.status === apexxConstants.STATUS_AUTHORISED) {
         Transaction.wrap(function() {
             paymentTransaction.setType(PT.TYPE_AUTH);
             orderRecord.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+            paymentInstrumentRecord.custom.apexxReasonCode = apexxConstants.REASON_SUCCESS;
         });
     } else if (responseTransaction.status === apexxConstants.STATUS_DECLINED) {
         Transaction.wrap(function() {

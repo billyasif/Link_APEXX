@@ -27,7 +27,14 @@ $(document).ready(function() {
 						Json[$( this ).data('apexx')]= $( this ).val();
 						
 					}else if($(this).data('apexx') != "card_holder_name"){
-						Json[$( this ).data('apexx')]= $( this ).val();
+						  var data = $( this ).val();
+						  
+						  var arrCse = data.split(" ");
+						  if(arrCse.length > 1){
+						    data =  arrCse.join('');
+						  }
+						  
+						  Json[$( this ).data('apexx')]= data;
 					}
 				}
 				

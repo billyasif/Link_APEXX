@@ -7,6 +7,7 @@
 var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
 var appPreference = require('~/cartridge/config/appPreference')();
 var commonHelper = require('~/cartridge/scripts/util/commonHelper');
+const server_error = "Internal Server Error";
 
 /**
  * Local Services Framework service definition
@@ -110,12 +111,22 @@ var makeServiceCall = function(method,endPoint, payload) {
 }
 
 function replaceAllBackSlash(targetStr){
-    var index=targetStr.indexOf("\\");
-    while(index >= 0){
-        targetStr=targetStr.replace("\\","");
-        index=targetStr.indexOf("\\");
-    }
-    return JSON.parse(targetStr);
+	
+	try {
+	    var index = targetStr.indexOf("\\");
+	    while (index >= 0) {
+	        targetStr = targetStr.replace("\\", "");
+	        index = targetStr.indexOf("\\");
+	    }
+
+	    return JSON.parse(targetStr);
+	} catch (e) {
+	    return {
+	        "ok": false,
+	        "message":server_error,
+	        "object":{"status":'SFCC_BUG'}
+	    }
+	}
 }
 
 

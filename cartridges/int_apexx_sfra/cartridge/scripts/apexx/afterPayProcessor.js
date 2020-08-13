@@ -20,7 +20,7 @@ var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_AFTERPAY;
 
 var CONST = {
-	    TRANSACTION_TYPE: (appPreference.Apexx_AfterPay_Capture) ? apexxConstants.TRANSACTION_TYPE_CAPTURE : apexxConstants.TRANSACTION_TYPE_AUTH
+	    TRANSACTION_TYPE: apexxConstants.TRANSACTION_TYPE_AUTH
 	};
 
 
@@ -226,36 +226,36 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
     orderRecord.custom.apexxTransactionStatus = (responseTransaction.status === apexxConstants.STATUS_CAPTURED) ? apexxConstants.STATUS_PROCESSING : responseTransaction.status;
     orderRecord.custom.apexxTransactionID = responseTransaction._id || '';
     orderRecord.custom.apexxMerchantReference = responseTransaction.merchant_reference || '';
-    updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.afterpay.gross_amount);
+    commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.afterpay.gross_amount,CONST.TRANSACTION_TYPE);
 
   });
 
 }
 
 
-function updateTransactionHistory(action, order, response, amount) {
-  var transactionHistory = order.custom.apexxTransactionHistory || '[]';
-  var response = (response.object) ? response.object : response;
-  var merchant_reference = response.merchant_reference ? response.merchant_reference : order.orderNo;
-  var ID = response._id ? response._id : '';
-  var status = response.status || '';
-
-  transactionHistory = JSON.parse(transactionHistory);
-
-  transactionHistory.push({
-    id: ID,
-    merchant_reference: merchant_reference || '',
-    status: status,
-    type: CONST.TRANSACTION_TYPE,
-    amount: amount,
-    action: action,
-    date: (new Date()).getTime()
-  });
-
-  Transaction.wrap(function() {
-    order.custom.apexxTransactionHistory = JSON.stringify(transactionHistory); // eslint-disable-line no-param-reassign
-  });
-}
+//function updateTransactionHistory(action, order, response, amount) {
+//  var transactionHistory = order.custom.apexxTransactionHistory || '[]';
+//  var response = (response.object) ? response.object : response;
+//  var merchant_reference = response.merchant_reference ? response.merchant_reference : order.orderNo;
+//  var ID = response._id ? response._id : '';
+//  var status = response.status || '';
+//
+//  transactionHistory = JSON.parse(transactionHistory);
+//
+//  transactionHistory.push({
+//    id: ID,
+//    merchant_reference: merchant_reference || '',
+//    status: status,
+//    type: CONST.TRANSACTION_TYPE,
+//    amount: amount,
+//    action: action,
+//    date: (new Date()).getTime()
+//  });
+//
+//  Transaction.wrap(function() {
+//    order.custom.apexxTransactionHistory = JSON.stringify(transactionHistory); // eslint-disable-line no-param-reassign
+//  });
+//}
 
 
 

@@ -8,6 +8,7 @@ server.extend(base);
 var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 var appPreference = require('~/cartridge/config/appPreference')();
 var commonHelper = require('*/cartridge/scripts/util/commonHelper');
+var cardValidator = require('*/cartridge/scripts/util/cardValidator');
 
 //API
 var PaymentMgr = require('dw/order/PaymentMgr');
@@ -101,6 +102,8 @@ server.replace(
             });
             return next();
         }
+        
+     
 
         res.setViewData(paymentFormResult.viewData);
 
@@ -200,6 +203,29 @@ server.replace(
                 return;
             }
 
+            //Validate CSE
+            var cseCardNumber;
+            var cardType;
+            var paymentMethodIdValue = paymentForm.paymentMethod.value;
+            if(paymentMethodIdValue === "APEXX_CLIENT_SIDE"){
+            	var cseCardNumber =paymentForm.creditCardClientFields.cseCardNumber.value.toString();
+                var isValidCseCardNymber = cardValidator.IsValidCreditCardNumber(cseCardNumber);
+                if (!isValidCseCardNymber){
+                    // Invalid Payment Instrument
+                    var invalidPaymentMethod = Resource.msg('error.payment.not.valid', 'checkout', null);
+	                delete billingData.paymentInformation;
+
+                    res.json({
+	                    form: billingForm,
+                    	fieldErrors: [],
+                        serverErrors: [invalidPaymentMethod],
+                        error: true
+                    });
+                    return;
+                }
+            }
+            
+            
             // Validate payment instrument
                 var paymentMethodIdValue = paymentForm.paymentMethod.value;
 	            if(paymentMethodIdValue === "CREDIT_CARD"){
@@ -518,6 +544,8 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     	res.json({
             error: false,
             iframe:true,
+            height:appPreference.Apexx_Hosted_Iframe_Height || '',
+            width:appPreference.Apexx_Hosted_Iframe_Width || '',
             orderID: order.orderNo,
 	        paymentMethod:paymentMethodIdValue,
             orderToken: order.orderToken,

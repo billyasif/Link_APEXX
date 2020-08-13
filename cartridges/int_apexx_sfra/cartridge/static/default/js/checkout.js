@@ -500,9 +500,13 @@ var scrollAnimate = __webpack_require__(6);
                             	
                                 
                                 if(data.paymentMethod == 'APEXX_HOSTED' && data.token && data.iframe == true){
-                                	var frame = '<iframe  id="hostedIframe" class="holds-the-iframe" src="'+ data.continueUrl +'"  scrolling="auto"></iframe>';
+                                	var frame = '<iframe  id="hostedIframe" width="'+data.width+'" height="'+data.height+'" class="holds-the-iframe" src="'+ data.continueUrl +'"  scrolling="auto"></iframe>';
                                     $('#paymentIFrameWindow').html(frame);
                                		$(".place-order").hide();
+                               		
+                               		$("#hostedIframe").css("height", data.height);
+                               		$("#hostedIframe").css("width", data.width);
+
                                	    return;
                                }
                                 
@@ -2249,7 +2253,9 @@ function updateBillingAddressFormValues(order) {
         $('select[name$=expirationYear]', form).val(instrument.expirationYear);
         // Force security code and card number clear
         $('input[name$=securityCode]', form).val('');
-        $('input[name$=cardNumber]').data('cleave').setRawValue('');
+        if ($('input[name$=cardNumber]').data('cleave')) {
+            $('input[name$=cardNumber]').data('cleave').setRawValue('');
+        }
     }
 }
 
@@ -2394,7 +2400,17 @@ module.exports = {
     },
 
     handleCreditCardNumber: function () {
-        cleave.handleCreditCardNumber('.cardNumber', '#cardType');
+    	if ($('.cardNumber').length && $('#cardType').length) {
+            
+    		cleave.handleCreditCardNumber('.cardNumber', '#cardType');
+
+        }
+       if ($('.cseCardNumber').length && $('#cseCardNumber').length) {
+            
+           cleave.cseHandleCreditCardNumber('.cseCardNumber', '#cseCardNumber');
+
+        }
+
     },
 
     santitizeForm: function () {
@@ -2493,6 +2509,33 @@ module.exports = {
 
         $(cardFieldSelector).data('cleave', cleave);
     },
+    cseHandleCreditCardNumber: function (cardFieldSelector, cardTypeSelector) {
+        var cleave = new Cleave(cardFieldSelector, {
+            creditCard: true,
+            onCreditCardTypeChanged: function (type) {
+                var creditCardTypes = {
+                    visa: 'Visa',
+                    mastercard: 'Master Card',
+                    amex: 'Amex',
+                    discover: 'Discover',
+                    unknown: 'Unknown'
+                };
+                
+                var cardType = creditCardTypes[Object.keys(creditCardTypes).indexOf(type) > -1
+                    ? type
+                    : 'unknown'];
+                $(cardTypeSelector).val(cardType);
+                $('.cse-card-number-wrapper').attr('data-type', type);
+                if (type === 'visa' || type === 'mastercard' || type === 'discover') {
+                    $('#securityCode').attr('maxlength', 3);
+                } else {
+                    $('#securityCode').attr('maxlength', 4);
+                }
+            }
+        });
+
+        $(cardFieldSelector).data('cleave', cleave);
+    },
 
     serializeData: function (form) {
         var serializedArray = form.serializeArray();
@@ -2524,6 +2567,7 @@ var NumeralFormatter = function (numeralDecimalMark,
                                  stripLeadingZeroes,
                                  prefix,
                                  signBeforePrefix,
+                                 tailPrefix,
                                  delimiter) {
     var owner = this;
 
@@ -2535,6 +2579,7 @@ var NumeralFormatter = function (numeralDecimalMark,
     owner.stripLeadingZeroes = stripLeadingZeroes !== false;
     owner.prefix = (prefix || prefix === '') ? prefix : '';
     owner.signBeforePrefix = !!signBeforePrefix;
+    owner.tailPrefix = !!tailPrefix;
     owner.delimiter = (delimiter || delimiter === '') ? delimiter : ',';
     owner.delimiterRE = delimiter ? new RegExp('\\' + delimiter, 'g') : '';
 };
@@ -2622,6 +2667,10 @@ NumeralFormatter.prototype = {
             partInteger = partInteger.replace(/(\d)(?=(\d{3})+$)/g, '$1' + owner.delimiter);
 
             break;
+        }
+
+        if (owner.tailPrefix) {
+            return partSign + partInteger.toString() + (owner.numeralDecimalScale > 0 ? partDecimal.toString() : '') + owner.prefix;
         }
 
         return partSignAndPrefix + partInteger.toString() + (owner.numeralDecimalScale > 0 ? partDecimal.toString() : '');
@@ -3165,8 +3214,8 @@ var CreditCardDetector = {
         // starts with 4; 16 digits
         visa: /^4\d{0,15}/,
 
-        // starts with 62; 16 digits
-        unionPay: /^62\d{0,14}/
+        // starts with 62/81; 16 digits
+        unionPay: /^(62|81)\d{0,14}/
     },
 
     getStrictBlocks: function (block) {
@@ -3291,30 +3340,45 @@ var Util = {
     // PREFIX-123   |   PEFIX-123     |     123
     // PREFIX-123   |   PREFIX-23     |     23
     // PREFIX-123   |   PREFIX-1234   |     1234
-    getPrefixStrippedValue: function (value, prefix, prefixLength, prevResult, delimiter, delimiters, noImmediatePrefix) {
+    getPrefixStrippedValue: function (value, prefix, prefixLength, prevResult, delimiter, delimiters, noImmediatePrefix, tailPrefix, signBeforePrefix) {
         // No prefix
         if (prefixLength === 0) {
           return value;
         }
 
-        // Pre result prefix string does not match pre-defined prefix
-        if (prevResult.slice(0, prefixLength) !== prefix) {
-          // Check if the first time user entered something
-          if (noImmediatePrefix && !prevResult && value) return value;
-
+        // Value is prefix
+        if (value === prefix && value !== '') {
           return '';
+        }
+
+        if (signBeforePrefix && (value.slice(0, 1) == '-')) {
+            var prev = (prevResult.slice(0, 1) == '-') ? prevResult.slice(1) : prevResult;
+            return '-' + this.getPrefixStrippedValue(value.slice(1), prefix, prefixLength, prev, delimiter, delimiters, noImmediatePrefix, tailPrefix, signBeforePrefix);
+        }
+
+        // Pre result prefix string does not match pre-defined prefix
+        if (prevResult.slice(0, prefixLength) !== prefix && !tailPrefix) {
+            // Check if the first time user entered something
+            if (noImmediatePrefix && !prevResult && value) return value;
+            return '';
+        } else if (prevResult.slice(-prefixLength) !== prefix && tailPrefix) {
+            // Check if the first time user entered something
+            if (noImmediatePrefix && !prevResult && value) return value;
+            return '';
         }
 
         var prevValue = this.stripDelimiters(prevResult, delimiter, delimiters);
 
         // New value has issue, someone typed in between prefix letters
         // Revert to pre value
-        if (value.slice(0, prefixLength) !== prefix) {
-          return prevValue.slice(prefixLength);
+        if (value.slice(0, prefixLength) !== prefix && !tailPrefix) {
+            return prevValue.slice(prefixLength);
+        } else if (value.slice(-prefixLength) !== prefix && tailPrefix) {
+            return prevValue.slice(0, -prefixLength - 1);
         }
 
         // No issue, strip prefix for new value
-        return value.slice(prefixLength);
+        return tailPrefix ? value.slice(0, -prefixLength) : value.slice(prefixLength);
     },
 
     getFirstDiffIndex: function (prev, current) {
@@ -3332,7 +3396,7 @@ var Util = {
     getFormattedValue: function (value, blocks, blocksLength, delimiter, delimiters, delimiterLazyShow) {
         var result = '',
             multipleDelimiters = delimiters.length > 0,
-            currentDelimiter;
+            currentDelimiter = '';
 
         // no options, normal input
         if (blocksLength === 0) {
@@ -3382,7 +3446,7 @@ var Util = {
         var val = el.value,
             appendix = delimiter || (delimiters[0] || ' ');
 
-        if (!el.setSelectionRange || !prefix || (prefix.length + appendix.length) < val.length) {
+        if (!el.setSelectionRange || !prefix || (prefix.length + appendix.length) <= val.length) {
             return;
         }
 
@@ -3503,8 +3567,11 @@ var DefaultProperties = {
         target.numeralPositiveOnly = !!opts.numeralPositiveOnly;
         target.stripLeadingZeroes = opts.stripLeadingZeroes !== false;
         target.signBeforePrefix = !!opts.signBeforePrefix;
+        target.tailPrefix = !!opts.tailPrefix;
 
         // others
+        target.swapHiddenInput = !!opts.swapHiddenInput;
+        
         target.numericOnly = target.creditCard || target.date || !!opts.numericOnly;
 
         target.uppercase = !!opts.uppercase;
@@ -3605,12 +3672,15 @@ Cleave.prototype = {
 
         owner.isAndroid = Cleave.Util.isAndroid();
         owner.lastInputValue = '';
+        owner.isBackward = '';
 
         owner.onChangeListener = owner.onChange.bind(owner);
         owner.onKeyDownListener = owner.onKeyDown.bind(owner);
         owner.onFocusListener = owner.onFocus.bind(owner);
         owner.onCutListener = owner.onCut.bind(owner);
         owner.onCopyListener = owner.onCopy.bind(owner);
+
+        owner.initSwapHiddenInput();
 
         owner.element.addEventListener('input', owner.onChangeListener);
         owner.element.addEventListener('keydown', owner.onKeyDownListener);
@@ -3631,6 +3701,20 @@ Cleave.prototype = {
         }
     },
 
+    initSwapHiddenInput: function () {
+        var owner = this, pps = owner.properties;
+        if (!pps.swapHiddenInput) return;
+
+        var inputFormatter = owner.element.cloneNode(true);
+        owner.element.parentNode.insertBefore(inputFormatter, owner.element);
+
+        owner.elementSwapHidden = owner.element;
+        owner.elementSwapHidden.type = 'hidden';
+
+        owner.element = inputFormatter;
+        owner.element.id = '';
+    },
+
     initNumeralFormatter: function () {
         var owner = this, pps = owner.properties;
 
@@ -3647,6 +3731,7 @@ Cleave.prototype = {
             pps.stripLeadingZeroes,
             pps.prefix,
             pps.signBeforePrefix,
+            pps.tailPrefix,
             pps.delimiter
         );
     },
@@ -3697,38 +3782,38 @@ Cleave.prototype = {
     },
 
     onKeyDown: function (event) {
+        var owner = this,
+            charCode = event.which || event.keyCode;
+
+        owner.lastInputValue = owner.element.value;
+        owner.isBackward = charCode === 8;
+    },
+
+    onChange: function (event) {
         var owner = this, pps = owner.properties,
-            charCode = event.which || event.keyCode,
-            Util = Cleave.Util,
-            currentValue = owner.element.value;
+            Util = Cleave.Util;
 
-        // if we got any charCode === 8, this means, that this device correctly
-        // sends backspace keys in event, so we do not need to apply any hacks
-        owner.hasBackspaceSupport = owner.hasBackspaceSupport || charCode === 8;
-        if (!owner.hasBackspaceSupport
-          && Util.isAndroidBackspaceKeydown(owner.lastInputValue, currentValue)
-        ) {
-            charCode = 8;
-        }
+        owner.isBackward = owner.isBackward || event.inputType === 'deleteContentBackward';
 
-        owner.lastInputValue = currentValue;
+        var postDelimiter = Util.getPostDelimiter(owner.lastInputValue, pps.delimiter, pps.delimiters);
 
-        // hit backspace when last character is delimiter
-        var postDelimiter = Util.getPostDelimiter(currentValue, pps.delimiter, pps.delimiters);
-        if (charCode === 8 && postDelimiter) {
+        if (owner.isBackward && postDelimiter) {
             pps.postDelimiterBackspace = postDelimiter;
         } else {
             pps.postDelimiterBackspace = false;
         }
-    },
 
-    onChange: function () {
         this.onInput(this.element.value);
     },
 
     onFocus: function () {
         var owner = this,
             pps = owner.properties;
+        owner.lastInputValue = owner.element.value;
+
+        if (pps.prefix && pps.noImmediatePrefix && !owner.element.value) {
+            this.onInput(pps.prefix);
+        }
 
         Cleave.Util.fixPrefixCursor(owner.element, pps.prefix, pps.delimiter, pps.delimiters);
     },
@@ -3824,10 +3909,7 @@ Cleave.prototype = {
         value = Util.stripDelimiters(value, pps.delimiter, pps.delimiters);
 
         // strip prefix
-        value = Util.getPrefixStrippedValue(
-            value, pps.prefix, pps.prefixLength,
-            pps.result, pps.delimiter, pps.delimiters, pps.noImmediatePrefix
-        );
+        value = Util.getPrefixStrippedValue(value, pps.prefix, pps.prefixLength, pps.result, pps.delimiter, pps.delimiters, pps.noImmediatePrefix, pps.tailPrefix, pps.signBeforePrefix);
 
         // strip non-numeric characters
         value = pps.numericOnly ? Util.strip(value, /[^\d]/g) : value;
@@ -3837,8 +3919,13 @@ Cleave.prototype = {
         value = pps.lowercase ? value.toLowerCase() : value;
 
         // prevent from showing prefix when no immediate option enabled with empty input value
-        if (pps.prefix && (!pps.noImmediatePrefix || value.length)) {
-            value = pps.prefix + value;
+        if (pps.prefix) {
+            if (pps.tailPrefix) {
+                value = value + pps.prefix;
+            } else {
+                value = pps.prefix + value;
+            }
+
 
             // no blocks specified, no need to do formatting
             if (pps.blocksLength === 0) {
@@ -3919,6 +4006,8 @@ Cleave.prototype = {
         }
 
         owner.element.value = newValue;
+        if (pps.swapHiddenInput) owner.elementSwapHidden.value = owner.getRawValue();
+
         Util.setSelection(owner.element, endPos, pps.document, false);
         owner.callOnValueChanged();
     },
@@ -3929,6 +4018,7 @@ Cleave.prototype = {
 
         pps.onValueChanged.call(owner, {
             target: {
+                name: owner.element.name,
                 value: pps.result,
                 rawValue: owner.getRawValue()
             }
@@ -3965,7 +4055,7 @@ Cleave.prototype = {
             rawValue = owner.element.value;
 
         if (pps.rawValueTrimPrefix) {
-            rawValue = Util.getPrefixStrippedValue(rawValue, pps.prefix, pps.prefixLength, pps.result, pps.delimiter, pps.delimiters);
+            rawValue = Util.getPrefixStrippedValue(rawValue, pps.prefix, pps.prefixLength, pps.result, pps.delimiter, pps.delimiters, pps.noImmediatePrefix, pps.tailPrefix, pps.signBeforePrefix);
         }
 
         if (pps.numeral) {

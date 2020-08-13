@@ -1,7 +1,7 @@
 'use strict';
 
 var addressHelpers = require('base/checkout/address');
-var cleave = require('base/components/cleave');
+var cleave = require('../components/cleave');
 
 /**
  * updates the billing address selector within billing forms
@@ -104,7 +104,9 @@ function updateBillingAddressFormValues(order) {
         $('select[name$=expirationYear]', form).val(instrument.expirationYear);
         // Force security code and card number clear
         $('input[name$=securityCode]', form).val('');
-        $('input[name$=cardNumber]').data('cleave').setRawValue('');
+        if ($('input[name$=cardNumber]').data('cleave')) {
+            $('input[name$=cardNumber]').data('cleave').setRawValue('');
+        }
     }
 }
 
@@ -249,7 +251,17 @@ module.exports = {
     },
 
     handleCreditCardNumber: function () {
-        cleave.handleCreditCardNumber('.cardNumber', '#cardType');
+    	if ($('.cardNumber').length && $('#cardType').length) {
+            
+    		cleave.handleCreditCardNumber('.cardNumber', '#cardType');
+
+        }
+       if ($('.cseCardNumber').length && $('#cseCardNumber').length) {
+            
+           cleave.cseHandleCreditCardNumber('.cseCardNumber', '#cseCardNumber');
+
+        }
+
     },
 
     santitizeForm: function () {
