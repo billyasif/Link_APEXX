@@ -160,8 +160,9 @@ server.get('API',function(req,res,next){
 	// logger.info("Webhook is being called");
 	 //res.json({'order':grossAmount.compareTo(captureAmount) });return next();
 	// res.json({'order':captureAmount.value,'gross':grossAmount.value });
-	 
-	 res.json({'response':order.getInvoiceNo()});return next();
+	  var refund = apexxConstants.TRANSACTION_TYPE_REFUND;
+
+	 res.json({'response':appPreference.Apexx_Public_Key_Details});return next();
 
    //res.json({'shipment':objReq,'request':Object.keys(order)});return next();
 

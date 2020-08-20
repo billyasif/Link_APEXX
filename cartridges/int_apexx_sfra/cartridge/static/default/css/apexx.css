@@ -4,6 +4,9 @@
   height:fit-content;
 }
 
+.dnone{
+	display: none;
+}
  #hostedIframe {
      position: inherit;
      top: 0;

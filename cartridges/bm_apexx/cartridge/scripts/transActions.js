@@ -388,13 +388,13 @@ function makeAfterPayCaptureRequest(order, amount, transactionID) {
         var orderNo = order.orderNo;
         var objDate = new Date();
         var captureRequest = {};
-    
+        var invoice = apexxConstants.TRANSACTION_TYPE_INVOICE;
 	    captureRequest.endPointUrl =  transactionID;
 
     	captureRequest.gross_amount =  order.totalGrossPrice.multiply(100).value;
     	captureRequest.net_amount  =   order.totalNetPrice.multiply(100).value;
 
-    	captureRequest.invoice_number =  order.getInvoiceNo();
+    	captureRequest.invoice_number =  invoice+'_'+order.getInvoiceNo();
     	captureRequest.invoice_date = "2020-07-28";
     	captureRequest.override_merchant_reference = true;
        
@@ -516,10 +516,12 @@ function makeRefundRequest(order, amount, transactionID, captureID) {
  * @param {Object} transactionID - transaction id
  */
 function makeAfterPayRefundRequest(order, transactionID) {
+	
+	  var refund = apexxConstants.TRANSACTION_TYPE_REFUND;
       var refundRequest = {};
       refundRequest.endPointUrl  = order.custom.apexxTransactionID;
       refundRequest.capture_id  = order.custom.apexxCaptureId;
-      refundRequest.creditnote_number = order.getInvoiceNo();
+      refundRequest.creditnote_number = refund+'_'+order.getInvoiceNo();
 	  var totalQuantities = 0;  
 	    var productIds =  new Array();
 	    if (order.getAllLineItems().length > 0) {

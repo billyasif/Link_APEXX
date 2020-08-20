@@ -24,11 +24,13 @@ $(document).ready(function() {
 				if($(this).data('apexx') != "encrypted_data" || $(this).data('apexx') != "masked_card_number"){
 						
 					if($(this).data('apexx') == "card_holder_name" && !fieldIsNull($( this ).val())){
+						var data = $( this ).val();
+						data = data.trim();
 						Json[$( this ).data('apexx')]= $( this ).val();
 						
 					}else if($(this).data('apexx') != "card_holder_name"){
 						  var data = $( this ).val();
-						  
+						  var data = data.trim();
 						  var arrCse = data.split(" ");
 						  if(arrCse.length > 1){
 						    data =  arrCse.join('');

@@ -4,9 +4,14 @@
     assets.addJs('/js/apexx-cse-1.0.js');
     assets.addCss('/css/apexx.css');
 </isscript>
+<isset name="commonHelper"   value="${require('*/cartridge/scripts/util/commonHelper')}" scope="pdict"/>
+
+<input type="hidden" id="cse_public_key" name="cse_public_key" value="${pdict.commonHelper.getPublicKey()}"/>
 
 <script type="text/javascript"> 
      window.onload = function() { 
-	   APEXX.setPublicKey("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAijuOcfEUnGhySZvMwbd9h3eYvQn1rivk5OayNbJGYP/TmZNBAsA7eTXYm/SNvcBbQwdTkCoSZE/mxPZJ6X28Zedaex1f0D2M38rbElJyGXbPqdmjNFy6FojTNvMYIivOL8d+I38Mn5vUFx86IrhAD4rb41qfVRtdepJPT6sc7km9IPbcglno8IeRRh1Cc1zJ6ULV7w29lxlpfHZxF3v9HMySz0rPy9q6PV22IwdqCO8GBZJ/TLF9+PI824N4CfaTdXsAhIBfo2nji0ChTSbLr5E6E63V/+ilxP7yKc7ezwRI6tN+OynXvzXpzXY4oWdZEoEXVai4ATlm3BPkaIWfAwIDAQAB");
+    	 var publicKey = document.getElementById("cse_public_key").value;
+    	 publicKey = publicKey.trim();
+	     APEXX.setPublicKey(publicKey);
      } 
 </script> 

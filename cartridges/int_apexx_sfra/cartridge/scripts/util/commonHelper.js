@@ -391,6 +391,13 @@ function isApexxPaymentMethod(paymentMethodID,processorID) {
 	return (processorID === paymentProcessorID) ? true : false;
 }
 
+/**
+ * Convert Camel case
+ *
+ * @param {string} text
+ * @returns {string} text
+ */
+
 function camelcase(str) {
     try {
         str = str.trim();
@@ -417,6 +424,20 @@ function camelcase(str) {
     }
 }
 
+/**
+ * Public key of CSE
+ *
+ * @returns {string} text
+ */
+
+function getPublicKey(){
+	var publicKey =  appPreference.Apexx_Public_Key_Details;
+	if(!publicKey){
+		return  publicKey;
+	}
+	return publicKey;
+}
+
 
 var apexxHelper = {
     log: log,
@@ -435,7 +456,8 @@ var apexxHelper = {
     isAfterPayAllowed:isAfterPayAllowed,
     getAfterPayAccountId:getAfterPayAccountId,
     isAfterPayAllowedOnBilling:isAfterPayAllowedOnBilling,
-    camelcase:camelcase
+    camelcase:camelcase,
+    getPublicKey:getPublicKey
 };
 
 module.exports = apexxHelper;

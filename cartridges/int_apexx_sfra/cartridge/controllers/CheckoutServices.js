@@ -469,11 +469,44 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     var handlePaymentResult = COHelpers.handlePayments(order, order.orderNo);
     
     if (handlePaymentResult.error) {
-        res.json({
-            error: true,
-            errorMessage:handlePaymentResult
-        });
-        return next();
+        try {
+            if ('errorResponse' in handlePaymentResult) {
+                if ('saleTransactionResponseData' in handlePaymentResult.errorResponse) {
+                    if ('object' in handlePaymentResult.errorResponse.saleTransactionResponseData) {
+
+                        if ('message' in handlePaymentResult.errorResponse.saleTransactionResponseData.object) {
+                            res.json({
+                                error: true,
+                                errorMessage: handlePaymentResult.errorResponse.saleTransactionResponseData.object.message
+                            });
+                            return next();
+
+                        }
+                        if ('reason_message' in handlePaymentResult.errorResponse.saleTransactionResponseData.object) {
+                            res.json({
+                                error: true,
+                                errorMessage: handlePaymentResult.errorResponse.saleTransactionResponseData.object.reason_message
+                            });
+                            return next();
+
+                        }
+
+                    }
+                }
+            }
+
+            res.json({
+                error: true,
+                errorMessage: Resource.msg('error.technical', 'checkout', null)
+            });
+            return next();
+        } catch (e) {
+            res.json({
+                error: true,
+                errorMessage: e.message
+            });
+            return next();
+        }
     }
 
     var fraudDetectionStatus = hooksHelper('app.fraud.detection', 'fraudDetection', currentBasket, require('*/cartridge/scripts/hooks/fraudDetection').fraudDetection);
