@@ -4,6 +4,5 @@
             <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="APEXX_HOSTED">
 	        <input type="hidden" class="form-control" name="hostedAction"  >
 			<div id="hosted-main" data-hosted-get-url="${URLUtils.https('ApexxHosted-Get')}" />
-			<input type="image" id="apxhosted" src="${URLUtils.staticURL('/images/apexx.png')}" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 	  </fieldset>
 </div>

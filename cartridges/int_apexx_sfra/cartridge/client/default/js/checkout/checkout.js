@@ -380,6 +380,7 @@ var scrollAnimate = require('base/components/scrollAnimate');
                                	    return;
                                }
                                 
+                                
                                
                                 if(data.paymentMethod == 'CREDIT_CARD' || data.paymentMethod == 'APEXX_CLIENT_SIDE' && data.threeDsData &&  data.iframe == true){
                                 	
@@ -392,9 +393,11 @@ var scrollAnimate = require('base/components/scrollAnimate');
                                 	form3Ds +=    '</form>';
                                 	form3Ds +=    "<script>document.redirectForm.submit();</script>";
                                 	var dataURI = 'data:text/html,' + encodeURIComponent(form3Ds);
-                                    var frame = '<iframe  id="hostedIframe" class="holds-the-iframe" src="'+ dataURI +'" scrolling="auto"></iframe>';
+                                    var frame = '<iframe  id="hostedIframe" width="'+data.width+'" height="'+data.height+'" class="holds-the-iframe" src="'+ dataURI +'" scrolling="auto"></iframe>';
                                     $('#paymentIFrameWindow').html(frame);
                                     $(".place-order").hide();
+                                	$("#hostedIframe").css("height", data.height);
+                               		$("#hostedIframe").css("width", data.width);
 
                                 	return;
                                } 

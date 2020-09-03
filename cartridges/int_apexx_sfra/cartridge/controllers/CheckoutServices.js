@@ -617,6 +617,8 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
             iframe:true,
             orderID: order.orderNo,
             orderToken: order.orderToken,
+            height:appPreference.Apexx_3ds_Window_Height || '',
+            width:appPreference.Apexx_3ds_Window_Width || '',
 	        paymentMethod:paymentMethodIdValue,
 	        threeDsData:objThreeDs,
             continueUrl: threeDsReturnUrl

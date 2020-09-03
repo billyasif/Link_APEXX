@@ -24,9 +24,9 @@ var getPreference = function (inpSite) {
 	prefs.XAPIKEY = prefs.Apexx_API_Key;
 	prefs.ORGANISATION = prefs.Apexx_Org_Key;
 	prefs.SAVE_CARD  = true;
-	prefs.CUSTOMER_IP  = "10.20.0.186";
+	prefs.CUSTOMER_IP  = request.httpHeaders['x-is-remote_addr'];
 	prefs.RECURRING_TYPE  = "first";
-	prefs.USER_AGENT  =  "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-GB;rv  = 1.9.2.13) Gecko/20101203 Firefox/3.6.13 (.NET CLR 3.5.30729)";
+	prefs.USER_AGENT  =  request.httpUserAgent;
 	prefs.CARD_OBJECT  =  require('~/cartridge/scripts/object/Apexx_Card_Object');
 	prefs.BILLING_OBJECT  =  require('~/cartridge/scripts/object/Apexx_BillTo_Object');
 	prefs.SERVICE_HTTP_BASE_API_URL  = "apexx.https.base.api.url";

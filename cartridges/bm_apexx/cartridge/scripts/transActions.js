@@ -421,11 +421,11 @@ function makeAfterPayCaptureRequest(order, amount, transactionID) {
 	        	
 	            if ('productID' in product && productIds.length > 1) {
 	            	
-	            	var net_price = product.netPrice.multiply(100).value;
-	          	    var gross_price = product.grossPrice.multiply(100).value;
-	                var taxValue =   product.tax.multiply(100).value;
-	                var vatPercentage =  product.tax.multiply(100).divide(net_price).multiply(100).value;   	          	  
-	                var items = {};
+	            	 var net_price = product.adjustedNetPrice.multiply(100).value;
+	           	     var gross_price = product.adjustedGrossPrice.multiply(100).value;
+	                 var taxValue =   product.adjustedTax.multiply(100).value;
+	                 var vatPercentage =  product.adjustedTax.multiply(100).divide(net_price).multiply(100).value;   
+	                 var items = {};
 	                
 	                items.product_id = product.productID;
 	                items.group_id =  "1";
@@ -441,11 +441,11 @@ function makeAfterPayCaptureRequest(order, amount, transactionID) {
 	            }
 	            if ('productID' in product && productIds.length == 1) {
 	                
-	            	var net_price = product.netPrice.multiply(100).value;
-	          	    var gross_price = product.grossPrice.multiply(100).value;
-	                var taxValue =   product.tax.multiply(100).value;
-	                var vatPercentage =  product.tax.multiply(100).divide(net_price).multiply(100).value;   
-
+	            	 var net_price = product.adjustedNetPrice.multiply(100).value;
+	           	     var gross_price = product.adjustedGrossPrice.multiply(100).value;
+	                 var taxValue =   product.adjustedTax.multiply(100).value;
+	                 var vatPercentage =  product.adjustedTax.multiply(100).divide(net_price).multiply(100).value;   
+	                 var items = {};
 	                
 	          	  
 	                var items = {};
@@ -545,11 +545,12 @@ function makeAfterPayRefundRequest(order, transactionID) {
 	        	
 	            if ('productID' in product && productIds.length > 1) {
 	            	
-	            	var net_price = product.netPrice.multiply(100).value;
-	          	    var gross_price = product.grossPrice.multiply(100).value;
-	                var taxValue =   product.tax.multiply(100).value;
-	                var vatPercentage =  product.tax.multiply(100).divide(net_price).multiply(100).value;   	          	  
-	                var items = {};
+	            	 var net_price = product.adjustedNetPrice.multiply(100).value;
+	           	     var gross_price = product.adjustedGrossPrice.multiply(100).value;
+	                 var taxValue =   product.adjustedTax.multiply(100).value;
+	                 var vatPercentage =  product.adjustedTax.multiply(100).divide(net_price).multiply(100).value;   
+	                 var items = {};
+	              
 	                
 	                items.product_id = product.productID;
 	                items.group_id =  "1";
@@ -565,10 +566,11 @@ function makeAfterPayRefundRequest(order, transactionID) {
 	            }
 	            if ('productID' in product && productIds.length == 1) {
 	                
-	            	var net_price = product.netPrice.multiply(100).value;
-	          	    var gross_price = product.grossPrice.multiply(100).value;
-	                var taxValue =   product.tax.multiply(100).value;
-	                var vatPercentage =  product.tax.multiply(100).divide(net_price).multiply(100).value;   
+	           	 var net_price = product.adjustedNetPrice.multiply(100).value;
+           	     var gross_price = product.adjustedGrossPrice.multiply(100).value;
+                 var taxValue =   product.adjustedTax.multiply(100).value;
+                 var vatPercentage =  product.adjustedTax.multiply(100).divide(net_price).multiply(100).value;   
+                 var items = {};
 
 	                
 	          	  

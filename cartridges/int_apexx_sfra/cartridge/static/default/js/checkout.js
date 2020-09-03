@@ -522,10 +522,12 @@ var scrollAnimate = __webpack_require__(6);
                                 	form3Ds +=    '</form>';
                                 	form3Ds +=    "<script>document.redirectForm.submit();</script>";
                                 	var dataURI = 'data:text/html,' + encodeURIComponent(form3Ds);
-                                    var frame = '<iframe  id="hostedIframe" class="holds-the-iframe" src="'+ dataURI +'" scrolling="auto"></iframe>';
+                                    var frame = '<iframe  id="hostedIframe" width="'+data.width+'" height="'+data.height+'" class="holds-the-iframe" src="'+ dataURI +'" scrolling="auto"></iframe>';
                                     $('#paymentIFrameWindow').html(frame);
                                     $(".place-order").hide();
-
+                                	$("#hostedIframe").css("height", data.height);
+                               		$("#hostedIframe").css("width", data.width);
+                                    
                                 	return;
                                } 
 
