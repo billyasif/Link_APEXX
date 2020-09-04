@@ -366,7 +366,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
     var validationHelpers = require('*/cartridge/scripts/helpers/basketValidationHelpers');
     var addressHelpers = require('*/cartridge/scripts/helpers/addressHelpers');
-
+    
     var currentBasket = BasketMgr.getCurrentBasket();
 
     if (!currentBasket) {
@@ -611,14 +611,25 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     	objThreeDs = handlePaymentResult.threeDsObj;
     	threeDsTransId = ('_id' in handlePaymentResult.threeDsObj) ? handlePaymentResult.threeDsObj._id : '';
     	threeDsReturnUrl = appPreference.RETURN_URL_DIRECT_CREDIT_THREE_DS + '?transactionId='+ threeDsTransId + '&orderId=' + order.orderNo+ '&method=' + paymentMethodIdValue;
-
+    	var height,width;
+    	if(processor.ID === 'APEXX_CLIENT_SIDE'){
+    		height = appPreference.Apexx_3ds_Window_Height_CSC;
+            width = appPreference.Apexx_3ds_Window_Width_CSC;
+    	}
+    	
+    	if(processor.ID === 'APEXX_CREDIT'){
+    		height = appPreference.Apexx_3ds_Window_Height_CCD;
+            width = appPreference.Apexx_3ds_Window_Width_CCD;
+    	}
+    	
+    	
         res.json({
             error: false,
             iframe:true,
             orderID: order.orderNo,
             orderToken: order.orderToken,
-            height:appPreference.Apexx_3ds_Window_Height || '',
-            width:appPreference.Apexx_3ds_Window_Width || '',
+            height:height,
+            width:width,
 	        paymentMethod:paymentMethodIdValue,
 	        threeDsData:objThreeDs,
             continueUrl: threeDsReturnUrl
