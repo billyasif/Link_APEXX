@@ -99,10 +99,10 @@ var trans = {
                             var response = result.response.object;
                             if ('reason_message' in response && isObject(response)) {
                                 alert(response.reason_message);
-                                window.location.reload();
+                                //window.location.reload();
                             } else {
                                 alert(Resources.TRANSACTION_SUCCESS);
-                                window.location.reload();
+                                //window.location.reload();
                             }
                         } else {
                             alert(Resources.TRANSACTION_BAD_RESPONSE);

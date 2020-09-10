@@ -1,4 +1,3 @@
- 
-<p>
-    ${Resource.msg('msg.paid.using.apple.pay', 'applePay', null)}
-</p>
+<div id="applePayPayment">
+    <span>${Resource.msg('payment.type.applepay', 'general', null)}</span>
+</div>

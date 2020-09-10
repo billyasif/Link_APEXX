@@ -104,8 +104,6 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
 
             saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
             saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
-            var logger = require('dw/system/Logger').getLogger('DW_APPLE_PAY_LOGGER');
-            logger.info("logged");
 
             saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
 

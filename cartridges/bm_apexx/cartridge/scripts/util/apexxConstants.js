@@ -11,7 +11,9 @@ ApexxConstants.APEXX_PAYPAL_PAYMENT_METHOD = "APEXX_PAYPAL";
 ApexxConstants.DW_APPLE_PAY_PAYMENT_METHOD = "DW_APPLE_PAY";
 ApexxConstants.CREDIT_CARD_PAYMENT_METHOD = "CREDIT_CARD";
 
+// Processor id
 
+ApexxConstants.PROCESSOR_AFTER_PAY = "APEXX_AfterPay";
 
 //  Order and Payment Status and Reson
 ApexxConstants.STATUS_PROCESSING = "Processing";
@@ -42,12 +44,25 @@ ApexxConstants.LABEL_PAYMENT_STATUS_PARTPAID ="Partial Capture";
 ApexxConstants.LABEL_REFUND_STATUS_PARTPAID ="Partial Refund";
 ApexxConstants.LABEL_PENDING_ORDER_STATUS = "Pending";
 ApexxConstants.LABEL_REASON_IN_COMPLETE = "Order Incomplete";
-//  Other Constants
+
+// Other Constants
 
 ApexxConstants.NO_REFERENCE = "NO REFERENCE FOUND";
 ApexxConstants.NO_ID_FOUND = "NO ID FOUND";
 ApexxConstants.NO_TRANSACTION_TYPE_FOUND = "NO TRANSACTION TYPE FOUND";	
-	
-	
+
+ApexxConstants.INTERNAL_ERROR_SFCC = "SFCC_BUG";
+ApexxConstants.ACTION_CANCEL = "cancel";
+ApexxConstants.ACTION_REFUND = "refund";
+ApexxConstants.ACTION_CAPTURE = "capture";
+ApexxConstants.TYPE_SHIPPING_PRODUCT = "shipping";
+ApexxConstants.STATIC_GROUP_ID = "1";
+ApexxConstants.STATIC_QUANTITY = "1";
+
+// Transaction Type
+
+ApexxConstants.TRANSACTION_TYPE_POST = 'POST';
+ApexxConstants.TRANSACTION_TYPE_GET = 'GET';
+
 	
 module.exports = ApexxConstants;

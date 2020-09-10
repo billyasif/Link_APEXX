@@ -33,7 +33,7 @@ var appPreferenceBM = require('~/cartridge/config/appPreferenceBM');
  */
 function callAction(endPoint, payLoad) {
     
-    var response = apexxServiceWrapperBM.makeServiceCall('POST', endPoint, payLoad);
+    var response = apexxServiceWrapperBM.makeServiceCall(apexxConstants.TRANSACTION_TYPE_POST, endPoint, payLoad);
 
     return response;
 }
@@ -46,7 +46,7 @@ function callAction(endPoint, payLoad) {
  */
 function callActionAfterPay(endPoint, payLoad) {
     
-    var response = apexxAfterPayServiceWrapperBM.makeServiceCall('POST', endPoint, payLoad);
+    var response = apexxAfterPayServiceWrapperBM.makeServiceCall(apexxConstants.TRANSACTION_TYPE_POST, endPoint, payLoad);
 
     return response;
 }
@@ -93,7 +93,7 @@ function refundTransaction(orderNo, amount,captureid) {
     var paymentInstruments = order.getPaymentInstruments()[0];
     var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
    
-    if(paymentProcessor.ID === 'APEXX_AfterPay'){
+    if(paymentProcessor.ID === apexxConstants.PROCESSOR_AFTER_PAY){
     	 //try {
         var endPoint = appPreferenceBM.SERVICE_HTTP_REFUND_AFTERPAY;
 
@@ -108,11 +108,11 @@ function refundTransaction(orderNo, amount,captureid) {
               response = JSON.stringify(response.object);
               paidAmount = order.custom.apexxPaidAmount;
               error = response;
-        } else if (response && response.ok === true && response.object.status != 'DECLINED' && response.object.status != 'FAILED' && response.object.status != 'SFCC_BUG') {
+        } else if (response && response.ok === true && response.object.status != apexxConstants.STATUS_DECLINED && response.object.status != apexxConstants.STATUS_FAILED && response.object.status != apexxConstants.INTERNAL_ERROR_SFCC ) {
             status = true;
             paidAmount = parseFloat(order.custom.apexxPaidAmount, 10) - refundAmount;
-            setAfterPayOrderAttributesHistory('refund', order, response, paidAmount);
-            updateTransactionHistory('refund', order, response, amount);
+            setAfterPayOrderAttributesHistory(apexxConstants.ACTION_REFUND, order, response, paidAmount);
+            updateTransactionHistory(apexxConstants.ACTION_REFUND, order, response, amount);
             if (paidAmount === 0) {
                 updateOrderStatus(orderNo);
             }
@@ -140,11 +140,11 @@ function refundTransaction(orderNo, amount,captureid) {
               response = JSON.stringify(response.object);
               paidAmount = order.custom.apexxPaidAmount;
               error = response;
-        } else if (response && response.ok === true && response.object.status != 'DECLINED' && response.object.status != 'FAILED' && response.object.status != 'SFCC_BUG') {
+        } else if (response && response.ok === true && response.object.status != apexxConstants.STATUS_DECLINED && response.object.status != apexxConstants.STATUS_FAILED && response.object.status != apexxConstants.INTERNAL_ERROR_SFCC ) {
             status = true;
             paidAmount = parseFloat(order.custom.apexxPaidAmount, 10) - refundAmount;
-            setOrderAttributesHistory('refund', order, response, paidAmount);
-            updateTransactionHistory('refund', order, response, amount);
+            setOrderAttributesHistory(apexxConstants.ACTION_REFUND, order, response, paidAmount);
+            updateTransactionHistory(apexxConstants.ACTION_REFUND, order, response, amount);
             if (paidAmount === 0) {
                 updateOrderStatus(orderNo);
             }
@@ -189,7 +189,7 @@ function cancelTransaction(orderNo) {
 
     var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
    
-    if(paymentProcessor.ID === 'APEXX_AfterPay'){
+    if(paymentProcessor.ID === apexxConstants.PROCESSOR_AFTER_PAY ){
         var endPoint = appPreferenceBM.SERVICE_HTTP_CANCEL_AFTERPAY;
 
     	transactionID = order.getPaymentTransaction().transactionID;
@@ -204,10 +204,10 @@ function cancelTransaction(orderNo) {
             response = JSON.stringify(response.object);
             paidAmount = order.custom.apexxPaidAmount;
             error = response;
-        } else if (response && response.ok === true && response.object.status != 'DECLINED' && response.object.status != 'FAILED' && response.object.status != 'SFCC_BUG') {
+        } else if (response && response.ok === true && response.object.status != apexxConstants.STATUS_DECLINED && response.object.status != apexxConstants.STATUS_FAILED && response.object.status != apexxConstants.INTERNAL_ERROR_SFCC) {
             status = true;
-            setAfterPayOrderAttributesHistory('cancel', order, response, paidAmount);
-            updateTransactionHistory('cancel', order, response, amount);
+            setAfterPayOrderAttributesHistory(apexxConstants.ACTION_CANCEL, order, response, paidAmount);
+            updateTransactionHistory(apexxConstants.ACTION_CANCEL, order, response, amount);
             updateOrderStatus(orderNo);
         } else {
             status = false;
@@ -230,10 +230,10 @@ function cancelTransaction(orderNo) {
              response = JSON.stringify(response.object);
              paidAmount = order.custom.apexxPaidAmount;
              error = response;
-         } else if (response && response.ok === true && response.object.status != 'DECLINED' && response.object.status != 'FAILED' && response.object.status != 'SFCC_BUG') {
+         } else if (response && response.ok === true && response.object.status != apexxConstants.STATUS_DECLINED && response.object.status != apexxConstants.STATUS_FAILED && response.object.status != apexxConstants.INTERNAL_ERROR_SFCC) {
              status = true;
-             setOrderAttributesHistory('cancel', order, response, paidAmount);
-             updateTransactionHistory('cancel', order, response, amount);
+             setOrderAttributesHistory(apexxConstants.ACTION_CANCEL, order, response, paidAmount);
+             updateTransactionHistory(apexxConstants.ACTION_CANCEL, order, response, amount);
              updateOrderStatus(orderNo);
          } else {
              status = false;
@@ -282,7 +282,7 @@ function captureTransaction(orderNo, amount) {
 
     var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
    
-    if(paymentProcessor.ID === 'APEXX_AfterPay'){
+    if(paymentProcessor.ID === apexxConstants.PROCESSOR_AFTER_PAY ){
         var endPoint = appPreferenceBM.SERVICE_HTTP_CAPTURE_AFTERPAY;
         var payLoad =  makeAfterPayCaptureRequest(order, amount , transactionID);
         // try {
@@ -294,11 +294,11 @@ function captureTransaction(orderNo, amount) {
             response = JSON.stringify(response.object);
             error = response;
 
-        } else if (response && response.ok === true && response.object.status != 'DECLINED' && response.object.status != 'FAILED' && response.object.status != 'SFCC_BUG') {
+        } else if (response && response.ok === true && response.object.status != apexxConstants.STATUS_DECLINED && response.object.status != apexxConstants.STATUS_FAILED && response.object.status != apexxConstants.INTERNAL_ERROR_SFCC) {
             status = true;
             paidAmount = parseFloat(amount);
-            setAfterPayOrderAttributesHistory('capture', order, response, paidAmount);
-            updateTransactionHistory('capture', order, response, amount);
+            setAfterPayOrderAttributesHistory(apexxConstants.ACTION_CAPTURE, order, response, paidAmount);
+            updateTransactionHistory(apexxConstants.ACTION_CAPTURE, order, response, amount);
         } else {
             status = false;
             response = JSON.stringify(response.object);
@@ -315,10 +315,10 @@ function captureTransaction(orderNo, amount) {
       // try {
       // eslint-disable-line no-param-reassign
       
-      if(paymentMethod === "APEXX_PAYPAL" && remainCaptureAmount <= 0){
+      if(paymentMethod === apexxConstants.APEXX_PAYPAL_PAYMENT_METHOD && remainCaptureAmount <= 0){
     	  payLoad.final_capture = true;
     	
-      }else if(paymentMethod === "APEXX_PAYPAL" && remainCaptureAmount >= 0){
+      }else if(paymentMethod === apexxConstants.APEXX_PAYPAL_PAYMENT_METHOD && remainCaptureAmount >= 0){
     	  payLoad.final_capture = false;
       }
      
@@ -329,11 +329,11 @@ function captureTransaction(orderNo, amount) {
           response = JSON.stringify(response.object);
           error = response;
 
-      } else if (response && response.ok === true && response.object.status != 'DECLINED' && response.object.status != 'FAILED' && response.object.status != 'SFCC_BUG') {
+      } else if (response && response.ok === true && response.object.status != apexxConstants.STATUS_DECLINED && response.object.status != apexxConstants.STATUS_FAILED && response.object.status != apexxConstants.INTERNAL_ERROR_SFCC) {
           status = true;
           paidAmount = parseFloat(amount);
-          setOrderAttributesHistory('capture', order, response, paidAmount);
-          updateTransactionHistory('capture', order, response, amount);
+          setOrderAttributesHistory(apexxConstants.ACTION_CAPTURE, order, response, paidAmount);
+          updateTransactionHistory(apexxConstants.ACTION_CAPTURE, order, response, amount);
       } else {
           status = false;
           response = JSON.stringify(response.object);
@@ -364,7 +364,7 @@ function makeCaptureRequest(order, amount, transactionID) {
     var transactionHistory = order.custom.apexxTransactionHistory || '[]';
     
     if(transactionHistory){
-	    var captureRef = getCaptureReference(transactionHistory);
+	    var captureRef = getCaptureReference(order);
 	    if(captureRef){
 	      var orderNo = orderNo+'-'+captureRef;	
 	    }
@@ -393,9 +393,15 @@ function makeAfterPayCaptureRequest(order, amount, transactionID) {
 
     	captureRequest.gross_amount =  order.totalGrossPrice.multiply(100).value;
     	captureRequest.net_amount  =   order.totalNetPrice.multiply(100).value;
-
-    	captureRequest.invoice_number =  invoice+'_'+order.getInvoiceNo();
-    	captureRequest.invoice_date = "2020-07-28";
+    	var uniqueInvoiceCounter = getCaptureReference(order);
+  	   
+    	if(uniqueInvoiceCounter){
+  	      captureRequest.invoice_number = invoice+'_'+order.getInvoiceNo()+'-'+uniqueInvoiceCounter;	
+  	    }else{
+  	    	captureRequest.invoice_number =  invoice+'_'+order.getInvoiceNo();
+  	    }
+  	    
+    	captureRequest.invoice_date = StringUtils.formatCalendar(new Calendar(order.getCreationDate()), 'yyyy-MM-dd');
     	captureRequest.override_merchant_reference = true;
        
 	    var totalQuantities = 0;  
@@ -428,12 +434,12 @@ function makeAfterPayCaptureRequest(order, amount, transactionID) {
 	                 var items = {};
 	                
 	                items.product_id = product.productID;
-	                items.group_id =  "1";
+	                items.group_id =  apexxConstants.STATIC_GROUP_ID;
 	                items.item_description = product.productName;
 	                items.vat_amount = taxValue ;
 	                items.net_unit_price = net_price;
 	                items.gross_unit_price = gross_price;
-	                items.quantity = 1;
+	                items.quantity = apexxConstants.STATIC_QUANTITY ;
 	                items.vat_percent = vatPercentage;
 	                items.additional_information = product.productName;
 	                itemsArr.push(items);
@@ -450,12 +456,12 @@ function makeAfterPayCaptureRequest(order, amount, transactionID) {
 	          	  
 	                var items = {};
 	                items.product_id = product.productID;
-	                items.group_id =  "1";
+	                items.group_id =  apexxConstants.STATIC_GROUP_ID;
 	                items.item_description = product.productName;
 	                items.vat_amount = taxValue ;
 	                items.net_unit_price = net_price;
 	                items.gross_unit_price = gross_price;
-	                items.quantity = 1;
+	                items.quantity = apexxConstants.STATIC_QUANTITY ;
 	                items.vat_percent = vatPercentage;
 	                items.additional_information = product.productName;
 	                
@@ -476,15 +482,15 @@ function makeAfterPayCaptureRequest(order, amount, transactionID) {
 	    	  
 	    	  
 	    	  var items = {};
-	    	  items.product_id = "shipping";
-	    	  items.group_id =  "1";
-	    	  items.item_description = "shipping";
+	    	  items.product_id = apexxConstants.TYPE_SHIPPING_PRODUCT;
+	    	  items.group_id =  apexxConstants.STATIC_GROUP_ID;
+	    	  items.item_description = apexxConstants.TYPE_SHIPPING_PRODUCT;
 	    	  items.vat_amount = taxValue;
 	    	  items.net_unit_price = netUnitShipPrice;
 	    	  items.gross_unit_price = GrossshippingPrice;
-	    	  items.quantity = 1;
+	    	  items.quantity = apexxConstants.STATIC_QUANTITY;
 	    	  items.vat_percent =vatPercentage;
-	    	  items.additional_information = "test";
+	    	  items.additional_information = apexxConstants.TYPE_SHIPPING_PRODUCT;
 	  	      itemsArr.push(items);
 	    
 	    }
@@ -515,107 +521,139 @@ function makeRefundRequest(order, amount, transactionID, captureID) {
  * @param {Object} order - order object
  * @param {Object} transactionID - transaction id
  */
-function makeAfterPayRefundRequest(order, transactionID) {
-	
-	  var refund = apexxConstants.TRANSACTION_TYPE_REFUND;
-      var refundRequest = {};
-      refundRequest.endPointUrl  = order.custom.apexxTransactionID;
-      refundRequest.capture_id  = order.custom.apexxCaptureId;
-      refundRequest.creditnote_number = refund+'_'+order.getInvoiceNo();
-	  var totalQuantities = 0;  
-	    var productIds =  new Array();
-	    if (order.getAllLineItems().length > 0) {
-	
-	        for each(product in order.getAllLineItems()) {
-	
-	            if ('productID' in product) {
-	            	
-	            	totalQuantities += product.quantityValue;
-	            	productIds.push(product.productID);
-	            }
-	        }
-	    }
-  
-	    var itemsArr = new Array();
-	    
-	    
-	    if (order.getAllLineItems().length > 0) {
-	        
-	        for each(product in order.getAllLineItems()) {
-	        	
-	            if ('productID' in product && productIds.length > 1) {
-	            	
-	            	 var net_price = product.adjustedNetPrice.multiply(100).value;
-	           	     var gross_price = product.adjustedGrossPrice.multiply(100).value;
-	                 var taxValue =   product.adjustedTax.multiply(100).value;
-	                 var vatPercentage =  product.adjustedTax.multiply(100).divide(net_price).multiply(100).value;   
-	                 var items = {};
-	              
-	                
-	                items.product_id = product.productID;
-	                items.group_id =  "1";
-	                items.item_description = product.productName;
-	                items.vat_amount = taxValue ;
-	                items.net_unit_price = net_price;
-	                items.gross_unit_price = gross_price;
-	                items.quantity = 1;
-	                items.vat_percent = vatPercentage;
-	                items.additional_information = product.productName;
-	                itemsArr.push(items);
-	
-	            }
-	            if ('productID' in product && productIds.length == 1) {
-	                
-	           	 var net_price = product.adjustedNetPrice.multiply(100).value;
-           	     var gross_price = product.adjustedGrossPrice.multiply(100).value;
-                 var taxValue =   product.adjustedTax.multiply(100).value;
-                 var vatPercentage =  product.adjustedTax.multiply(100).divide(net_price).multiply(100).value;   
-                 var items = {};
+function makeAfterPayRefundRequest(order, refundAmount, transactionID, captureid) {
 
-	                
-	          	  
-	                var items = {};
-	                items.product_id = product.productID;
-	                items.group_id =  "1";
-	                items.item_description = product.productName;
-	                items.vat_amount = taxValue ;
-	                items.net_unit_price = net_price;
-	                items.gross_unit_price = gross_price;
-	                items.quantity = 1;
-	                items.vat_percent = vatPercentage;
-	                items.additional_information = product.productName;
-	                
-	                itemsArr.push(items);
-	                
-	
-	            }
-	        }
-	    }
-	
-	    if(order.shippingTotalGrossPrice.value){
-	  	  
-	    	  var GrossshippingPrice = order.shippingTotalGrossPrice.multiply(100).value;
-	    	  var netUnitShipPrice = order.getShippingTotalNetPrice().multiply(100).value;
-	          var taxValue =   order.shippingTotalTax.multiply(100).value;
-	          var vatPercentage =  order.shippingTotalTax.multiply(100).divide(netUnitShipPrice).multiply(100).value;   
+	var refundRequest = {};
+    var itemsArr = new Array();
+	var refund = apexxConstants.TRANSACTION_TYPE_REFUND;
+    var uniqueInvoiceCounter = getRefundReference(order);
+    var Currency = order.getCurrencyCode();
+    var refundAmount = new Money(refundAmount, Currency);
+    refundRequest.endPointUrl = order.custom.apexxTransactionID;
+    refundRequest.capture_id = order.custom.apexxCaptureId;
+    
+    if (uniqueInvoiceCounter) {
+        refundRequest.creditnote_number = refund + '_' + order.getInvoiceNo() + '-' + uniqueInvoiceCounter;
+    } else {
+        refundRequest.creditnote_number = refund + '_' + order.getInvoiceNo();
+    }
+    
+    
+    var totalQuantities = 0;
+    var productIds = new Array();
+    var productNames = new Array();
+    var productIdsStrings;
+    var productNameStrings;
+    if (order.getAllLineItems().length > 0) {
 
-	    	  
-	    	  
-	    	  var items = {};
-	    	  items.product_id = "shipping";
-	    	  items.group_id =  "1";
-	    	  items.item_description = "shipping";
-	    	  items.vat_amount = taxValue;
-	    	  items.net_unit_price = netUnitShipPrice;
-	    	  items.gross_unit_price = GrossshippingPrice;
-	    	  items.quantity = 1;
-	    	  items.vat_percent =vatPercentage;
-	    	  items.additional_information = "test";
-	  	      itemsArr.push(items);
-	    
-	    }
-	 refundRequest.items = itemsArr;
-	 return refundRequest;
+        for each(product in order.getAllLineItems()) {
+
+            if ('productID' in product) {
+
+                totalQuantities += product.quantityValue;
+                productIds.push(product.productID);
+                productNames.push(product.productName);
+            }
+        }
+        productIdsStrings = productIds.join('-');
+        productNameStrings = productNames.join('-');
+
+    }
+
+    
+    if (order.totalGrossPrice.multiply(100).value === refundAmount.multiply(100).value ) {
+
+        if (order.getAllLineItems().length > 0) {
+
+            for each(product in order.getAllLineItems()) {
+
+                if ('productID' in product && productIds.length > 1) {
+
+                    var net_price = product.adjustedNetPrice.multiply(100).value;
+                    var gross_price = product.adjustedGrossPrice.multiply(100).value;
+                    var taxValue = product.adjustedTax.multiply(100).value;
+                    var vatPercentage = product.adjustedTax.multiply(100).divide(net_price).multiply(100).value;
+                    var items = {};
+
+
+                    items.product_id = product.productID;
+                    items.group_id = apexxConstants.STATIC_GROUP_ID;
+                    items.item_description = product.productName;
+                    items.vat_amount = taxValue;
+                    items.net_unit_price = net_price;
+                    items.gross_unit_price = gross_price;
+                    items.quantity = apexxConstants.STATIC_QUANTITY;
+                    items.vat_percent = vatPercentage;
+                    items.additional_information = product.productName;
+                    itemsArr.push(items);
+
+                }
+                if ('productID' in product && productIds.length == 1) {
+
+                    var net_price = product.adjustedNetPrice.multiply(100).value;
+                    var gross_price = product.adjustedGrossPrice.multiply(100).value;
+                    var taxValue = product.adjustedTax.multiply(100).value;
+                    var vatPercentage = product.adjustedTax.multiply(100).divide(net_price).multiply(100).value;
+                    var items = {};
+
+
+
+                    var items = {};
+                    items.product_id = product.productID;
+                    items.group_id = apexxConstants.STATIC_GROUP_ID;
+                    items.item_description = product.productName;
+                    items.vat_amount = taxValue;
+                    items.net_unit_price = net_price;
+                    items.gross_unit_price = gross_price;
+                    items.quantity = apexxConstants.STATIC_QUANTITY ;
+                    items.vat_percent = vatPercentage;
+                    items.additional_information = product.productName;
+
+                    itemsArr.push(items);
+
+
+                }
+            }
+        }
+
+        if (order.shippingTotalGrossPrice.value) {
+
+            var GrossshippingPrice = order.shippingTotalGrossPrice.multiply(100).value;
+            var netUnitShipPrice = order.getShippingTotalNetPrice().multiply(100).value;
+            var taxValue = order.shippingTotalTax.multiply(100).value;
+            var vatPercentage = order.shippingTotalTax.multiply(100).divide(netUnitShipPrice).multiply(100).value;
+
+
+
+            var items = {};
+            items.product_id = apexxConstants.TYPE_SHIPPING_PRODUCT;
+            items.group_id = apexxConstants.STATIC_GROUP_ID;
+            items.item_description = apexxConstants.TYPE_SHIPPING_PRODUCT;
+            items.vat_amount = taxValue;
+            items.net_unit_price = netUnitShipPrice;
+            items.gross_unit_price = GrossshippingPrice;
+            items.quantity = apexxConstants.STATIC_QUANTITY ;
+            items.vat_percent = vatPercentage;
+            items.additional_information = apexxConstants.TYPE_SHIPPING_PRODUCT;
+            itemsArr.push(items);
+
+        }
+    } else {
+        // For Partial Refunds
+        
+        var gross_unit_price = refundAmount.multiply(100).value;
+        var partialRefundArray = {
+            product_id: productIdsStrings, // Product Id can not set here , so set order number
+            group_id: apexxConstants.STATIC_GROUP_ID, // As of now  hard coded,instructed from team.
+            gross_unit_price: gross_unit_price,
+            item_description: 'Parital Refund -'+ productNameStrings, // Multiple product can not set,Description
+            quantity: '1'
+        }
+        itemsArr = [partialRefundArray];
+    }
+    
+	refundRequest.items = itemsArr;
+    return refundRequest;
 }
 
 /**
@@ -664,7 +702,7 @@ function setOrderAttributesHistory(action, order, response, paidAmount) {
     var response = response.object;
     var amount;
 
-    if (action === 'capture') {
+    if (action === apexxConstants.ACTION_CAPTURE) {
         // eslint-disable-next-line
         amount = response.amount ? parseFloat(response.amount) : 0.0;
         captureAmount += amount;
@@ -673,7 +711,7 @@ function setOrderAttributesHistory(action, order, response, paidAmount) {
         amount = response.amount ? response.amount : 0.0;
     }
 
-    if (action === 'capture') {
+    if (action === apexxConstants.ACTION_CAPTURE) {
         var transactionStatus = (response.status === apexxConstants.STATUS_CAPTURED) ? apexxConstants.STATUS_PROCESSING : response.status ;
         
         Transaction.wrap(function() {
@@ -707,7 +745,7 @@ function setOrderAttributesHistory(action, order, response, paidAmount) {
         });
     };
 
-    if (action === 'cancel') {
+    if (action === apexxConstants.ACTION_CANCEL) {
         var transactionStatus = response.status ? response.status : "";
         var cancelAmount = (paidAmount - amount) ? paidAmount - amount : 0.0;
         Transaction.wrap(function() {
@@ -716,7 +754,7 @@ function setOrderAttributesHistory(action, order, response, paidAmount) {
         });
     }
     
-    if (action === 'refund') {
+    if (action === apexxConstants.ACTION_REFUND) {
         var transactionStatus = response.status ? response.status : "";
         Transaction.wrap(function() {
 	        order.custom.apexxTransactionStatus = transactionStatus || ''; // eslint-disable-line no-param-reassign
@@ -758,18 +796,18 @@ function setAfterPayOrderAttributesHistory(action, order, response, paidAmount) 
     var response = response.object;
     var amount;
 
-    if (action === 'capture') {
+    if (action === apexxConstants.ACTION_CAPTURE) {
         // eslint-disable-next-line
         amount = response.captured_amount ? parseFloat(response.captured_amount) : 0.0;
         captureAmount += amount;
         paidAmount = order.custom.apexxPaidAmount + paidAmount; // eslint-disable-line no-param-reassign
-    } else if (action === 'refund'){
+    } else if (action === apexxConstants.ACTION_REFUND){
         amount = response.total_refunded_amount ? response.total_refunded_amount : 0.0;
-    }else if (action === 'cancel'){
+    }else if (action === apexxConstants.ACTION_CANCEL){
         amount = response.amount ? response.amount : 0.0;
     }
 
-    if (action === 'capture' && captureAmount) {
+    if (action === apexxConstants.ACTION_CAPTURE && captureAmount) {
         var transactionStatus = (response.status && captureAmount < authAmount) ? apexxConstants.PAYMENT_STATUS_PARTPAID : apexxConstants.STATUS_PROCESSING;
         Transaction.wrap(function() {
             order.custom.apexxCaptureId = response._id || ''; // eslint-disable-line no-param-reassign
@@ -778,9 +816,31 @@ function setAfterPayOrderAttributesHistory(action, order, response, paidAmount) 
             order.custom.apexxCaptureAmount = captureAmount; // eslint-disable-line no-param-reassign
             order.custom.apexxPaidAmount = paidAmount; // eslint-disable-line no-param-reassign
         });
+        
+        var Currency = order.getCurrencyCode();
+        var grossAmount = order.totalGrossPrice.value;
+        var grossAmount = new Money(grossAmount, Currency);
+        var captureAmount = new Money(order.custom.apexxPaidAmount,Currency);
+        var reaminAmount = grossAmount.subtract(captureAmount).value;
+
+
+        if((grossAmount.equals(captureAmount)) === true){
+        	transactionStatus = apexxConstants.STATUS_PROCESSING;
+        }
+        
+        if((grossAmount.equals(captureAmount)) === false){
+        	
+        	transactionStatus = apexxConstants.PAYMENT_STATUS_PARTPAID;
+        }
+        
+        
+        
+        Transaction.wrap(function() {
+            order.custom.apexxTransactionStatus = transactionStatus || ''; // eslint-disable-line no-param-reassign
+        });
     };
 
-    if (action === 'cancel') {
+    if (action === apexxConstants.ACTION_CANCEL) {
         var transactionStatus = response.status ? response.status : "";
         var cancelAmount = (paidAmount - amount) ? paidAmount - amount : 0.0;
         Transaction.wrap(function() {
@@ -789,11 +849,20 @@ function setAfterPayOrderAttributesHistory(action, order, response, paidAmount) 
         });
     }
    
-    if (action === 'refund') {
+    if (action === apexxConstants.ACTION_REFUND) {
         var transactionStatus = response.status ? response.status : "";
         Transaction.wrap(function() {
             order.custom.apexxTransactionStatus = transactionStatus || ''; // eslint-disable-line no-param-reassign
             order.custom.apexxPaidAmount = paidAmount; // eslint-disable-line no-param-reassign
+        });
+        var paidAmount = new Money(order.custom.apexxPaidAmount,Currency);
+        
+        if(paidAmount.value){
+        	transactionStatus = apexxConstants.REFUND_STATUS_PARTPAID;
+        }
+        
+        Transaction.wrap(function() {
+            order.custom.apexxTransactionStatus = transactionStatus;
         });
     }
 
@@ -812,23 +881,30 @@ function setAfterPayOrderAttributesHistory(action, order, response, paidAmount) 
 function updateTransactionHistory(action, order, response, amount) {
 	try {
 
-		var amount = (action === 'cancel') ? order.totalGrossPrice.value : amount;
+		var amount = (action === apexxConstants.ACTION_CANCEL) ? order.totalGrossPrice.value : amount;
 	    var transactionHistory = order.custom.apexxTransactionHistory || '[]';
 	    var response = response.object;
 	    var transactionType = action.toUpperCase() || '';
 	    var status = response.status || '';
 	    var merchant_reference = response.merchant_reference ? response.merchant_reference : order.orderNo;
 	    var ID = response._id ? response._id : '';
-	
-	    if(order.custom.apexxTransactionStatus === apexxConstants.PAYMENT_STATUS_PARTPAID && action ==='capture'){
+	    var paymentInstruments = order.getPaymentInstruments()[0];
+	    var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
+
+	    var paymentMethod = paymentInstruments.paymentMethod;
+	    if(order.custom.apexxTransactionStatus === apexxConstants.PAYMENT_STATUS_PARTPAID && action === apexxConstants.ACTION_CAPTURE){
 	    	status = apexxConstants.PAYMENT_STATUS_PARTPAID;
 	    }
-	    if(order.custom.apexxTransactionStatus === apexxConstants.STATUS_PROCESSING && action ==='capture'){
+	    if(order.custom.apexxTransactionStatus === apexxConstants.STATUS_PROCESSING && action === apexxConstants.ACTION_CAPTURE){
 	    	status = apexxConstants.STATUS_PROCESSING;
 	    }
 	    
-	    if(order.custom.apexxTransactionStatus === apexxConstants.REFUND_STATUS_PARTPAID && action ==='refund'){
+	    if(order.custom.apexxTransactionStatus === apexxConstants.REFUND_STATUS_PARTPAID && action === apexxConstants.ACTION_REFUND){
 	    	status = apexxConstants.REFUND_STATUS_PARTPAID;
+	    }
+	    
+	    if(action ==='refund' && paymentProcessor.getID === "APEXX_AFTERPAY" && response.refund_numbers ){
+	    	merchant_reference = response.refund_numbers[0];
 	    }
 	    
 	    transactionHistory = JSON.parse(transactionHistory);
@@ -864,8 +940,9 @@ function getDateFormat(format) {
     return date;
 }
 
-function getCaptureReference(transactionHistory){
-	
+function getCaptureReference(order){
+    var transactionHistory = order.custom.apexxTransactionHistory || '[]';
+
 	if(transactionHistory){
 	    transactionHistory = JSON.parse(transactionHistory);
 
@@ -880,8 +957,9 @@ function getCaptureReference(transactionHistory){
 
 }
 
-function getRefundReference(transactionHistory){
-	
+function getRefundReference(order){
+    var transactionHistory = order.custom.apexxTransactionHistory || '[]';
+
 	if(transactionHistory){
 	    transactionHistory = JSON.parse(transactionHistory);
 

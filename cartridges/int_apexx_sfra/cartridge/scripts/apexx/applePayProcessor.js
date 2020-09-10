@@ -1,12 +1,15 @@
 'use strict';
 
 var ApexxHelper = require('~/cartridge/scripts/util/apexxHelper');
+
 var apexxServiceWrapper = require('*/cartridge/scripts/service/apexxServiceWrapper');
 var OrderMgr = require('dw/order/OrderMgr');
 var PaymentMgr = require('dw/order/PaymentMgr');
 var Transaction = require('dw/system/Transaction');
 var PaymentInstrument = require('dw/order/PaymentInstrument');
 var PaymentInstrument = require('dw/order/PaymentInstrument');
+var apexxHelper = require('*/cartridge/scripts/util/apexxHelper');
+var apexxConstants = require('*/cartridge/scripts/util/apexxConstants');
 
 var commonHelper = require('*/cartridge/scripts/util/commonHelper');
 var objectHelper = require('*/cartridge/scripts/util/objectHelper');
@@ -14,58 +17,11 @@ var collections = require('*/cartridge/scripts/util/collections');
 var appPreference = require('~/cartridge/config/appPreference')();
 var Resource = require('dw/web/Resource');
 var endPoint = appPreference.SERVICE_HTTP_DIRECT_PAY;
-var transactionType = appPreference.Apexx_Direct_Capture == true ? "CAPTURE" : "AUTH";
 var prefs = ApexxHelper.getPrefs();
 
 var CONST = {
-    APEXX_PAYMENT_METHOD: 'DW_APPLE_PAY',
-    ORDER_STATUS: 'PENDING',
-    TRANSACTION_TYPE: appPreference.Apexx_PayPal_Capture == true ? "CAPTURE" : "AUTH",
-    REASON: "Order Incomplete",
-    STATUS_PROCESSING: 'Processing'
+    TRANSACTION_TYPE: (appPreference.Apexx_ApplePay_Capture) ? apexxConstants.TRANSACTION_TYPE_CAPTURE : apexxConstants.TRANSACTION_TYPE_AUTH
 };
-
-
-
-/**
- *
- * @param {Object} responseBillingAddress billing data from apple response
- */
-function setBillingAddress(responseBillingAddress) {
-    var billingForm = server.forms.getForm('billing');
-    var billingAddress = {
-        firstName: responseBillingAddress.givenName,
-        lastName: responseBillingAddress.lastName,
-        address1: responseBillingAddress.addressLines[0],
-        address2: responseBillingAddress.addressLines[1] ? responseBillingAddress.addressLines[1] : '',
-        city: responseBillingAddress.locality,
-        stateCode: responseBillingAddress.administrativeArea,
-        postalCode: responseBillingAddress.postalCode,
-        country: responseBillingAddress.countryCode,
-        paymentMethod: paymentMethodID
-    };
-    billingForm.copyFrom(billingAddress);
-}
-
-/**
- *
- * @param {Object} responseShippingAddress billing data from apple response
- */
-function setShippingAddress(responseShippingAddress) {
-    var shippingForm = server.forms.getForm('shipping');
-    var shippingAddress = {
-        firstName: responseShippingAddress.givenName,
-        lastName: responseShippingAddress.lastName,
-        address1: responseShippingAddress.addressLines[0],
-        address2: responseShippingAddress.addressLines[1] ? responseShippingAddress.addressLines[1] : '',
-        city: responseShippingAddress.locality,
-        stateCode: responseShippingAddress.administrativeArea,
-        postalCode: responseShippingAddress.postalCode,
-        country: responseShippingAddress.countryCode,
-        phone: responseShippingAddress.phoneNumber
-    };
-    shippingForm.copyFrom(shippingAddress);
-}
 
 /**
  * Verifies that entered credit card information is a valid card. If the information is valid a
@@ -87,9 +43,13 @@ function handle(basket, paymentInformation) {
             currentBasket.removePaymentInstrument(item);
         });
 
-        var paymentInstrument = currentBasket.createPaymentInstrument(CONST.APEXX_PAYMENT_METHOD, currentBasket.totalGrossPrice);
+        var paymentInstrument = currentBasket.createPaymentInstrument(apexxConstants.DW_APPLE_PAY_PAYMENT_METHOD, currentBasket.totalGrossPrice);
 
-
+        paymentInstrument.custom.apexxCryptogram = request.httpParameterMap.cryptogram.value;
+        paymentInstrument.custom.apexxExpiryMonth = request.httpParameterMap.expiry_month.value;
+        paymentInstrument.custom.apexxExpiryYear = request.httpParameterMap.expiry_year.value;
+        paymentInstrument.custom.apexxDpan = request.httpParameterMap.dpan.value;
+        
     });
 
 
@@ -108,19 +68,18 @@ function handle(basket, paymentInformation) {
  * @returns {Object} success object
  */
 function authorize(orderNumber, paymentInstrument, paymentProcessor) {
-    // Pending Transaction Update
+    var order = OrderMgr.getOrder(orderNumber);
+    
     try {
-        var order = OrderMgr.getOrder(orderNumber);
-
         if (order.orderNo) {
-            Transaction.wrap(function() {
-                order.setPaymentStatus(order.PAYMENT_STATUS_NOTPAID);
-                order.setStatus(order.CONFIRMATION_STATUS_NOTCONFIRMED);
-                order.custom.apexxTransactionStatus = CONST.ORDER_STATUS;
-                order.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
-                order.custom.isApexxOrder = true;
-                paymentInstrument.custom.apexxReasonCode = CONST.REASON;
-            });
+        	Transaction.begin();
+        	order.setPaymentStatus(order.PAYMENT_STATUS_NOTPAID);
+        	order.setStatus(order.CONFIRMATION_STATUS_NOTCONFIRMED);
+        	order.custom.apexxTransactionStatus = apexxConstants.PENDING_ORDER_STATUS;
+        	order.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
+        	order.custom.isApexxOrder = true;
+          paymentInstrument.custom.apexxReasonCode = apexxConstants.REASON_IN_COMPLETE;
+          Transaction.commit();
         }
     } catch (error) {
         var errorObj = {
@@ -131,50 +90,52 @@ function authorize(orderNumber, paymentInstrument, paymentProcessor) {
         }
         return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
     }
+    
+    //try {
+    	if (paymentInstrument && paymentInstrument.getPaymentTransaction().getAmount().getValue() > 0) {
+      
+            var saleTransactionResponseData = null;
+            var saleTransactionRequestData = null;
 
-    return {
-        authorized: true
-    };
-}
+            saleTransactionRequestData = objectHelper.createSaleRequestObject(order, paymentInstrument, paymentProcessor);
+            saleTransactionResponseData = apexxServiceWrapper.makeServiceCall('POST', endPoint, saleTransactionRequestData);
+            var logger = require('dw/system/Logger').getLogger('DW_APPLE_PAY_LOGGER');
+            logger.info("logged");
 
-function authorizeOrderPayment(order, responseData) {
-    try {
-        var status = Status.ERROR;
-        var authResponseStatus;
-        var paymentMethod = require('dw/order/PaymentMgr').getPaymentMethod(paymentMethodID);
+            saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
 
-        setBillingAddress(responseData.payment.billingContact);
-        setShippingAddress(responseData.payment.shippingContact);
-        Transaction.wrap(function() {
-            //  lineItemCtnr.paymentInstrument field is deprecated.  Get default payment method.
-            var paymentInstrument = null;
-            if (!empty(order.getPaymentInstruments())) {
-                paymentInstrument = order.getPaymentInstruments()[0];
-                paymentInstrument.paymentTransaction.paymentProcessor = paymentMethod.getPaymentProcessor();
-            } else {
-                return new Status(status);
+        } else if (saleTransactionResponseData.ok == true || saleTransactionResponseData.ok == false && saleTransactionResponseData.object.status == apexxConstants.STATUS_DECLINED || saleTransactionResponseData.object.status == apexxConstants.STATUS_FAILED) {
+            saveTransactionData(order, paymentInstrument, saleTransactionResponseData.object);
+            return {
+                authorized: true
+            };
+
+        } else {
+            var errorObj = {
+                error: true,
+                errorCode: '',
+                errorMessage: '',
+                errorResponse: {
+                    saleTransactionRequestData: saleTransactionRequestData,
+                    saleTransactionResponseData: saleTransactionResponseData
+                }
             }
-            paymentInstrument.paymentTransaction.paymentProcessor = paymentMethod.getPaymentProcessor();
-        });
-        authResponseStatus = require('~/cartridge/scripts/mobilepayments/adapter/MobilePaymentsAdapter').processPayment(order);
-
-
-        if (CardHelper.HandleCardResponse(authResponseStatus.ServiceResponse.serviceResponse).authorized || CardHelper.HandleCardResponse(authResponseStatus.ServiceResponse.serviceResponse).review) {
-            status = Status.OK;
+            return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
         }
 
-        return new Status(status);
-    } catch (error) {
-        var errorObj = {
-            error: true,
-            errorCode: error.name,
-            errorMessage: error.message,
-            errorResponse: error.message
-        }
-        return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
-    }
-};
-
+        return {
+            authorized: true
+        };
+//    } catch (error) {
+//        var errorObj = {
+//            error: true,
+//            errorCode: error.name,
+//            errorMessage: error.message,
+//            errorResponse: error.message
+//        }
+//        return authorizeFailedFlow(order, paymentProcessor, paymentInstrument, errorObj);
+//    }
+}
 
 
 
@@ -222,48 +183,46 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
     var paymentTransaction = paymentInstrumentRecord.getPaymentTransaction();
     var customer = orderRecord.getCustomer();
     var Money = require('dw/value/Money');
-    var transactionType = appPreference.Apexx_Direct_Capture == true ? "CAPTURE" : "AUTH";
-
+    
+    if (('status' in responseTransaction) === false ) {
+        commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.amount);
+    	apexxHelper.badResponseUpdate(orderRecord,paymentTransaction,paymentInstrumentRecord,responseTransaction,CONST.TRANSACTION_TYPE)
+    	return;
+    }
+    
     Transaction.wrap(function() {
 
-        if (responseTransaction.status == "CAPTURED") {
+        if (responseTransaction.status == apexxConstants.STATUS_CAPTURED) {
             paymentTransaction.setType(PT.TYPE_CAPTURE);
-            orderRecord.custom.apexxTransactionType = transactionType;
+            orderRecord.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_PAID);
             orderRecord.custom.apexxPaidAmount = authAmount;
             orderRecord.custom.apexxCaptureAmount = paidAmount;
-            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message || '';
+            orderRecord.custom.apexxTransactionStatus = apexxConstants.STATUS_PROCESSING;
 
-        } else if (responseTransaction.status == "AUTHORISED") {
+        } else if (responseTransaction.status == apexxConstants.STATUS_AUTHORISED ) {
             paymentTransaction.setType(PT.TYPE_AUTH);
-            orderRecord.custom.apexxTransactionType = transactionType;
+            orderRecord.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message || '';
+            orderRecord.custom.apexxTransactionStatus = apexxConstants.STATUS_AUTHORISED;
 
-        } else if (responseTransaction.status == "DECLINED") {
-            orderRecord.custom.apexxTransactionType = transactionType;
+        } else if (responseTransaction.status == apexxConstants.STATUS_DECLINED ) {
+            orderRecord.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message || '';
+            orderRecord.custom.apexxTransactionStatus = apexxConstants.STATUS_DECLINED;
 
-        } else if (responseTransaction.status == "FAILED") {
-            orderRecord.custom.apexxTransactionType = transactionType;
+        } else if (responseTransaction.status == apexxConstants.STATUS_FAILED ) {
+            orderRecord.custom.apexxTransactionType = CONST.TRANSACTION_TYPE;
             orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message;
+            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.reason_message || '';
+            orderRecord.custom.apexxTransactionStatus = apexxConstants.STATUS_FAILED;
 
         }
 
-        if (('status' in responseTransaction) === false) {
-            if (responseTransaction._id) {
-                paymentTransaction.setTransactionID(responseTransaction._id);
-            }
-            paymentInstrumentRecord.custom.apexxReasonCode = responseTransaction.message;
-            orderRecord.setPaymentStatus(orderRecord.PAYMENT_STATUS_NOTPAID);
-            orderRecord.custom.apexxTransactionType = transactionType;
-            orderRecord.custom.apexxTransactionStatus = "FAILED";
-            orderRecord.custom.isApexxOrder = true;
 
-            return;
-        }
         paymentTransaction.setTransactionID(responseTransaction._id);
         paymentTransaction.setPaymentProcessor(paymentProcessor);
 
@@ -272,13 +231,11 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
             paymentTransaction.setAmount(new Money(responseTransaction.amount, orderRecord.getCurrencyCode()));
         }
 
-        orderRecord.custom.apexxTransactionStatus = (responseTransaction.status === "CAPTURED") ? CONST.STATUS_PROCESSING : responseTransaction.status;
 
         orderRecord.custom.isApexxOrder = true;
         orderRecord.custom.apexxAuthAmount = responseTransaction.authorization_code ? authAmount : 0.0;
         orderRecord.custom.apexxTransactionID = responseTransaction._id;
         orderRecord.custom.apexxMerchantReference = responseTransaction.merchant_reference;
-        paymentInstrumentRecord.custom.apexx3dSecureStatus = appPreference.Apexx_GooglePay_Three_Ds_Yes_No;
         paymentInstrumentRecord.custom.apexxAuthorizationCode = responseTransaction.authorization_code;
 
         commonHelper.updateTransactionHistory(responseTransaction.status, orderRecord, responseTransaction, responseTransaction.amount);
@@ -288,5 +245,4 @@ function saveTransactionData(orderRecord, paymentInstrumentRecord, responseTrans
 
 }
 exports.handle = handle;
-exports.authorizeOrderPayment = authorizeOrderPayment;
 exports.authorize = authorize;

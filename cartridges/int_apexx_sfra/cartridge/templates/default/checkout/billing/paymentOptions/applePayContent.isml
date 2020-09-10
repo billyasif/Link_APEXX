@@ -1,11 +1,17 @@
-<!--<div class="tab-pane apexx-applepay-content" id="apexx-applepay-content" role="tabpanel">
+<div class="tab-pane apexx-applepay-content" id="apexx-applepay-content" role="tabpanel">
       <fieldset class="payment-form-fields">
-            <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="DW_APPLE_PAY">
-	        <input type="hidden" class="form-control" name="applePayAction"  >
-			<input type="image" id="apexxApplePay" src="${URLUtils.staticURL('/images/applepay.png')}" border="0" name="submit" alt="applePay - The safer, easier way to pay online!">
+		<input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="DW_APPLE_PAY">
+		<input type="hidden" class="form-control" name="applePayAction"  >
+		
+			<input type="hidden" class="form-control" name="cryptogram" value ="AceY+igABPs3jdwNaDg3MAACAAA=" data-apexx="cryptogram"> 
+			<input type="hidden" class="form-control" name="expiry_month" value ="04" data-apexx="expiry_month"> 
+			<input type="hidden" class="form-control" name="expiry_year" value ="22" data-apexx="expiry_year"> 
+			<input type="hidden" class="form-control" name="dpan" value ="4567350000427977" data-apexx="dpan"> 
+		
+		<input type="image" id="apexxApplePay" src="${URLUtils.staticURL('/images/applepay.png')}" border="0" name="submit" alt="applePay - The safer, easier way to pay online!">
 	  </fieldset>
-</div> -->
-
-<div class="tab-pane applepay-content" id="applepay-content" role="tabpanel">
-    <isapplepay class="apple-pay-cart btn btn-block"></isapplepay>
 </div>
+
+<!--<div class="tab-pane applepay-content" id="applepay-content" role="tabpanel">
+    <isapplepay class="apple-pay-cart btn btn-block"></isapplepay>
+</div>-->

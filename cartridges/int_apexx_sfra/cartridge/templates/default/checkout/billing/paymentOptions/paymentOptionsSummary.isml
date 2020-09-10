@@ -19,7 +19,7 @@
         <isif condition="${payment.paymentMethod === 'APEXX_AFTERPAY'}">
             <isinclude template="checkout/billing/paymentOptions/afterPaySummary" />
         </isif>
-        <isif condition="${paymentOption.ID === 'DW_APPLE_PAY'}">
+        <isif condition="${payment.paymentMethod === 'DW_APPLE_PAY'}">
             <isinclude template="checkout/billing/paymentOptions/applePaySummary" />
         </isif>
         
