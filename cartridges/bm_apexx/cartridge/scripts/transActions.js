@@ -886,8 +886,10 @@ function updateTransactionHistory(action, order, response, amount) {
 	    var response = response.object;
 	    var transactionType = action.toUpperCase() || '';
 	    var status = response.status || '';
-	    var merchant_reference = response.merchant_reference ? response.merchant_reference : order.orderNo;
+	    var merchant_reference;
 	    var ID = response._id ? response._id : '';
+	    merchant_reference = response.merchant_reference ? response.merchant_reference : order.orderNo;
+
 	    var paymentInstruments = order.getPaymentInstruments()[0];
 	    var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstruments.paymentMethod).paymentProcessor;
 
@@ -903,9 +905,11 @@ function updateTransactionHistory(action, order, response, amount) {
 	    	status = apexxConstants.REFUND_STATUS_PARTPAID;
 	    }
 	    
-	    if(action ==='refund' && paymentProcessor.getID === "APEXX_AFTERPAY" && response.refund_numbers ){
+	    if(action ==='refund' && paymentProcessor.getID() === "APEXX_AfterPay" && response.refund_numbers ){
 	    	merchant_reference = response.refund_numbers[0];
-	    }
+	    }else{
+		    merchant_reference = response.merchant_reference ? response.merchant_reference : order.orderNo;
+        }
 	    
 	    transactionHistory = JSON.parse(transactionHistory);
 	   
