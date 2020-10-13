@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns="http://www.demandware.com/xml/impex/services/2014-09-26">
+     <service-credential service-credential-id="apexx.https.directpay">
+        <url>https://sandmgw.apexxfintech.com/mgw/payment/direct</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.directpay">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.directpay">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.directpay</profile-id>
+        <credential-id>apexx.https.directpay</credential-id>
+    </service>
+    
+      <service-credential service-credential-id="apexx.https.hostedpay">
+        <url>https://sandmgw.apexxfintech.com/mgw/payment/hosted</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.hostedpay">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.hostedpay">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.hostedpay</profile-id>
+        <credential-id>apexx.https.hostedpay</credential-id>
+    </service>
+    
+    
+       <service-credential service-credential-id="apexx.https.afterpay">
+        <url>https://sandmgw.apexxfintech.com/mgw/payment/afterpay/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.afterpay">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.afterpay">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.afterpay</profile-id>
+        <credential-id>apexx.https.afterpay</credential-id>
+    </service>
+    
+    
+        <service-credential service-credential-id="apexx.https.cancel.afterpay">
+        <url>https://sandmgw.apexxfintech.com/mgw/cancel/afterpay/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.cancel.afterpay">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.cancel.afterpay">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.cancel.afterpay</profile-id>
+        <credential-id>apexx.https.cancel.afterpay</credential-id>
+    </service>
+    
+    
+    
+        <service-credential service-credential-id="apexx.https.capture.afterpay">
+        <url>https://sandmgw.apexxfintech.com/mgw/capture/afterpay/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.capture.afterpay">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.capture.afterpay">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.capture.afterpay</profile-id>
+        <credential-id>apexx.https.capture.afterpay</credential-id>
+    </service>
+
+
+
+ <service-credential service-credential-id="apexx.https.refund.afterpay">
+        <url>https://sandmgw.apexxfintech.com/mgw/refund/afterpay/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.refund.afterpay">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.refund.afterpay">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.refund.afterpay</profile-id>
+        <credential-id>apexx.https.refund.afterpay</credential-id>
+    </service>
+    
+     <service-credential service-credential-id="apexx.https.base.api.url">
+        <url>https://sandmgw.apexxfintech.com/mgw/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.base.api.url">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.base.api.url">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.base.api.url</profile-id>
+        <credential-id>apexx.https.base.api.url</credential-id>
+    </service>
+    
+      <service-credential service-credential-id="apexx.https.cancel.capture">
+        <url>https://sandmgw.apexxfintech.com/mgw/cancel/capture/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.cancel.capture">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.cancel.capture">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.cancel.capture</profile-id>
+        <credential-id>apexx.https.cancel.capture</credential-id>
+    </service>
+    
+    
+       <service-credential service-credential-id="apexx.https.refund">
+        <url>https://sandmgw.apexxfintech.com/mgw/refund/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.refund">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.refund">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.refund</profile-id>
+        <credential-id>apexx.https.refund</credential-id>
+    </service>
+
+
+  <service-credential service-credential-id="apexx.https.capture">
+        <url>https://sandmgw.apexxfintech.com/mgw/capture/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.capture">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.capture">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.capture</profile-id>
+        <credential-id>apexx.https.capture</credential-id>
+    </service>
+
+    <service-credential service-credential-id="apexx.https.3ds.auth">
+        <url>https://sandmgw.apexxfintech.com/mgw/payment/3ds/authenticate/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.3ds.auth">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.3ds.auth">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.3ds.auth</profile-id>
+        <credential-id>apexx.https.3ds.auth</credential-id>
+    </service>
+    
+    <service-credential service-credential-id="apexx.https.paypal">
+        <url>https://sandmgw.apexxfintech.com/mgw/payment/</url>
+    </service-credential>
+   
+   <service-profile service-profile-id="apexx.https.paypal">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="apexx.https.paypal">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>APEXX_API_LOG</log-prefix>
+        <comm-log-enabled>false</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>apexx.https.paypal</profile-id>
+        <credential-id>apexx.https.paypal</credential-id>
+    </service>
+
+    </services>
